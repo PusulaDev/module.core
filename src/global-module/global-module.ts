@@ -3,16 +3,8 @@ import type { ILocalization } from "../localization/types/localization.interface
 import type { ICoreModule } from "../module";
 import type { ModuleConstructor } from "../module/core-module.interface";
 import type { IEncyrptionUtil } from "../utils/types/encryption-util.interface";
-import {
-    browserPerformanceUtil,
-    defaultCloneUtil,
-    defaultDateUtil,
-    defaultEncryptUtil,
-    IDateUtil,
-    IPerformanceUtil,
-} from "../utils";
+import type { IDateUtil, IPerformanceUtil } from "../utils";
 import type { IObserver } from "../utils/types/observer.interface";
-import { defaultLocalization } from "..";
 
 declare global {
     interface Window {
@@ -125,14 +117,6 @@ const createGlobalModule = (): GlobalModule => {
     if (!globalModule) globalModule = window.$globalModule = new GlobalModule();
 
     return globalModule;
-};
-
-export const setDefaultUtils = () => {
-    globalModule.setLocalization(defaultLocalization);
-    globalModule.setEncryptionUtil(defaultEncryptUtil);
-    globalModule.setCloneUtil(defaultCloneUtil);
-    globalModule.setDateUtil(defaultDateUtil);
-    globalModule.setPerformanceUtil(browserPerformanceUtil);
 };
 
 export const globalModule = createGlobalModule();

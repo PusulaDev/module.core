@@ -1,24 +1,16 @@
 import type { IHTTPClientOptions } from "../http-client/types/http-client-options.interface";
+import type { IHTTPClient, IHTTPClientConstuctor } from "../http-client/types/http-client.interface";
+import type { IController, IControllerConstructor } from "../controller/controller.interface";
+import type { IProvider, IProviderConstructor } from "../provider/types/provider.interface";
 import type {
-  IHTTPClient,
-  IHTTPClientConstuctor,
-} from "../http-client/types/http-client.interface";
-import type {
-  IController,
-  IControllerConstructor,
-} from "../controller/controller.interface";
-import type {
-  IProvider,
-  IProviderConstructor,
-} from "../provider/types/provider.interface";
-import type {
-  AppLayerUnionType,
-  ICoreModule,
-  KeyUnionType,
-  ModuleBootstrapOptions,
-  RegisterClassOptions,
-  RegisterControllerOptions,
-  RegisterProviderOptions,
+    AppLayerUnionType,
+    ICoreModule,
+    KeyUnionType,
+    ModuleBootstrapOptions,
+    ModuleConstructorOptions,
+    RegisterClassOptions,
+    RegisterControllerOptions,
+    RegisterProviderOptions,
 } from "./core-module.interface";
 import type { IDecorator } from "../decorators/types/decorator.interface";
 import { coreLogger } from "../logger/core.logger";
@@ -29,341 +21,299 @@ import { EnumLocalizationKeys } from "../localization/statics/localization-keys.
 import type { LocalizationTranslations } from "../localization";
 
 type OtherConstructorOptions = {
-  constructor: new (...args: any[]) => any;
-  dependencies?: any[];
+    constructor: new (...args: any[]) => any;
+    dependencies?: any[];
 };
 
 type HttpClientConstructorOptions = {
-  constructor: IHTTPClientConstuctor;
-  options: IHTTPClientOptions;
+    constructor: IHTTPClientConstuctor;
+    options: IHTTPClientOptions;
 };
 
 type ProviderConstructorOptions = {
-  constructor: IProviderConstructor;
-  client?: string;
+    constructor: IProviderConstructor;
+    client?: string;
 } & OtherConstructorOptions;
 
 type ControllerConstructorOptions = {
-  constructor: IControllerConstructor<any>;
+    constructor: IControllerConstructor<any>;
 } & OtherConstructorOptions;
 
 export class CoreModule implements ICoreModule {
-  private readonly providerSuffix = "Provider";
-  private readonly controllerSuffix = "Controller";
-  private readonly clientSuffix = "HttpClient";
+    private readonly providerSuffix = "Provider";
+    private readonly controllerSuffix = "Controller";
+    private readonly clientSuffix = "HttpClient";
 
-  private clientConstructors = new Map<string, HttpClientConstructorOptions>();
-  private providerConstructors = new Map<string, ProviderConstructorOptions>();
-  private controllerConstructors = new Map<
-    string,
-    ControllerConstructorOptions
-  >();
-  private othersConstructors = new Map<string, OtherConstructorOptions>();
+    private clientConstructors = new Map<string, HttpClientConstructorOptions>();
+    private providerConstructors = new Map<string, ProviderConstructorOptions>();
+    private controllerConstructors = new Map<string, ControllerConstructorOptions>();
+    private othersConstructors = new Map<string, OtherConstructorOptions>();
 
-  private clients = new Map<string, IHTTPClient>();
-  private providers = new Map<string, IProvider>();
-  private controllers = new Map<string, IController>();
-  private others = new Map<string, any>();
+    private clients = new Map<string, IHTTPClient>();
+    private providers = new Map<string, IProvider>();
+    private controllers = new Map<string, IController>();
+    private others = new Map<string, any>();
 
-  constructor(options?:{decorators?: IDecorator[]}) {
-    const registeredModule = globalModule.getModule(
-      this.constructor as new () => CoreModule
-    );
-    if (registeredModule) return registeredModule as CoreModule;
+    constructor(options?: ModuleConstructorOptions) {
+        const registeredModule = globalModule.getModule(this.constructor as new () => CoreModule);
+        if (registeredModule) return registeredModule as CoreModule;
 
-    globalModule.registerModule(this);
+        globalModule.registerModule(this);
 
-    if(options?.decorators?.length)
-      this.useDecorators(...options.decorators)
-  }
-
-  bootstrap(options?: ModuleBootstrapOptions) {
-    if (options) {
-      this.registerHttpClientInstance(
-        options.httpClient,
-        options.httpClientKey
-      );
-
-      if (options.translations) this.setTranslations(options.translations);
+        if (options?.decorators?.length) this.useDecorators(...options.decorators);
+        if (options?.register?.length)
+            options.register.forEach((r) => this.register(r.constructor, r.options));
     }
 
-    return this;
-  }
+    bootstrap(options?: ModuleBootstrapOptions) {
+        if (options) {
+            this.registerHttpClientInstance(options.httpClient, options.httpClientKey);
 
-  setTranslations(options: LocalizationTranslations) {
-    globalModule.getLocalization()?.setTranslations(options);
-    return this;
-  }
+            if (options.translations) this.setTranslations(options.translations);
+        }
 
-  @coreLogger.logMethod()
-  useDecorators(...decorators: IDecorator[]) {
-    decorators.forEach((decorator) => decorator.setModule(this));
-    return this;
-  }
+        return this;
+    }
 
-  register<T>(
-    constructor: new (...args: any[]) => T,
-    options?: RegisterClassOptions
-  ): ICoreModule {
-    const name = this.getName(options?.key ?? constructor);
-    this.othersConstructors.set(name, {
-      constructor,
-      dependencies: options?.dependencies,
-    });
+    setTranslations(options: LocalizationTranslations) {
+        globalModule.getLocalization()?.setTranslations(options);
+        return this;
+    }
 
-    return this;
-  }
+    @coreLogger.logMethod()
+    useDecorators(...decorators: IDecorator[]) {
+        decorators.forEach((decorator) => decorator.setModule(this));
+        return this;
+    }
 
-  registerInstance<T extends object>(obj: T, key?: string) {
-    const name: string = this.getName(key ?? obj.constructor.name);
-    this.others.set(name, obj);
-    return this;
-  }
+    register<T>(constructor: new (...args: any[]) => T, options?: RegisterClassOptions): ICoreModule {
+        const name = this.getName(options?.key ?? constructor);
+        this.othersConstructors.set(name, {
+            constructor,
+            dependencies: options?.dependencies,
+        });
 
-  /**
-   * Checks 'Provider' | 'Controller' | 'HttpClient' suffix for key or name of class.
-   * @param key
-   */
-  resolve<T extends AppLayerUnionType>(key: KeyUnionType<T>): T {
-    let name = this.getName(key);
+        return this;
+    }
 
-    if (this.isClient(name))
-      return this.resolveHttpClient(key as IHTTPClientConstuctor) as T;
+    registerInstance<T extends object>(obj: T, key?: string) {
+        const name: string = this.getName(key ?? obj.constructor.name);
+        this.others.set(name, obj);
+        return this;
+    }
 
-    if (this.isProvider(name))
-      return this.resolveProvider(key as IProviderConstructor) as T;
+    /**
+     * Checks 'Provider' | 'Controller' | 'HttpClient' suffix for key or name of class.
+     * @param key
+     */
+    resolve<T extends AppLayerUnionType>(key: KeyUnionType<T>): T {
+        let name = this.getName(key);
 
-    if (this.isController(name))
-      return this.resolveController(key as IControllerConstructor<any>) as T;
+        if (this.isClient(name)) return this.resolveHttpClient(key as IHTTPClientConstuctor) as T;
 
-    return this.resolveOther<T>(key);
-  }
+        if (this.isProvider(name)) return this.resolveProvider(key as IProviderConstructor) as T;
 
-  registerHttpClientInstance(client: IHTTPClient, key?: string) {
-    const name: string = this.getName(key ?? client.constructor.name);
-    this.clients.set(name, client);
+        if (this.isController(name)) return this.resolveController(key as IControllerConstructor<any>) as T;
 
-    return this;
-  }
+        return this.resolveOther<T>(key);
+    }
 
-  registerHttpClient(
-    client: IHTTPClientConstuctor,
-    options: IHTTPClientOptions
-  ) {
-    coreLogger.log("registerHttpClient", client, options);
+    registerHttpClientInstance(client: IHTTPClient, key?: string) {
+        const name: string = this.getName(key ?? client.constructor.name);
+        this.clients.set(name, client);
 
-    this.clientConstructors.set(client.name, { constructor: client, options });
-    return this;
-  }
+        return this;
+    }
 
-  resolveHttpClient<T extends IHTTPClient>(
-    client?: IHTTPClientConstuctor | string
-  ): T {
-    let instance = this.resolveHttpClientInstance(client);
-    if (instance) return instance;
+    registerHttpClient(client: IHTTPClientConstuctor, options: IHTTPClientOptions) {
+        coreLogger.log("registerHttpClient", client, options);
 
-    return this.createHttpClientInstance(client) as T;
-  }
+        this.clientConstructors.set(client.name, { constructor: client, options });
+        return this;
+    }
 
-  private resolveHttpClientInstance<T extends IHTTPClient>(
-    client?: IHTTPClientConstuctor | string
-  ) {
-    if (client) {
-      const name = this.getName(client);
-      return this.clients.get(name) as T;
-    } else return this.clients.values().next().value;
-  }
+    resolveHttpClient<T extends IHTTPClient>(client?: IHTTPClientConstuctor | string): T {
+        let instance = this.resolveHttpClientInstance(client);
+        if (instance) return instance;
 
-  private createHttpClientInstance(client?: IHTTPClientConstuctor | string) {
-    const name = client ? this.getName(client) : "HttpClient";
+        return this.createHttpClientInstance(client) as T;
+    }
 
-    const constructorObj = client
-      ? this.clientConstructors.get(name)
-      : this.clientConstructors.values().next().value;
+    private resolveHttpClientInstance<T extends IHTTPClient>(client?: IHTTPClientConstuctor | string) {
+        if (client) {
+            const name = this.getName(client);
+            return this.clients.get(name) as T;
+        } else return this.clients.values().next().value;
+    }
 
-    if (!constructorObj) this.throwNotRegisteredError(name);
+    private createHttpClientInstance(client?: IHTTPClientConstuctor | string) {
+        const name = client ? this.getName(client) : "HttpClient";
 
-    const instance = new constructorObj.constructor(constructorObj.options);
-    this.registerHttpClientInstance(instance);
+        const constructorObj = client
+            ? this.clientConstructors.get(name)
+            : this.clientConstructors.values().next().value;
 
-    return instance;
-  }
+        if (!constructorObj) this.throwNotRegisteredError(name);
 
-  registerProvider(
-    provider: IProviderConstructor,
-    options?: RegisterProviderOptions
-  ) {
-    const name = options?.key ?? provider.name;
+        const instance = new constructorObj.constructor(constructorObj.options);
+        this.registerHttpClientInstance(instance);
 
-    const clientName = options?.client
-      ? this.getName(options.client)
-      : undefined;
+        return instance;
+    }
 
-    this.providerConstructors.set(name, {
-      client: clientName,
-      constructor: provider,
-      dependencies: options?.dependencies,
-    });
+    registerProvider(provider: IProviderConstructor, options?: RegisterProviderOptions) {
+        const name = options?.key ?? provider.name;
 
-    return this;
-  }
+        const clientName = options?.client ? this.getName(options.client) : undefined;
 
-  resolveProvider<T extends IProvider>(key: string | IProviderConstructor): T {
-    const instance = this.resolveProviderInstance<T>(key);
-    if (instance) return instance;
+        this.providerConstructors.set(name, {
+            client: clientName,
+            constructor: provider,
+            dependencies: options?.dependencies,
+        });
 
-    return this.createProviderInstance(key) as T;
-  }
+        return this;
+    }
 
-  private resolveProviderInstance<T extends IProvider>(
-    key: string | IProviderConstructor
-  ): T | undefined {
-    if (typeof key === "string") return this.providers.get(key) as T;
-    else return this.resolveByConstructor<T>(this.providers, key);
-  }
+    resolveProvider<T extends IProvider>(key: string | IProviderConstructor): T {
+        const instance = this.resolveProviderInstance<T>(key);
+        if (instance) return instance;
 
-  private createProviderInstance(key: string | IProviderConstructor) {
-    return this.createInstance(
-      this.providerConstructors,
-      this.providers,
-      key,
-      (dependencies: any[], constructorObj: ProviderConstructorOptions) => {
-        const client = this.resolveHttpClient(constructorObj.client);
-        return [client, ...dependencies];
-      }
-    );
-  }
+        return this.createProviderInstance(key) as T;
+    }
 
-  registerController<TController extends IController>(
-    controller: IControllerConstructor<TController>,
-    options?: RegisterControllerOptions
-  ) {
-    const name = options?.key ?? controller.name;
+    private resolveProviderInstance<T extends IProvider>(key: string | IProviderConstructor): T | undefined {
+        if (typeof key === "string") return this.providers.get(key) as T;
+        else return this.resolveByConstructor<T>(this.providers, key);
+    }
 
-    let dependencies = options?.dependencies;
+    private createProviderInstance(key: string | IProviderConstructor) {
+        return this.createInstance(
+            this.providerConstructors,
+            this.providers,
+            key,
+            (dependencies: any[], constructorObj: ProviderConstructorOptions) => {
+                const client = this.resolveHttpClient(constructorObj.client);
+                return [client, ...dependencies];
+            }
+        );
+    }
 
-    this.controllerConstructors.set(name, {
-      constructor: controller,
-      dependencies: dependencies,
-    });
+    registerController<TController extends IController>(
+        controller: IControllerConstructor<TController>,
+        options?: RegisterControllerOptions
+    ) {
+        const name = options?.key ?? controller.name;
 
-    return this;
-  }
+        let dependencies = options?.dependencies;
 
-  resolveController<T extends IController>(
-    key: string | IControllerConstructor<T>
-  ): T {
-    const instance = this.resolveControllerInstance(key);
-    if (instance) return instance;
+        this.controllerConstructors.set(name, {
+            constructor: controller,
+            dependencies: dependencies,
+        });
 
-    return this.createControllerInstance(key) as T;
-  }
+        return this;
+    }
 
-  private resolveControllerInstance<T extends IController>(
-    key: string | IControllerConstructor<T>
-  ) {
-    if (typeof key === "string") return this.controllers.get(key) as T;
-    return this.resolveByConstructor<T>(this.controllers, key);
-  }
+    resolveController<T extends IController>(key: string | IControllerConstructor<T>): T {
+        const instance = this.resolveControllerInstance(key);
+        if (instance) return instance;
 
-  private createControllerInstance(key: string | IControllerConstructor<any>) {
-    return this.createInstance(
-      this.controllerConstructors,
-      this.controllers,
-      key
-    );
-  }
+        return this.createControllerInstance(key) as T;
+    }
 
-  @coreLogger.logMethod()
-  clear() {
-    this.clientConstructors.clear();
-    this.clients.clear();
+    private resolveControllerInstance<T extends IController>(key: string | IControllerConstructor<T>) {
+        if (typeof key === "string") return this.controllers.get(key) as T;
+        return this.resolveByConstructor<T>(this.controllers, key);
+    }
 
-    this.providerConstructors.clear();
-    this.providers.clear();
+    private createControllerInstance(key: string | IControllerConstructor<any>) {
+        return this.createInstance(this.controllerConstructors, this.controllers, key);
+    }
 
-    this.controllerConstructors.clear();
-    this.controllers.clear();
+    @coreLogger.logMethod()
+    clear() {
+        this.clientConstructors.clear();
+        this.clients.clear();
 
-    this.othersConstructors.clear();
-    this.others.clear();
-  }
+        this.providerConstructors.clear();
+        this.providers.clear();
 
-  private resolveOther<T>(key: KeyUnionType): T {
-    const instance = this.resolveOtherInstance<T>(key);
-    if (instance) return instance;
+        this.controllerConstructors.clear();
+        this.controllers.clear();
 
-    return this.createOtherInstance(key);
-  }
+        this.othersConstructors.clear();
+        this.others.clear();
+    }
 
-  private resolveOtherInstance<T>(key: KeyUnionType): T | undefined {
-    const name = this.getName(key);
-    return this.others.get(name) as T | undefined;
-  }
+    private resolveOther<T>(key: KeyUnionType): T {
+        const instance = this.resolveOtherInstance<T>(key);
+        if (instance) return instance;
 
-  private createOtherInstance(key: KeyUnionType) {
-    return this.createInstance(this.othersConstructors, this.others, key);
-  }
+        return this.createOtherInstance(key);
+    }
 
-  private createInstance(
-    constructorMap: Map<string, OtherConstructorOptions>,
-    instanceMap: Map<string, any>,
-    key: string | IClassConstructor,
-    dependenciesMapFn?: (dependencies: any[], constructorObj: any) => any[]
-  ) {
-    const name = this.getName(key);
-    const constructorObj = constructorMap.get(name);
-    if (!constructorObj) this.throwNotRegisteredError(name);
+    private resolveOtherInstance<T>(key: KeyUnionType): T | undefined {
+        const name = this.getName(key);
+        return this.others.get(name) as T | undefined;
+    }
 
-    let dependencies = this.resolveDependencies(
-      constructorObj.dependencies ?? []
-    );
+    private createOtherInstance(key: KeyUnionType) {
+        return this.createInstance(this.othersConstructors, this.others, key);
+    }
 
-    if (dependenciesMapFn)
-      dependencies = dependenciesMapFn(dependencies, constructorObj);
+    private createInstance(
+        constructorMap: Map<string, OtherConstructorOptions>,
+        instanceMap: Map<string, any>,
+        key: string | IClassConstructor,
+        dependenciesMapFn?: (dependencies: any[], constructorObj: any) => any[]
+    ) {
+        const name = this.getName(key);
+        const constructorObj = constructorMap.get(name);
+        if (!constructorObj) this.throwNotRegisteredError(name);
 
-    const instance = new constructorObj.constructor(...dependencies);
-    instanceMap.set(name, instance);
-    return instance;
-  }
+        let dependencies = this.resolveDependencies(constructorObj.dependencies ?? []);
 
-  private resolveDependencies(dependencies: any[]): any[] {
-    return dependencies.map((e) => {
-      if (typeof e === "function" || typeof e === "string")
-        return this.resolve(e);
-      else e;
-    });
-  }
+        if (dependenciesMapFn) dependencies = dependenciesMapFn(dependencies, constructorObj);
 
-  private resolveByConstructor<T>(
-    map: Map<string, any>,
-    typeConstructor: new (...args: any[]) => any
-  ) {
-    return map.get(typeConstructor.name) as T | undefined;
-  }
+        const instance = new constructorObj.constructor(...dependencies);
+        instanceMap.set(name, instance);
+        return instance;
+    }
 
-  private getName(key: string | (new (options?: any) => any)) {
-    return typeof key === "string" ? key : key.name;
-  }
+    private resolveDependencies(dependencies: any[]): any[] {
+        return dependencies.map((e) => {
+            if (typeof e === "function" || typeof e === "string") return this.resolve(e);
+            else e;
+        });
+    }
 
-  private isProvider(key: string | IProviderConstructor) {
-    return this.getName(key).includes(this.providerSuffix);
-  }
+    private resolveByConstructor<T>(map: Map<string, any>, typeConstructor: new (...args: any[]) => any) {
+        return map.get(typeConstructor.name) as T | undefined;
+    }
 
-  private isController(key: string | IControllerConstructor<any>) {
-    return this.getName(key).includes(this.controllerSuffix);
-  }
+    private getName(key: string | (new (options?: any) => any)) {
+        return typeof key === "string" ? key : key.name;
+    }
 
-  private isClient(key: string | IHTTPClientConstuctor) {
-    return this.getName(key).includes(this.clientSuffix);
-  }
+    private isProvider(key: string | IProviderConstructor) {
+        return this.getName(key).includes(this.providerSuffix);
+    }
 
-  private throwNotRegisteredError(key: string): never {
-    throw new CustomModuleError({
-      type: EnumCustomErrorType.Construction,
-      message: EnumLocalizationKeys.NotRegisteredError,
-      translateArgs: [key],
-      translate: true,
-    });
-  }
+    private isController(key: string | IControllerConstructor<any>) {
+        return this.getName(key).includes(this.controllerSuffix);
+    }
+
+    private isClient(key: string | IHTTPClientConstuctor) {
+        return this.getName(key).includes(this.clientSuffix);
+    }
+
+    private throwNotRegisteredError(key: string): never {
+        throw new CustomModuleError({
+            type: EnumCustomErrorType.Construction,
+            message: EnumLocalizationKeys.NotRegisteredError,
+            translateArgs: [key],
+            translate: true,
+        });
+    }
 }
