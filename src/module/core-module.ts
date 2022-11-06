@@ -65,13 +65,16 @@ export class CoreModule implements ICoreModule {
   private controllers = new Map<string, IController>();
   private others = new Map<string, any>();
 
-  constructor() {
+  constructor(options?:{decorators?: IDecorator[]}) {
     const registeredModule = globalModule.getModule(
       this.constructor as new () => CoreModule
     );
     if (registeredModule) return registeredModule as CoreModule;
 
     globalModule.registerModule(this);
+
+    if(options?.decorators?.length)
+      this.useDecorators(...options.decorators)
   }
 
   bootstrap(options?: ModuleBootstrapOptions) {

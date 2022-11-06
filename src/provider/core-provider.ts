@@ -163,7 +163,7 @@ export class CoreProvider implements IProvider {
     } catch (e) {
       throw new CustomProviderError({
         type: EnumCustomErrorType.RequestValidation,
-        message: e,
+        message: e as string,
       });
     }
   }
@@ -177,7 +177,7 @@ export class CoreProvider implements IProvider {
     } catch (e) {
       throw new CustomProviderError({
         type: EnumCustomErrorType.ResponseValidation,
-        message: e,
+        message: e as string,
       });
     }
   }

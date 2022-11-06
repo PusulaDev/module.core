@@ -1,5 +1,5 @@
 import type { ICloneUtil } from "./types/clone-util.interface";
-import cloneDeep from "lodash/cloneDeep";
+import cloneDeep from "lodash.cloneDeep";
 
 class DefaultCloneUtil implements ICloneUtil {
   clone<T = any>(item: T): T {

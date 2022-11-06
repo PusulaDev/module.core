@@ -12,3 +12,4 @@ export * from "./shared/index";
 export * from "./localization/index";
 export * from "./decorators/index";
 export * from "./action-guard/action-guard";
+export * from "./test-helpers";

@@ -3,7 +3,7 @@ import type {
   Translations,
 } from "./types/localization-translations.interface";
 import type { ILocalization } from "./types/localization.interface";
-import _get from "lodash/get";
+import _get from "lodash.get";
 
 class DefaultLocalization implements ILocalization {
   private lang: string = "";

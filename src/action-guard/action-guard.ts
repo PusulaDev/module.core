@@ -1,3 +1,4 @@
+import type { CustomError } from "..";
 import type { ValidationResult } from "../shared";
 
 export type ValidatorFunc<T> = (options: T) => boolean | Promise<boolean>;
@@ -14,7 +15,7 @@ export class ActionGuard<T> {
     } catch (error) {
       return {
         valid: false,
-        error: error,
+        error: error as CustomError,
       };
     }
   }
