@@ -42,11 +42,15 @@ To be more spesific. Communicates with backend and frontEnd framework. (Vue, Rea
 
 npm:
 
-`npm i @sabasayer/module.core --save`
+`npm i @pusula/module.core --save`
 
 yarn:
 
-`yarn @sabasayer/module.core`
+`yarn add @pusula/module.core`
+
+pnpm:
+
+`pnpm i @pusula/module.core`
 
 ## [Layers](#layers)
 

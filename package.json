@@ -6,6 +6,14 @@
     "types": "./dist/index.d.ts",
     "author": "Pusula",
     "license": "MIT",
+    "homepage": "https://github.com/PusulaDev/module.core",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/PusulaDev/module.core"
+    },
+    "bugs": {
+        "url": "https://github.com/PusulaDev/module.core/issues"
+    },
     "type": "module",
     "files": [
         "/dist"
@@ -54,5 +62,6 @@
     "prettier": {
         "tabWidth": 4,
         "printWidth": 110
-    }
+    },
+    "packageManager": "pnpm@7.14.5"
 }
