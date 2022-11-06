@@ -30,5 +30,6 @@ export const createMock = (module: ICoreModule) => {
         mockSessionCache,
         mockProvider,
         mockController,
+        clear: () => module.clear(),
     };
 };

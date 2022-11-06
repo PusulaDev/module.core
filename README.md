@@ -1,20 +1,20 @@
 ### Table of contents
 
-- [Module Based FrontEnd Orginazor](#module-based-frontend-orginazor)
-  - [Features](#features)
-  - [Motivation](#motivation)
-    - [Install](#install)
-  - [Layers](#layers)
-    - [Module](#module)
-    - [Global Module](#global-module)
-    - [HTTPClient](#httpclient)
-    - [Provider](#provider)
-    - [Controller](#controller)
-    - [Mapper](#mapper)
-    - [Cache](#cache)
-    - [Action Guard](#action-guard)
-    - [Localizations](#localizations)
-    - [Utilities](#utilities)
+-   [Module Based FrontEnd Orginazor](#module-based-frontend-orginazor)
+    -   [Features](#features)
+    -   [Motivation](#motivation)
+        -   [Install](#install)
+    -   [Layers](#layers)
+        -   [Module](#module)
+        -   [Global Module](#global-module)
+        -   [HTTPClient](#httpclient)
+        -   [Provider](#provider)
+        -   [Controller](#controller)
+        -   [Mapper](#mapper)
+        -   [Cache](#cache)
+        -   [Action Guard](#action-guard)
+        -   [Localizations](#localizations)
+        -   [Utilities](#utilities)
 
 # Module Based FrontEnd Orginazor
 
@@ -23,10 +23,10 @@ Modules can have isolated or shared dependencies.
 
 ## Features
 
-- Dependecy Injection with decorators
-- Layers for organization. (HttpClient, DataProvider, Controller, Mapper, Cache ...)
-- Utility classes.
-- Most dependencies uses Interfaces including utility classes. So you can write your own implementation or use default implementations.
+-   Dependecy Injection with decorators
+-   Layers for organization. (HttpClient, DataProvider, Controller, Mapper, Cache ...)
+-   Utility classes.
+-   Most dependencies uses Interfaces including utility classes. So you can write your own implementation or use default implementations.
 
 ## Motivation
 
@@ -112,10 +112,14 @@ const someFunction = () => {
 
 Mocking dependincies for testing.
 
+Use createMock function returned methods for easy mocking.
+
 ```Typescript
 describe("some test",()=>{
+  const { mockController, clear } = createMock(myModule);
+
   beforeEach(()=> {
-    myModule.clear()
+    clear();
   })
 
   it("should work",() => {
@@ -123,7 +127,7 @@ describe("some test",()=>{
       someFunc(){}
     }
 
-    myModule.registerController(TestXController,{key:'XController'});
+    mockController(TestXController,{key:'XController'});
     ....
   })
 })
@@ -133,13 +137,13 @@ describe("some test",()=>{
 
 globalModule is the top level parent container. It contains some utility classes like :
 
-- Localization
-- CloneUtil
-- EncryptionUtil
-- PerformanceUtil
-- DateUtil
-- Observer
-- SharedHeaders
+-   Localization
+-   CloneUtil
+-   EncryptionUtil
+-   PerformanceUtil
+-   DateUtil
+-   Observer
+-   SharedHeaders
 
 These classes instances must be registered to globalModule before everything. There are default implementations, also you can write your own implementation and register their instances.
 
