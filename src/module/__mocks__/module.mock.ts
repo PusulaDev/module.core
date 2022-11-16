@@ -9,86 +9,121 @@ import type { IRequestConfig } from "../../provider/types/request-config.interfa
 export class TestModule extends CoreModule {}
 
 export class TestHttpClient implements IHTTPClient {
-  constructor(_: IHTTPClientOptions) {}
+    constructor(_: IHTTPClientOptions) {}
 
-  async get<TResponse = null>(_: string): Promise<TResponse> {
-    return null as any;
-  }
+    async get<TResponse = null>(_: string): Promise<TResponse> {
+        return null as any;
+    }
+    async post(_: string) {
+        return null as any;
+    }
+    async request(_: string) {
+        return null as any;
+    }
+    async delete(_: string) {
+        return null as any;
+    }
+    async put(_: string) {
+        return null as any;
+    }
+    async patch(_: string) {
+        return null as any;
+    }
+    async upload(_: string, __: FormData) {
+        return null as any;
+    }
 
-  async post(_: string) {
-    return null as any;
-  }
-  async upload(_: string, __: FormData) {
-    return null as any;
-  }
-
-  setHeader(_: string) {}
-  removeHeader(_: string) {}
+    setHeader(_: string) {}
+    removeHeader(_: string) {}
 }
 
 export class TestProvider implements IProvider {
-  args: any[] | undefined;
-  constructor(_: IHTTPClient, ...args: any[]) {
-    this.args = args;
-  }
+    args: any[] | undefined;
+    constructor(_: IHTTPClient, ...args: any[]) {
+        this.args = args;
+    }
 
-  post<TRequest = undefined, TResponse = undefined>(
-    _: IRequestConfig<TRequest, TResponse>
-  ): Promise<TResponse | undefined> {
-    return null as any;
-  }
+    request<TRequest = undefined, TResponse = undefined>(
+        _: IRequestConfig<TRequest, TResponse>
+    ): Promise<TResponse | undefined> {
+        return null as any;
+    }
+    post<TRequest = undefined, TResponse = undefined>(
+        _: IRequestConfig<TRequest, TResponse>
+    ): Promise<TResponse | undefined> {
+        return null as any;
+    }
 
-  get(_: string) {
-    return null as any;
-  }
+    get<TRequest = undefined, TResponse = undefined>(
+        _: IRequestConfig<TRequest, TResponse>
+    ): Promise<TResponse | undefined> {
+        return null as any;
+    }
 
-  upload(_: string, __: FormData) {
-    return null as any;
-  }
+    patch<TRequest = undefined, TResponse = undefined>(
+        _: IRequestConfig<TRequest, TResponse>
+    ): Promise<TResponse | undefined> {
+        return null as any;
+    }
+
+    put<TRequest = undefined, TResponse = undefined>(
+        _: IRequestConfig<TRequest, TResponse>
+    ): Promise<TResponse | undefined> {
+        return null as any;
+    }
+
+    delete<TRequest = undefined, TResponse = undefined>(
+        _: IRequestConfig<TRequest, TResponse>
+    ): Promise<TResponse | undefined> {
+        return null as any;
+    }
+    upload(_: string, __: FormData) {
+        return null as any;
+    }
 }
 
 export class TestController implements IController {
-  args: any[] | undefined;
+    args: any[] | undefined;
 
-  constructor(_?: IProvider, ...args: any[]) {
-    this.args = args;
-  }
+    constructor(_?: IProvider, ...args: any[]) {
+        this.args = args;
+    }
 }
 
 export class TestCache implements ICache {
-  get(_: string) {
-    return null as any;
-  }
+    get(_: string) {
+        return null as any;
+    }
 
-  set(_: string, __: any) {}
+    set(_: string, __: any) {}
 
-  remove(_: string) {}
+    remove(_: string) {}
 
-  clear() {}
+    clear() {}
 }
 
 export const createModule = () => {
-  const testModule = new TestModule();
-  testModule.clear();
-  return testModule;
+    const testModule = new TestModule();
+    testModule.clear();
+    return testModule;
 };
 
 export const createRegisterHttpClient = (moduleArg?: ICoreModule) => {
-  const module = moduleArg ?? createModule();
-  module.registerHttpClient(TestHttpClient, {});
-  return module;
+    const module = moduleArg ?? createModule();
+    module.registerHttpClient(TestHttpClient, {});
+    return module;
 };
 
 export const createRegisterProvider = () => {
-  const module = createRegisterHttpClient();
-  module.registerProvider(TestProvider);
-  return module;
+    const module = createRegisterHttpClient();
+    module.registerProvider(TestProvider);
+    return module;
 };
 
 export const createRegisterController = () => {
-  const module = createRegisterProvider();
-  module.registerController(TestController, {
-    dependencies: [TestProvider],
-  });
-  return module;
+    const module = createRegisterProvider();
+    module.registerController(TestController, {
+        dependencies: [TestProvider],
+    });
+    return module;
 };

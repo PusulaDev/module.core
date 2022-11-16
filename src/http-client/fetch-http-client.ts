@@ -5,6 +5,7 @@ import type { RequestOptions } from "./types/request-options.interface";
 import { CustomHttpClientError } from "../custom-errors/custom-http-client-error";
 import { EnumCustomErrorType } from "../custom-errors/statics/custom-error-type.enum";
 import { globalModule } from "../global-module/global-module";
+import { ensureObject } from "..";
 
 export class FetchHTTPClient implements IHTTPClient {
     private baseUrl: string;
@@ -26,6 +27,19 @@ export class FetchHTTPClient implements IHTTPClient {
 
     getPendingRequests() {
         return this.pendingRequests;
+    }
+
+    private mergeUrlRouteParams(url: string, data: Record<string, unknown>) {
+        let parts = url.split(/\$\{(?!\d)[\wæøåÆØÅ]*\}/);
+        let args = url.match(/[^{\}]+(?=})/g) || [];
+        let parameters = args.map(
+            (argument) => data[argument] || (data[argument] === undefined ? "" : data[argument])
+        );
+
+        const string = String.raw({ raw: parts }, ...parameters);
+        args.forEach((arg) => data[arg] && delete data[arg]);
+
+        return string;
     }
 
     async request<TRequest, TResponse = undefined>(
@@ -161,12 +175,16 @@ export class FetchHTTPClient implements IHTTPClient {
         const { url, key, method, data, options } = opts;
         let customUrl = url;
 
-        const pendingRequest = this.pendingRequests.get(key);
-        const init = this.createFetchInit(method, options, data);
+        if (ensureObject(data)) {
+            customUrl = this.mergeUrlRouteParams(url, data as Record<string, unknown>);
+        }
 
         if (method === EnumRequestMethod.GET && data) {
             customUrl += this.createQueryString(data);
         }
+
+        const pendingRequest = this.pendingRequests.get(key);
+        const init = this.createFetchInit(method, options, data);
 
         let response: Response = await this.createResponse({
             url: customUrl,

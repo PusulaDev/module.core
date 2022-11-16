@@ -200,6 +200,10 @@ export class AuthProvider extends BaseProvider {
   signOut(request: SignOutRequest) {
     return this.post(signOutRequestConfig, request);
   }
+
+  getUser(request:GetUserRequest){
+    return this.get(getUserRequestConfig, request);
+  }
 }
 
 -----
@@ -213,6 +217,20 @@ export const signInRequestConfig: IRequestConfig<
 
 export const signOutRequestConfig: IRequestConfig<SignOutRequest, string> = {
   url: "signOut",
+};
+
+interface GetUserRequest {
+  id: number,
+  name?: string
+}
+
+/**
+ * You can use ${param} from route params
+ * client interpolates the url and uses the values in request
+ */
+
+export const getUserRequestConfig: IRequestConfig<GetUserRequest, User> = {
+  url: "getUser/${id}",
 };
 
 ```

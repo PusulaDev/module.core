@@ -32,6 +32,17 @@ describe("Http Client Get Method", () => {
         });
     });
 
+    it("should replace the route params with data and remove the data if matches", async () => {
+        mockFetchResponse({});
+
+        const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
+        await api.get("test/${id}", { id: 1, name: "ali" });
+
+        expect(fetchMock).toBeCalledWith("http://test.com/test/1?name=ali", {
+            method: "GET",
+        });
+    });
+
     it("should call fetch with correct url", async () => {
         mockFetchResponse({});
 
