@@ -1,5 +1,5 @@
 import { urlUtils } from "../utils/url.utils";
-import type { IHTTPClient, IHTTPClientOptions } from "./index";
+import { type IHTTPClient, type IHTTPClientOptions, EnumRequestMethod } from "./index";
 import { CustomServerError } from "../custom-errors/custom-server-error";
 import type { RequestOptions } from "./types/request-options.interface";
 import { CustomHttpClientError } from "../custom-errors/custom-http-client-error";
@@ -7,209 +7,225 @@ import { EnumCustomErrorType } from "../custom-errors/statics/custom-error-type.
 import { globalModule } from "../global-module/global-module";
 
 export class FetchHTTPClient implements IHTTPClient {
-  private baseUrl: string;
-  private headers?: Record<string, string>;
-  private createErrorFn?: (response: Response) => Promise<Error>;
-  private pendingRequests = new Map<string, Promise<Response>>();
-  private preventRequestDuplication?: boolean;
+    private baseUrl: string;
+    private headers?: Record<string, string>;
+    private createErrorFn?: (response: Response) => Promise<Error>;
+    private pendingRequests = new Map<string, Promise<Response>>();
+    private preventRequestDuplication?: boolean;
 
-  constructor(options: IHTTPClientOptions) {
-    this.baseUrl = this.createBaseUrl(options);
-    this.headers = options.headers;
-    this.createErrorFn = options.createErrorFn;
-    this.preventRequestDuplication = options.preventRequestDuplication;
-  }
-
-  createAbortController() {
-    return new AbortController();
-  }
-
-  getPendingRequests() {
-    return this.pendingRequests;
-  }
-
-  async get<TResponse = undefined>(
-    url: string,
-    options?: RequestOptions
-  ): Promise<TResponse | undefined> {
-    try {
-      return await this.handleGet(url, options);
-    } catch (e) {
-      this.handleError(e, url);
+    constructor(options: IHTTPClientOptions) {
+        this.baseUrl = this.createBaseUrl(options);
+        this.headers = options.headers;
+        this.createErrorFn = options.createErrorFn;
+        this.preventRequestDuplication = options.preventRequestDuplication;
     }
-  }
 
-  async post<TRequest, TResponse = undefined>(
-    url: string,
-    data?: TRequest,
-    options?: RequestOptions
-  ): Promise<TResponse | undefined> {
-    const key = this.createKey(url, data);
-
-    try {
-      return await this.handlePost({
-        url,
-        data,
-        options,
-        key,
-      });
-    } catch (e) {
-      this.handleError(e, key);
+    createAbortController() {
+        return new AbortController();
     }
-  }
 
-  async upload<TResponse = undefined>(
-    url: string,
-    formData: FormData
-  ): Promise<TResponse | undefined> {
-    try {
-      return this.handleUpload(url, formData);
-    } catch (e) {
-      this.handleError(e, url);
+    getPendingRequests() {
+        return this.pendingRequests;
     }
-  }
 
-  setHeader(key: string, value: string) {
-    if (!this.headers) this.headers = {};
+    async request<TRequest, TResponse = undefined>(
+        url: string,
+        method: EnumRequestMethod,
+        data?: TRequest,
+        options?: RequestOptions
+    ): Promise<TResponse | undefined> {
+        const key = this.createKey(url, method, data);
 
-    this.headers[key] = value;
-  }
+        try {
+            return await this.handleRequest({
+                url,
+                data,
+                options,
+                key,
+                method,
+            });
+        } catch (e) {
+            this.handleError(e, url);
+        }
+    }
 
-  removeHeader(key: string) {
-    delete this.headers?.[key];
+    async get<TRequest, TResponse = undefined>(
+        url: string,
+        data?: TRequest,
+        options?: RequestOptions
+    ): Promise<TResponse | undefined> {
+        return this.request(url, EnumRequestMethod.GET, data, options);
+    }
 
-    const isHeadersEmpty = !Object.keys(this.headers ?? {}).length;
+    async post<TRequest, TResponse = undefined>(
+        url: string,
+        data?: TRequest,
+        options?: RequestOptions
+    ): Promise<TResponse | undefined> {
+        return this.request(url, EnumRequestMethod.POST, data, options);
+    }
 
-    if (isHeadersEmpty) this.headers = undefined;
-  }
+    async put<TRequest, TResponse = undefined>(
+        url: string,
+        data?: TRequest,
+        options?: RequestOptions
+    ): Promise<TResponse | undefined> {
+        return this.request(url, EnumRequestMethod.PUT, data, options);
+    }
 
-  private async handleUpload<TResponse = undefined>(
-    url: string,
-    formData: FormData
-  ): Promise<TResponse> {
-    const response = await fetch(`${this.baseUrl}${url}`, {
-      method: "POST",
-      headers: {
-        ...this.headers,
-        "Content-Type": "multipart/form-data",
-      },
-      body: formData,
-    });
+    async patch<TRequest, TResponse = undefined>(
+        url: string,
+        data?: TRequest,
+        options?: RequestOptions
+    ): Promise<TResponse | undefined> {
+        return this.request(url, EnumRequestMethod.PATCH, data, options);
+    }
 
-    return this.handleResponse(response);
-  }
+    async delete<TRequest, TResponse = undefined>(
+        url: string,
+        data?: TRequest,
+        options?: RequestOptions
+    ): Promise<TResponse | undefined> {
+        return this.request(url, EnumRequestMethod.DELETE, data, options);
+    }
 
-  private createFetchInit(
-    method: string,
-    options?: RequestOptions,
-    data?: unknown
-  ): RequestInit {
-    const abortController = options?.abortController as
-      | AbortController
-      | undefined;
+    async upload<TResponse = undefined>(url: string, formData: FormData): Promise<TResponse | undefined> {
+        try {
+            return this.handleUpload(url, formData);
+        } catch (e) {
+            this.handleError(e, url);
+        }
+    }
 
-    const body = data ? JSON.stringify(data) : undefined;
-    return {
-      method,
-      headers: this.getHeaders(),
-      body: body,
-      signal: abortController?.signal,
+    setHeader(key: string, value: string) {
+        if (!this.headers) this.headers = {};
+
+        this.headers[key] = value;
+    }
+
+    removeHeader(key: string) {
+        delete this.headers?.[key];
+
+        const isHeadersEmpty = !Object.keys(this.headers ?? {}).length;
+
+        if (isHeadersEmpty) this.headers = undefined;
+    }
+
+    private async handleUpload<TResponse = undefined>(url: string, formData: FormData): Promise<TResponse> {
+        const response = await fetch(`${this.baseUrl}${url}`, {
+            method: "POST",
+            headers: {
+                ...this.headers,
+                "Content-Type": "multipart/form-data",
+            },
+            body: formData,
+        });
+
+        return this.handleResponse(response);
+    }
+
+    private createFetchInit(method: string, options?: RequestOptions, data?: unknown): RequestInit {
+        const abortController = options?.abortController as AbortController | undefined;
+
+        const isGet = method === "GET";
+
+        let body: RequestInit["body"] = undefined;
+
+        if (!isGet && data) body = JSON.stringify(data);
+
+        return {
+            method,
+            headers: this.getHeaders(),
+            body: body,
+            signal: abortController?.signal,
+        };
+    }
+
+    private getHeaders() {
+        const merged = { ...globalModule.getSharedHeaders(), ...this.headers };
+        if (Object.keys(merged).length) return merged;
+    }
+
+    private createQueryString = (data: unknown) => {
+        const searchParams = new URLSearchParams(data as string).toString();
+        return `?${searchParams}`;
     };
-  }
 
-  private getHeaders() {
-    const merged = { ...globalModule.getSharedHeaders(), ...this.headers };
-    if (Object.keys(merged).length) return merged;
-  }
+    private async handleRequest<TRequest, TResponse = undefined>(opts: {
+        url: string;
+        key: string;
+        method: string;
+        data?: TRequest;
+        options?: RequestOptions;
+    }): Promise<TResponse> {
+        const { url, key, method, data, options } = opts;
+        let customUrl = url;
 
-  private async handlePost<TRequest, TResponse = undefined>(options: {
-    url: string;
-    key: string;
-    data?: TRequest;
-    options?: RequestOptions;
-  }): Promise<TResponse> {
-    const pendingRequest = this.pendingRequests.get(options.key);
-    const init = this.createFetchInit("POST", options.options, options.data);
+        const pendingRequest = this.pendingRequests.get(key);
+        const init = this.createFetchInit(method, options, data);
 
-    let response: Response = await this.createResponse({
-      url: options.url,
-      init,
-      key: options.key,
-      pendingRequest,
-    });
+        if (method === EnumRequestMethod.GET && data) {
+            customUrl += this.createQueryString(data);
+        }
 
-    this.pendingRequests.delete(options.key);
+        let response: Response = await this.createResponse({
+            url: customUrl,
+            init,
+            key: key,
+            pendingRequest,
+        });
 
-    return this.handleResponse(response);
-  }
+        this.pendingRequests.delete(key);
 
-  private createKey(url: string, data?: any) {
-    return `${url}_${data ? JSON.stringify(data) : ""}`;
-  }
+        return this.handleResponse(response);
+    }
 
-  private async handleGet<TResponse = undefined>(
-    url: string,
-    options?: RequestOptions
-  ): Promise<TResponse> {
-    const pendingRequest = this.pendingRequests.get(url);
-    const init = this.createFetchInit("GET", options);
+    private createKey(url: string, method: string, data?: any) {
+        return `${url}_${method}_${data ? JSON.stringify(data) : ""}`;
+    }
 
-    let response: Response = await this.createResponse({
-      url,
-      init,
-      key: url,
-      pendingRequest,
-    });
+    private async createResponse(options: {
+        url: string;
+        init: RequestInit;
+        key: string;
+        pendingRequest?: Promise<Response>;
+    }): Promise<Response> {
+        if (options.pendingRequest) return await options.pendingRequest;
 
-    this.pendingRequests.delete(url);
+        const request = fetch(`${this.baseUrl}${options.url}`, options.init);
 
-    return this.handleResponse(response);
-  }
+        if (this.preventRequestDuplication) this.pendingRequests.set(options.key, request);
 
-  private async createResponse(options: {
-    url: string;
-    init: RequestInit;
-    key: string;
-    pendingRequest?: Promise<Response>;
-  }): Promise<Response> {
-    if (options.pendingRequest) return await options.pendingRequest;
+        return await request;
+    }
 
-    const request = fetch(`${this.baseUrl}${options.url}`, options.init);
+    private async handleResponse(response: Response) {
+        if (response.ok) return response.json();
 
-    if (this.preventRequestDuplication)
-      this.pendingRequests.set(options.key, request);
+        await this.handleResponseError(response);
+    }
 
-    return await request;
-  }
+    private async handleResponseError(response: Response) {
+        if (this.createErrorFn) throw await this.createErrorFn(response);
 
-  private async handleResponse(response: Response) {
-    if (response.ok) return response.json();
+        const body = response.body ? ` ${response.body}` : "";
+        throw new Error(`${response.status}: ${response.statusText}.${body}`);
+    }
 
-    await this.handleResponseError(response);
-  }
+    private handleError(error: unknown, key: string) {
+        this.pendingRequests.delete(key);
 
-  private async handleResponseError(response: Response) {
-    if (this.createErrorFn) throw await this.createErrorFn(response);
+        if (error instanceof DOMException && error.name == "AbortError")
+            throw new CustomHttpClientError({
+                type: EnumCustomErrorType.AbortedRequest,
+            });
 
-    const body = response.body ? ` ${response.body}` : "";
-    throw new Error(`${response.status}: ${response.statusText}.${body}`);
-  }
+        throw new CustomServerError({ message: (error as Error).message });
+    }
 
-  private handleError(error: unknown, key: string) {
-    this.pendingRequests.delete(key);
+    private createBaseUrl(options: IHTTPClientOptions): string {
+        if (options.baseUrl) return urlUtils.ensureLastCharacterToBeSlash(options.baseUrl);
 
-    if (error instanceof DOMException && error.name == "AbortError")
-      throw new CustomHttpClientError({
-        type: EnumCustomErrorType.AbortedRequest,
-      });
-
-    throw new CustomServerError({ message: (error as Error).message });
-  }
-
-  private createBaseUrl(options: IHTTPClientOptions): string {
-    if (options.baseUrl)
-      return urlUtils.ensureLastCharacterToBeSlash(options.baseUrl);
-
-    return urlUtils.createBaseUrl(options);
-  }
+        return urlUtils.createBaseUrl(options);
+    }
 }

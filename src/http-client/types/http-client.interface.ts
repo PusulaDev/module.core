@@ -1,30 +1,34 @@
 import type { IAbortController } from "./abort-controller.interface";
 import type { IHTTPClientOptions } from "./http-client-options.interface";
+import type { EnumRequestMethod } from "./request-method.enum";
 import type { RequestOptions } from "./request-options.interface";
 
-export type IHTTPClient = {
-  get: <TResponse = undefined>(
-    url: string,
-    options?: RequestOptions
-  ) => Promise<TResponse | undefined>;
-
-  post: <TRequest, TResponse = undefined>(
+type ClientRequest = <TRequest, TResponse = undefined>(
     url: string,
     data?: TRequest,
     options?: RequestOptions
-  ) => Promise<TResponse | undefined>;
+) => Promise<TResponse | undefined>;
 
-  upload: <TResponse = undefined>(
-    url: string,
-    formData: FormData
-  ) => Promise<TResponse | undefined>;
+export type IHTTPClient = {
+    request: <TRequest, TResponse = undefined>(
+        url: string,
+        method: EnumRequestMethod,
+        data?: TRequest,
+        options?: RequestOptions
+    ) => Promise<TResponse | undefined>;
 
-  setHeader(key: string, value: string): void;
-  removeHeader(key: string): void;
+    get: ClientRequest;
+    post: ClientRequest;
+    delete: ClientRequest;
+    put: ClientRequest;
+    patch: ClientRequest;
 
-  createAbortController?: () => IAbortController;
+    upload: <TResponse = undefined>(url: string, formData: FormData) => Promise<TResponse | undefined>;
+
+    setHeader(key: string, value: string): void;
+    removeHeader(key: string): void;
+
+    createAbortController?: () => IAbortController;
 };
 
-export type IHTTPClientConstuctor = new (
-  options: IHTTPClientOptions
-) => IHTTPClient;
+export type IHTTPClientConstuctor = new (options: IHTTPClientOptions) => IHTTPClient;
