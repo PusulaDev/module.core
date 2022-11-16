@@ -10,7 +10,7 @@ import { ensureObject } from "..";
 export class FetchHTTPClient implements IHTTPClient {
     private baseUrl: string;
     private headers?: Record<string, string>;
-    private createErrorFn?: (response: Response) => Promise<Error>;
+    private createErrorFn?: IHTTPClientOptions["createErrorFn"];
     private pendingRequests = new Map<string, Promise<Response>>();
     private preventRequestDuplication?: boolean;
 
