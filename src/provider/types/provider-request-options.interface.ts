@@ -1,3 +1,4 @@
 export type ProviderRequestOptions = {
-  raceId: string;
+    raceId?: string;
+    headers?: Record<string, string>;
 };

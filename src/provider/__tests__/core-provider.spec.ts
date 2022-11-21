@@ -34,6 +34,34 @@ describe("Data Provider", () => {
         });
     });
 
+    it("should post using headers", () => {
+        mockFetchResponse({ id: 1 });
+
+        const provider = new CoreProvider(client);
+
+        const config: IRequestConfig<{ id: number }, number> = {
+            url: "getPatient",
+        };
+
+        const headers = {
+            test: "1",
+        };
+
+        provider.post(
+            config,
+            { id: 1 },
+            {
+                headers,
+            }
+        );
+
+        expect(fetchMock).toBeCalledWith("http://test.com/getPatient", {
+            method: "POST",
+            body: JSON.stringify({ id: 1 }),
+            headers,
+        });
+    });
+
     it("should post with baseUrl added to url", () => {
         mockFetchResponse({ id: 1 });
 

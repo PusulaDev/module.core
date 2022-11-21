@@ -144,6 +144,8 @@ export class CoreProvider implements IProvider {
     private createRequestOptions(options?: ProviderRequestOptions): RequestOptions {
         let requestOptions: RequestOptions = {};
 
+        if (options?.headers) requestOptions.headers = options.headers;
+
         requestOptions.abortController = this.handleAbortAndCreateAbortController(options);
 
         return requestOptions;
