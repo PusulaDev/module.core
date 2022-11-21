@@ -6,6 +6,7 @@ import { CustomHttpClientError } from "../custom-errors/custom-http-client-error
 import { EnumCustomErrorType } from "../custom-errors/statics/custom-error-type.enum";
 import { globalModule } from "../global-module/global-module";
 import { ensureObject } from "..";
+import { multipartContentType, jsonContentType, contentTypeKey, urlEncodedContentType } from "./";
 
 export class FetchHTTPClient implements IHTTPClient {
     private baseUrl: string;
@@ -130,7 +131,7 @@ export class FetchHTTPClient implements IHTTPClient {
             method: "POST",
             headers: {
                 ...this.headers,
-                "Content-Type": "multipart/form-data",
+                [contentTypeKey]: multipartContentType,
             },
             body: formData,
         });
@@ -138,18 +139,47 @@ export class FetchHTTPClient implements IHTTPClient {
         return this.handleResponse(response);
     }
 
-    private createFetchInit(method: string, options?: RequestOptions, data?: unknown): RequestInit {
-        const abortController = options?.abortController as AbortController | undefined;
+    private checkContentType = (key: string, value: string, contentType: string) =>
+        String(key).toLowerCase() === contentTypeKey && String(value).toLowerCase().indexOf(contentType) > -1;
 
+    private createBody = (
+        method: EnumRequestMethod,
+        data?: unknown,
+        headers: RequestOptions["headers"] = {}
+    ) => {
+        let body: RequestInit["body"] = undefined;
         const isGet = method === "GET";
 
-        let body: RequestInit["body"] = undefined;
+        if (isGet || !data) return body;
 
-        if (!isGet && data) body = JSON.stringify(data);
+        const isContentTypeJson = Object.entries(headers).some(([key, value]) =>
+            this.checkContentType(key, value, jsonContentType)
+        );
+
+        const isContentTypeUrlEncoded = Object.entries(headers).some(([key, value]) =>
+            this.checkContentType(key, value, urlEncodedContentType)
+        );
+
+        if (isContentTypeJson) body = JSON.stringify(data);
+        else if (isContentTypeUrlEncoded && ensureObject(data))
+            body = new URLSearchParams(data as Record<string, string>);
+
+        return body;
+    };
+
+    private createFetchInit(
+        method: EnumRequestMethod,
+        options?: RequestOptions,
+        data?: unknown
+    ): RequestInit {
+        const abortController = options?.abortController as AbortController | undefined;
+
+        const headers = this.getHeaders(options?.headers);
+        const body = this.createBody(method, data, headers);
 
         return {
             method,
-            headers: this.getHeaders(options?.headers),
+            headers: headers,
             body: body,
             signal: abortController?.signal,
         };
@@ -168,7 +198,7 @@ export class FetchHTTPClient implements IHTTPClient {
     private async handleRequest<TRequest, TResponse = undefined>(opts: {
         url: string;
         key: string;
-        method: string;
+        method: EnumRequestMethod;
         data?: TRequest;
         options?: RequestOptions;
     }): Promise<TResponse> {

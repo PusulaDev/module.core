@@ -1,4 +1,4 @@
-import { FetchHTTPClient } from "@/http-client";
+import { FetchHTTPClient, jsonContentType } from "@/http-client";
 import { mockFetchResponse, mockFetchResponseWithTimeout } from "@/http-client/__mocks__/fetch.mock";
 import { CoreProvider } from "../core-provider";
 import fetchMock from "jest-fetch-mock";
@@ -9,7 +9,10 @@ import { CustomServerError, EnumCustomErrorType } from "@/custom-errors";
 import { CustomProviderError } from "@/custom-errors/custom-provider-error";
 
 describe("Data Provider", () => {
-    const client = new FetchHTTPClient({ baseUrl: "http://test.com" });
+    const headers = {
+        "content-type": jsonContentType,
+    };
+    const client = new FetchHTTPClient({ baseUrl: "http://test.com", headers });
 
     fetchMock.enableMocks();
 
@@ -31,6 +34,7 @@ describe("Data Provider", () => {
         expect(fetchMock).toBeCalledWith("http://test.com/getPatient", {
             method: "POST",
             body: JSON.stringify({ id: 1 }),
+            headers,
         });
     });
 
@@ -43,22 +47,20 @@ describe("Data Provider", () => {
             url: "getPatient",
         };
 
-        const headers = {
-            test: "1",
-        };
-
         provider.post(
             config,
             { id: 1 },
             {
-                headers,
+                headers: {
+                    test: "1",
+                },
             }
         );
 
         expect(fetchMock).toBeCalledWith("http://test.com/getPatient", {
             method: "POST",
             body: JSON.stringify({ id: 1 }),
-            headers,
+            headers: { ...headers, test: "1" },
         });
     });
 
@@ -75,6 +77,7 @@ describe("Data Provider", () => {
 
         expect(fetchMock).toBeCalledWith("http://test.com/giganto/haleluya", {
             method: "POST",
+            headers,
         });
     });
 
@@ -86,6 +89,7 @@ describe("Data Provider", () => {
 
         expect(fetchMock).toBeCalledWith("http://test.com/getTest", {
             method: "GET",
+            headers,
         });
     });
 
@@ -101,7 +105,7 @@ describe("Data Provider", () => {
         expect(fetchMock).toBeCalledWith("http://test.com/upload", {
             method: "POST",
             headers: {
-                "Content-Type": "multipart/form-data",
+                "content-type": "multipart/form-data",
             },
             body: formData,
         });

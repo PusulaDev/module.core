@@ -24,7 +24,7 @@ describe("Http Client", () => {
             const api = new FetchHTTPClient({
                 baseUrl: "http://test.com",
                 headers: {
-                    "Content-Type": "application/json",
+                    "content-type": "application/json",
                 },
             });
 
@@ -36,7 +36,7 @@ describe("Http Client", () => {
             expect(fetchMock).toBeCalledWith("http://test.com/upload", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "multipart/form-data",
+                    "content-type": "multipart/form-data",
                 },
                 body: formData,
             });
