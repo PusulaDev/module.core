@@ -21,6 +21,17 @@ describe("Http Client Get Method", () => {
         });
     });
 
+    it("should not add multiple slashes between ", async () => {
+        mockFetchResponse({});
+
+        const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
+        await api.get("/test");
+
+        expect(fetchMock).toBeCalledWith("http://test.com/test", {
+            method: "GET",
+        });
+    });
+
     it("should call fetch with query params", async () => {
         mockFetchResponse({});
 
@@ -28,6 +39,17 @@ describe("Http Client Get Method", () => {
         await api.get("test", { id: 1, name: "ali" });
 
         expect(fetchMock).toBeCalledWith("http://test.com/test?id=1&name=ali", {
+            method: "GET",
+        });
+    });
+
+    it("should call fetch withouth ? if data is empty", async () => {
+        mockFetchResponse({});
+
+        const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
+        await api.get("test");
+
+        expect(fetchMock).toBeCalledWith("http://test.com/test", {
             method: "GET",
         });
     });

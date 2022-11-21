@@ -177,6 +177,31 @@ describe("Http Client", () => {
             });
         });
 
+        it("should merge with request headers", () => {
+            mockFetchResponse({ data: 1 });
+
+            const client = new FetchHTTPClient({
+                baseUrl: "http://test.com",
+                headers: {
+                    initial: "1",
+                },
+            });
+
+            const headers = {
+                "content-type": "application/x-www-url-encoded",
+            };
+
+            client.get("get", undefined, { headers });
+
+            expect(fetchMock).toBeCalledWith("http://test.com/get", {
+                method: "GET",
+                headers: {
+                    initial: "1",
+                    ...headers,
+                },
+            });
+        });
+
         it("should remove header with key", () => {
             mockFetchResponse({ id: 1 });
 

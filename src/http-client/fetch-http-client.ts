@@ -149,20 +149,20 @@ export class FetchHTTPClient implements IHTTPClient {
 
         return {
             method,
-            headers: this.getHeaders(),
+            headers: this.getHeaders(options?.headers),
             body: body,
             signal: abortController?.signal,
         };
     }
 
-    private getHeaders() {
-        const merged = { ...globalModule.getSharedHeaders(), ...this.headers };
+    private getHeaders(additionalHeaders?: RequestOptions["headers"]) {
+        const merged = { ...globalModule.getSharedHeaders(), ...this.headers, ...additionalHeaders };
         if (Object.keys(merged).length) return merged;
     }
 
     private createQueryString = (data: unknown) => {
         const searchParams = new URLSearchParams(data as string).toString();
-        return `?${searchParams}`;
+        return searchParams ? `?${searchParams}` : "";
     };
 
     private async handleRequest<TRequest, TResponse = undefined>(opts: {
@@ -202,6 +202,11 @@ export class FetchHTTPClient implements IHTTPClient {
         return `${url}_${method}_${data ? JSON.stringify(data) : ""}`;
     }
 
+    private ensureNoStartingSlashOnUrl = (url: string) => {
+        if (url.indexOf("/") === 0) return url.substring(1);
+        return url;
+    };
+
     private async createResponse(options: {
         url: string;
         init: RequestInit;
@@ -209,8 +214,11 @@ export class FetchHTTPClient implements IHTTPClient {
         pendingRequest?: Promise<Response>;
     }): Promise<Response> {
         if (options.pendingRequest) return await options.pendingRequest;
+        const url = this.ensureNoStartingSlashOnUrl(options.url);
 
-        const request = fetch(`${this.baseUrl}${options.url}`, options.init);
+        const combinedUrl = `${this.baseUrl}${url}`;
+
+        const request = fetch(combinedUrl, options.init);
 
         if (this.preventRequestDuplication) this.pendingRequests.set(options.key, request);
 
