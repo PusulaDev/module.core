@@ -1,9 +1,15 @@
 {
     "name": "@pusula/module.core",
     "version": "1.2.5",
-    "main": "./dist/index.umd.js",
-    "module": "./dist/index.es.js",
+    "main": "./dist/index.umd.cjs",
+    "module": "./dist/index.js",
     "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "require": "./dist/index.umd.cjs"
+        }
+    },
     "author": "Pusula",
     "license": "MIT",
     "homepage": "https://github.com/PusulaDev/module.core",
