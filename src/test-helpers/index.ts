@@ -35,6 +35,8 @@ export const createMock = (
             key,
         });
 
+    const getController = <T extends IController>(key: string) => module.resolveController<T>(key);
+
     const clear = () => {
         globalModule.clear();
         if (onlyClearInstances) module.clearInstances();
@@ -50,6 +52,7 @@ export const createMock = (
         mockController,
         getCache,
         getProvider,
+        getController,
         clear,
     };
 };
