@@ -40,6 +40,7 @@ export type KeyUnionType<T = any> =
 export type AppLayerUnionType = IProvider | IController | ICache | IHTTPClient;
 
 export interface ModuleConstructorOptions {
+    key?: string;
     decorators?: IDecorator[];
     register?: { constructor: new (...args: unknown[]) => unknown; options?: RegisterClassOptions }[];
 }
@@ -76,4 +77,5 @@ export type ICoreModule = object & {
     resolveController: <T extends IController>(key: string | IControllerConstructor<T>) => T;
 
     clear: () => void;
+    clearInstances: () => void;
 };

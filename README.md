@@ -57,6 +57,11 @@ pnpm:
 ### [Module](#module)
 
 Keeps track of dependinces and provides them. Create a class that extends **CoreModule** .
+If you use the module in the same package no need to give key.
+
+But if you use module in different packages you must give key.
+
+Because the bundle process minifies the names of classes.
 
 ```Typescript
 class MyModule extends CoreModule {
@@ -66,7 +71,7 @@ class MyModule extends CoreModule {
   }
 }
 
-const myModule = new MyModule();
+const myModule = new MyModule({key:"MyModule"});
 
 //(optional)register decorators for dependency Injection
 myModule.useDecorators(xInjectable);

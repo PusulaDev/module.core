@@ -102,8 +102,8 @@ export class TestCache implements ICache {
     clear() {}
 }
 
-export const createModule = () => {
-    const testModule = new TestModule();
+export const createModule = (key?: string) => {
+    const testModule = new TestModule({ key });
     testModule.clear();
     return testModule;
 };

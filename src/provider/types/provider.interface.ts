@@ -25,4 +25,4 @@ export interface IProvider {
     upload<TResponse = undefined>(url: string, formData: FormData): Promise<TResponse | undefined>;
 }
 
-export type IProviderConstructor = new (client: IHTTPClient, ...args: any[]) => IProvider;
+export type IProviderConstructor<T = IProvider> = new (client: IHTTPClient, ...args: any[]) => T;

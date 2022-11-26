@@ -24,6 +24,14 @@ describe("Module", () => {
         expect(resolved).toEqual(module);
     });
 
+    it("should register with given key to globalModule", () => {
+        const key = "SuperModule";
+        const module = createModule(key);
+        const resolved = globalModule.getModule(key);
+
+        expect(resolved).toEqual(module);
+    });
+
     describe("bootstrap method", () => {
         it("should register httpClient", () => {
             const module = createModule();
@@ -122,6 +130,20 @@ describe("Module", () => {
             expect(() => module.resolveProvider(TestProvider)).toThrow();
             expect(() => module.resolveController(TestController)).toThrow();
             expect(() => module.resolve(Test)).toThrow();
+        });
+
+        it("should only clear the instances", () => {
+            const module = createModule();
+            class Test {}
+            module.register(Test);
+
+            const instance1 = module.resolve(Test);
+
+            module.clearInstances();
+
+            const instance2 = module.resolve(Test);
+            expect(instance2).toBeInstanceOf(Test);
+            expect(instance1).not.toBe(instance2);
         });
     });
 

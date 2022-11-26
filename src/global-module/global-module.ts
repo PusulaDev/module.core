@@ -31,13 +31,18 @@ class GlobalModule {
         return this.localization;
     }
 
-    registerModule(module: ICoreModule) {
-        this.modules.set(module.constructor.name, module);
+    registerModule(module: ICoreModule, key?: string) {
+        this.modules.set(key ?? module.constructor.name, module);
         return this;
     }
 
-    getModule(constructor: ModuleConstructor) {
-        return this.modules.get(constructor.name);
+    getModule(constructor: ModuleConstructor | string) {
+        const name = this.getName(constructor);
+        return this.modules.get(name);
+    }
+
+    private getName(constructor: ModuleConstructor | string): string {
+        return typeof constructor === "string" ? constructor : constructor.name;
     }
 
     setCloneUtil(util: ICloneUtil) {

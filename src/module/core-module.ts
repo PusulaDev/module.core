@@ -58,7 +58,7 @@ export class CoreModule implements ICoreModule {
         const registeredModule = globalModule.getModule(this.constructor as new () => CoreModule);
         if (registeredModule) return registeredModule as CoreModule;
 
-        globalModule.registerModule(this);
+        globalModule.registerModule(this, options?.key);
 
         if (options?.decorators?.length) this.useDecorators(...options.decorators);
         if (options?.register?.length)
@@ -233,16 +233,23 @@ export class CoreModule implements ICoreModule {
 
     @coreLogger.logMethod()
     clear() {
+        this.clearConstructors();
+        this.clearInstances();
+    }
+
+    @coreLogger.logMethod()
+    clearConstructors() {
         this.clientConstructors.clear();
-        this.clients.clear();
-
         this.providerConstructors.clear();
-        this.providers.clear();
-
         this.controllerConstructors.clear();
-        this.controllers.clear();
-
         this.othersConstructors.clear();
+    }
+
+    @coreLogger.logMethod()
+    clearInstances() {
+        this.clients.clear();
+        this.providers.clear();
+        this.controllers.clear();
         this.others.clear();
     }
 
