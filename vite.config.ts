@@ -20,6 +20,7 @@ export default defineConfig({
             rootDir: resolvePath("src"),
             declaration: true,
             declarationDir: resolvePath("dist"),
+            sourceMap: true,
             exclude: [
                 resolvePath("node_modules/**"),
                 resolvePath("src/**/*.spec.ts"),

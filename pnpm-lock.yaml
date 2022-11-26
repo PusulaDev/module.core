@@ -6,6 +6,7 @@ specifiers:
   '@types/jest': ^26.0.19
   '@types/lodash.clonedeep': 4.5.3
   '@types/lodash.get': ^4.4.6
+  '@types/node': 18.11.9
   date-fns: ^2.29.3
   jest: ^25.x
   jest-fetch-mock: ^3.0.3
@@ -26,6 +27,7 @@ devDependencies:
   '@types/jest': 26.0.24
   '@types/lodash.clonedeep': 4.5.3
   '@types/lodash.get': 4.4.7
+  '@types/node': 18.11.9
   date-fns: 2.29.3
   jest: 25.5.4
   jest-fetch-mock: 3.0.3
