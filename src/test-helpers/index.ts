@@ -11,7 +11,7 @@ import {
 
 export const createMock = (
     module: ICoreModule,
-    options: { cacheKey?: string; mockClientOnClear?: boolean; onlyClearInstances?: boolean }
+    options: { cacheKey?: string; mockClientOnClear?: boolean; onlyClearInstances?: boolean } = {}
 ) => {
     const { cacheKey = "SessionStorageCache", mockClientOnClear = true, onlyClearInstances = true } = options;
 
