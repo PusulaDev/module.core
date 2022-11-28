@@ -6,7 +6,8 @@ import { CustomHttpClientError } from "../custom-errors/custom-http-client-error
 import { EnumCustomErrorType } from "../custom-errors/statics/custom-error-type.enum";
 import { globalModule } from "../global-module/global-module";
 import { ensureObject } from "..";
-import { multipartContentType, jsonContentType, contentTypeKey, urlEncodedContentType } from "./";
+import { contentTypeKey, EnumContentType, EnumResponseFormat } from "./";
+import { createFormData } from "@/utils/create-form-data";
 
 export class FetchHTTPClient implements IHTTPClient {
     private baseUrl: string;
@@ -14,12 +15,14 @@ export class FetchHTTPClient implements IHTTPClient {
     private createErrorFn?: IHTTPClientOptions["createErrorFn"];
     private pendingRequests = new Map<string, Promise<Response>>();
     private preventRequestDuplication?: boolean;
+    private responseFormat: EnumResponseFormat;
 
     constructor(options: IHTTPClientOptions) {
         this.baseUrl = this.createBaseUrl(options);
         this.headers = options.headers;
         this.createErrorFn = options.createErrorFn;
         this.preventRequestDuplication = options.preventRequestDuplication;
+        this.responseFormat = options.responseFormat ?? EnumResponseFormat.Json;
     }
 
     createAbortController() {
@@ -104,9 +107,13 @@ export class FetchHTTPClient implements IHTTPClient {
         return this.request(url, EnumRequestMethod.DELETE, data, options);
     }
 
-    async upload<TResponse = undefined>(url: string, formData: FormData): Promise<TResponse | undefined> {
+    async upload<TResponse = undefined>(
+        url: string,
+        formData: FormData,
+        options?: RequestOptions
+    ): Promise<TResponse | undefined> {
         try {
-            return this.handleUpload(url, formData);
+            return this.handleUpload(url, formData, options);
         } catch (e) {
             this.handleError(e, url);
         }
@@ -126,17 +133,21 @@ export class FetchHTTPClient implements IHTTPClient {
         if (isHeadersEmpty) this.headers = undefined;
     }
 
-    private async handleUpload<TResponse = undefined>(url: string, formData: FormData): Promise<TResponse> {
+    private async handleUpload<TResponse = undefined>(
+        url: string,
+        formData: FormData,
+        options?: RequestOptions
+    ): Promise<TResponse> {
         const response = await fetch(`${this.baseUrl}${url}`, {
             method: "POST",
             headers: {
                 ...this.headers,
-                [contentTypeKey]: multipartContentType,
+                [contentTypeKey]: EnumContentType.FormData,
             },
             body: formData,
         });
 
-        return this.handleResponse(response);
+        return this.handleResponse(response, options?.responseFormat);
     }
 
     private checkContentType = (key: string, value: string, contentType: string) =>
@@ -153,16 +164,22 @@ export class FetchHTTPClient implements IHTTPClient {
         if (isGet || !data) return body;
 
         const isContentTypeJson = Object.entries(headers).some(([key, value]) =>
-            this.checkContentType(key, value, jsonContentType)
+            this.checkContentType(key, value, EnumContentType.Json)
         );
 
         const isContentTypeUrlEncoded = Object.entries(headers).some(([key, value]) =>
-            this.checkContentType(key, value, urlEncodedContentType)
+            this.checkContentType(key, value, EnumContentType.UrlEncoded)
+        );
+
+        const isContentTypeFormData = Object.entries(headers).some(([key, value]) =>
+            this.checkContentType(key, value, EnumContentType.FormData)
         );
 
         if (isContentTypeJson) body = JSON.stringify(data);
         else if (isContentTypeUrlEncoded && ensureObject(data))
             body = new URLSearchParams(data as Record<string, string>);
+        else if (isContentTypeFormData && ensureObject(data))
+            body = createFormData(data as Record<string, string>);
 
         return body;
     };
@@ -225,7 +242,7 @@ export class FetchHTTPClient implements IHTTPClient {
 
         this.pendingRequests.delete(key);
 
-        return this.handleResponse(response);
+        return this.handleResponse(response, options?.responseFormat);
     }
 
     private createKey(url: string, method: string, data?: any) {
@@ -255,10 +272,24 @@ export class FetchHTTPClient implements IHTTPClient {
         return await request;
     }
 
-    private async handleResponse(response: Response) {
-        if (response.ok) return response.json();
+    private async handleResponse(response: Response, format?: EnumResponseFormat) {
+        if (!response.ok) await this.handleResponseError(response);
 
-        await this.handleResponseError(response);
+        const mergedFormat = format ?? this.responseFormat;
+
+        switch (mergedFormat) {
+            case EnumResponseFormat.Json:
+                return response.json();
+            case EnumResponseFormat.FormData:
+                return response.formData();
+            case EnumResponseFormat.Blob:
+                return response.blob();
+            case EnumResponseFormat.ArrayBuffer:
+                return response.arrayBuffer();
+            case EnumResponseFormat.Text:
+            default:
+                return await response.text();
+        }
     }
 
     private async handleResponseError(response: Response) {

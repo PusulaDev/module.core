@@ -1,3 +1,4 @@
+import type { EnumResponseFormat } from "@/http-client";
 import type { ProviderRequestOptions } from "./provider-request-options.interface";
 
 export type IRequestConfig<TRequest = undefined, TResponse = undefined> = {
@@ -7,7 +8,7 @@ export type IRequestConfig<TRequest = undefined, TResponse = undefined> = {
      */
     cacheKey?: string;
     headers?: ProviderRequestOptions["headers"];
-
+    responseFormat?: EnumResponseFormat;
     /**
      * throw error message if request invalid
      */

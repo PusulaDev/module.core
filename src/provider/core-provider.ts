@@ -24,7 +24,7 @@ export class CoreProvider implements IProvider {
     ): Promise<TResponse | undefined> {
         this.validateRequest(config, data);
 
-        let requestOptions = this.createRequestOptions(options, config.headers);
+        let requestOptions = this.createRequestOptions(config, options);
 
         const computedUrl = this.createUrl(config.url);
 
@@ -141,13 +141,15 @@ export class CoreProvider implements IProvider {
         }
     }
 
-    private createRequestOptions(
-        options?: ProviderRequestOptions,
-        configHeaders?: IRequestConfig["headers"]
+    private createRequestOptions<TRequest, TResponse>(
+        config: IRequestConfig<TRequest, TResponse>,
+        options?: ProviderRequestOptions
     ): RequestOptions {
-        let requestOptions: RequestOptions = {};
+        let requestOptions: RequestOptions = {
+            responseFormat: options?.responseFormat ?? config.responseFormat,
+        };
 
-        const headers = { ...(options?.headers ?? {}), ...(configHeaders ?? {}) };
+        const headers = { ...(options?.headers ?? {}), ...(config.headers ?? {}) };
 
         if (Object.keys(headers).length) requestOptions.headers = headers;
 

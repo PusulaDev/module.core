@@ -1,6 +1,10 @@
 import { FetchHTTPClient } from "../fetch-http-client";
 import fetchMock from "jest-fetch-mock";
-import { mockFetchResponse, mockFetchResponseWithError, mockRejectResponse } from "../__mocks__/fetch.mock";
+import {
+    mockFetchJSONResponse,
+    mockFetchResponseWithError,
+    mockRejectResponse,
+} from "../__mocks__/fetch.mock";
 import { CustomServerError } from "../../custom-errors/custom-server-error";
 
 describe("Http Client Get Method", () => {
@@ -11,7 +15,7 @@ describe("Http Client Get Method", () => {
     });
 
     it("should call fetch with get method", async () => {
-        mockFetchResponse({});
+        mockFetchJSONResponse({});
 
         const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
         await api.get("test");
@@ -22,7 +26,7 @@ describe("Http Client Get Method", () => {
     });
 
     it("should not add multiple slashes between ", async () => {
-        mockFetchResponse({});
+        mockFetchJSONResponse({});
 
         const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
         await api.get("/test");
@@ -33,7 +37,7 @@ describe("Http Client Get Method", () => {
     });
 
     it("should call fetch with query params", async () => {
-        mockFetchResponse({});
+        mockFetchJSONResponse({});
 
         const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
         await api.get("test", { id: 1, name: "ali" });
@@ -44,7 +48,7 @@ describe("Http Client Get Method", () => {
     });
 
     it("should call fetch withouth ? if data is empty", async () => {
-        mockFetchResponse({});
+        mockFetchJSONResponse({});
 
         const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
         await api.get("test");
@@ -55,7 +59,7 @@ describe("Http Client Get Method", () => {
     });
 
     it("should replace the route params with data and remove the data if matches", async () => {
-        mockFetchResponse({});
+        mockFetchJSONResponse({});
 
         const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
         await api.get("test/${id}", { id: 1, name: "ali" });
@@ -66,7 +70,7 @@ describe("Http Client Get Method", () => {
     });
 
     it("should call fetch with correct url", async () => {
-        mockFetchResponse({});
+        mockFetchJSONResponse({});
 
         const api = new FetchHTTPClient({
             hostName: "my-site.net",
@@ -82,7 +86,7 @@ describe("Http Client Get Method", () => {
     });
 
     it("should call fetch with correct headers", async () => {
-        mockFetchResponse({});
+        mockFetchJSONResponse({});
 
         const api = new FetchHTTPClient({
             hostName: "site.com",
@@ -105,7 +109,7 @@ describe("Http Client Get Method", () => {
     });
 
     it("should get value from response", async () => {
-        mockFetchResponse({ data: "test_result" });
+        mockFetchJSONResponse({ data: "test_result" });
 
         const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
         const res = await api.get("test");

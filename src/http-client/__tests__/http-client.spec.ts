@@ -1,7 +1,7 @@
 import { FetchHTTPClient } from "../fetch-http-client";
 import fetchMock from "jest-fetch-mock";
 import {
-    mockFetchResponse,
+    mockFetchJSONResponse,
     mockFetchResponseWithError,
     mockFetchResponseWithTimeout,
 } from "../__mocks__/fetch.mock";
@@ -19,7 +19,7 @@ describe("Http Client", () => {
 
     describe("Upload", () => {
         it("should call post with form data and content-type header", () => {
-            mockFetchResponse({ id: 1 });
+            mockFetchJSONResponse({ id: 1 });
 
             const api = new FetchHTTPClient({
                 baseUrl: "http://test.com",
@@ -118,7 +118,7 @@ describe("Http Client", () => {
         });
 
         it("should not prevent second if preventRequestDuplication is false", () => {
-            mockFetchResponse({ id: 1 });
+            mockFetchJSONResponse({ id: 1 });
 
             const api = new FetchHTTPClient({
                 baseUrl: "test.com",
@@ -126,7 +126,7 @@ describe("Http Client", () => {
 
             api.get("test?id=1");
 
-            mockFetchResponse({ id: 1 });
+            mockFetchJSONResponse({ id: 1 });
 
             api.get("test?id=1");
 
@@ -136,7 +136,7 @@ describe("Http Client", () => {
 
     describe("Header", () => {
         it("should change header with key and value", () => {
-            mockFetchResponse({ data: 1 });
+            mockFetchJSONResponse({ data: 1 });
 
             const api = new FetchHTTPClient({
                 baseUrl: "http://test.com",
@@ -155,7 +155,7 @@ describe("Http Client", () => {
         });
 
         it("should merge with shared header", () => {
-            mockFetchResponse({ data: 1 });
+            mockFetchJSONResponse({ data: 1 });
 
             const client = new FetchHTTPClient({
                 baseUrl: "http://test.com",
@@ -178,7 +178,7 @@ describe("Http Client", () => {
         });
 
         it("should merge with request headers", () => {
-            mockFetchResponse({ data: 1 });
+            mockFetchJSONResponse({ data: 1 });
 
             const client = new FetchHTTPClient({
                 baseUrl: "http://test.com",
@@ -203,7 +203,7 @@ describe("Http Client", () => {
         });
 
         it("should remove header with key", () => {
-            mockFetchResponse({ id: 1 });
+            mockFetchJSONResponse({ id: 1 });
 
             const client = new FetchHTTPClient({
                 baseUrl: "http://a.com",

@@ -1,5 +1,9 @@
-import { FetchHTTPClient, jsonContentType } from "@/http-client";
-import { mockFetchResponse, mockFetchResponseWithTimeout } from "@/http-client/__mocks__/fetch.mock";
+import { EnumContentType, EnumResponseFormat, FetchHTTPClient } from "@/http-client";
+import {
+    mockFetchJSONResponse,
+    mockFetchResponseWithTimeout,
+    mockFetchTxtResponse,
+} from "@/http-client/__mocks__/fetch.mock";
 import { CoreProvider } from "../core-provider";
 import fetchMock from "jest-fetch-mock";
 import type { ICachableRequestConfig, IRequestConfig } from "../types/request-config.interface";
@@ -10,7 +14,7 @@ import { CustomProviderError } from "@/custom-errors/custom-provider-error";
 
 describe("Data Provider", () => {
     const headers = {
-        "content-type": jsonContentType,
+        "content-type": EnumContentType.Json,
     };
     const client = new FetchHTTPClient({ baseUrl: "http://test.com", headers });
 
@@ -21,7 +25,7 @@ describe("Data Provider", () => {
     });
 
     it("should post using options", () => {
-        mockFetchResponse({ id: 1 });
+        mockFetchJSONResponse({ id: 1 });
 
         const provider = new CoreProvider(client);
 
@@ -38,8 +42,44 @@ describe("Data Provider", () => {
         });
     });
 
+    it("should send response format from config to the client", async () => {
+        const data = "test";
+        mockFetchTxtResponse(data);
+
+        const provider = new CoreProvider(client);
+        const config: IRequestConfig<{ id: number }, number> = {
+            url: "getPatient",
+            responseFormat: EnumResponseFormat.Text,
+        };
+
+        const res = await provider.post(config, { id: 1 });
+
+        expect(res).toEqual(data);
+    });
+
+    it("should send response format from options to the client", async () => {
+        const data = "test";
+        mockFetchTxtResponse(data);
+
+        const provider = new CoreProvider(client);
+        const config: IRequestConfig<{ id: number }, number> = {
+            url: "getPatient",
+            responseFormat: EnumResponseFormat.Json,
+        };
+
+        const res = await provider.post(
+            config,
+            { id: 1 },
+            {
+                responseFormat: EnumResponseFormat.Text,
+            }
+        );
+
+        expect(res).toEqual(data);
+    });
+
     it("should post using headers", () => {
-        mockFetchResponse({ id: 1 });
+        mockFetchJSONResponse({ id: 1 });
 
         const provider = new CoreProvider(client);
 
@@ -65,7 +105,7 @@ describe("Data Provider", () => {
     });
 
     it("should post using all headers combined", () => {
-        mockFetchResponse({ id: 1 });
+        mockFetchJSONResponse({ id: 1 });
 
         const provider = new CoreProvider(client);
 
@@ -96,7 +136,7 @@ describe("Data Provider", () => {
     });
 
     it("should post with baseUrl added to url", () => {
-        mockFetchResponse({ id: 1 });
+        mockFetchJSONResponse({ id: 1 });
 
         class TestProvider extends CoreProvider {
             protected baseUrl: string = "giganto";
@@ -113,7 +153,7 @@ describe("Data Provider", () => {
     });
 
     it("should get using options", () => {
-        mockFetchResponse({ id: 1 });
+        mockFetchJSONResponse({ id: 1 });
 
         const provider = new CoreProvider(client);
         provider.get({ url: "getTest" });
@@ -125,7 +165,7 @@ describe("Data Provider", () => {
     });
 
     it("should upload ", () => {
-        mockFetchResponse({ id: 1 });
+        mockFetchJSONResponse({ id: 1 });
         const provider = new CoreProvider(client);
 
         const formData = new FormData();
@@ -208,7 +248,7 @@ describe("Data Provider", () => {
 
     it("should get values from cache when cachablePost is called second time", async () => {
         const mockResponse = [{ id: 1 }, { id: 2 }];
-        mockFetchResponse(mockResponse);
+        mockFetchJSONResponse(mockResponse);
 
         class CachebleProvider extends CoreProvider {
             cache: ICache = new MemoryCache();
@@ -222,7 +262,7 @@ describe("Data Provider", () => {
 
         const firstResponse = await provider.cachablePost(config);
 
-        mockFetchResponse([]);
+        mockFetchJSONResponse([]);
 
         const secondResponse = await provider.cachablePost(config);
 
