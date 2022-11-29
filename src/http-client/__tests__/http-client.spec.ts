@@ -100,6 +100,22 @@ describe("Http Client", () => {
             expect(fetchMock).toHaveBeenCalledTimes(1);
         });
 
+        it("should use new object response for duplicated requests", async () => {
+            const response = { id: 1 };
+            mockFetchResponseWithTimeout(response, 100);
+
+            const api = new FetchHTTPClient({
+                baseUrl: "test.com",
+                preventRequestDuplication: true,
+            });
+
+            api.post("test", { id: 1 });
+            const res = await api.post("test", { id: 1 });
+            response.id = 2;
+
+            expect(res).not.toEqual(response);
+        });
+
         it("should clear from pending requests if there is an error", async () => {
             mockFetchResponseWithError(404);
 

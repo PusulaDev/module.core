@@ -279,16 +279,16 @@ export class FetchHTTPClient implements IHTTPClient {
 
         switch (mergedFormat) {
             case EnumResponseFormat.Json:
-                return response.json();
+                return response.clone().json();
             case EnumResponseFormat.FormData:
-                return response.formData();
+                return response.clone().formData();
             case EnumResponseFormat.Blob:
-                return response.blob();
+                return response.clone().blob();
             case EnumResponseFormat.ArrayBuffer:
-                return response.arrayBuffer();
+                return response.clone().arrayBuffer();
             case EnumResponseFormat.Text:
             default:
-                return await response.text();
+                return await response.clone().text();
         }
     }
 
