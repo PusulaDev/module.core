@@ -27,6 +27,12 @@ export const mockFetchResponseWithError = (
     );
 };
 
+export const mockFetchResponseWithStatus = (status: number, statusText?: string) => {
+    return fetchMock.mockResponseOnce(
+        () => new Promise((resolve) => resolve({ init: { status, statusText } }))
+    );
+};
+
 export const mockFetchResponseWithTimeout = (value: object, timeout: number) => {
     return fetchMock.mockResponseOnce(
         () => new Promise((resolve) => setTimeout(() => resolve(JSON.stringify(value)), timeout))

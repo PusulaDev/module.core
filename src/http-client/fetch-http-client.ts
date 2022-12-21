@@ -277,6 +277,11 @@ export class FetchHTTPClient implements IHTTPClient {
 
         const mergedFormat = format ?? this.responseFormat;
 
+        if (mergedFormat === EnumResponseFormat.Json) {
+            const text = await response.clone().text();
+            if (!text) return;
+        } else if (response.status === 204) return;
+
         switch (mergedFormat) {
             case EnumResponseFormat.Json:
                 return response.clone().json();

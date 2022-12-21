@@ -4,6 +4,7 @@ import {
     mockFetchJSONResponse,
     mockFetchResponseWithError,
     mockRejectResponse,
+    mockFetchResponseWithStatus,
 } from "../__mocks__/fetch.mock";
 import { CustomServerError } from "../../custom-errors/custom-server-error";
 
@@ -157,5 +158,21 @@ describe("Http Client Get Method", () => {
         });
 
         await expect(api.get("test")).rejects.toEqual(new CustomServerError({ message: "test error" }));
+    });
+
+    it("should not parse json when status code is 204", async () => {
+        mockFetchResponseWithStatus(204, "No Content");
+
+        const api = new FetchHTTPClient({ baseUrl: "test.com" });
+
+        await expect(api.get("test")).resolves.toBeUndefined();
+    });
+
+    it("should return undefined when the response is empty", async () => {
+        mockFetchResponseWithStatus(200, "");
+
+        const api = new FetchHTTPClient({ baseUrl: "test.com" });
+
+        await expect(api.get("test")).resolves.toBeUndefined();
     });
 });
