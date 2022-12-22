@@ -4,8 +4,10 @@ import {
     mockFetchJSONResponse,
     mockFetchResponseWithError,
     mockRejectResponse,
+    mockFetchResponseWithStatus,
 } from "../__mocks__/fetch.mock";
 import { CustomServerError } from "../../custom-errors/custom-server-error";
+import { EnumResponseFormat } from "../types";
 
 describe("Http Client Get Method", () => {
     fetchMock.enableMocks();
@@ -111,7 +113,10 @@ describe("Http Client Get Method", () => {
     it("should get value from response", async () => {
         mockFetchJSONResponse({ data: "test_result" });
 
-        const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
+        const api = new FetchHTTPClient({
+            baseUrl: "http://test.com",
+            responseFormat: EnumResponseFormat.Json,
+        });
         const res = await api.get("test");
 
         expect(res).toEqual({ data: "test_result" });
@@ -157,5 +162,13 @@ describe("Http Client Get Method", () => {
         });
 
         await expect(api.get("test")).rejects.toEqual(new CustomServerError({ message: "test error" }));
+    });
+
+    it("should return undefined when the response is empty", async () => {
+        mockFetchResponseWithStatus(200, "");
+
+        const api = new FetchHTTPClient({ baseUrl: "test.com" });
+
+        await expect(api.get("test")).resolves.toBeUndefined();
     });
 });

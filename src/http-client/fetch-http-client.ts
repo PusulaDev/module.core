@@ -15,14 +15,14 @@ export class FetchHTTPClient implements IHTTPClient {
     private createErrorFn?: IHTTPClientOptions["createErrorFn"];
     private pendingRequests = new Map<string, Promise<Response>>();
     private preventRequestDuplication?: boolean;
-    private responseFormat: EnumResponseFormat;
+    private responseFormat: EnumResponseFormat | undefined;
 
     constructor(options: IHTTPClientOptions) {
         this.baseUrl = this.createBaseUrl(options);
         this.headers = options.headers;
         this.createErrorFn = options.createErrorFn;
         this.preventRequestDuplication = options.preventRequestDuplication;
-        this.responseFormat = options.responseFormat ?? EnumResponseFormat.Json;
+        this.responseFormat = options.responseFormat;
     }
 
     createAbortController() {
@@ -276,6 +276,9 @@ export class FetchHTTPClient implements IHTTPClient {
         if (!response.ok) await this.handleResponseError(response);
 
         const mergedFormat = format ?? this.responseFormat;
+
+        const text = await response.clone().text();
+        if (!text) return;
 
         switch (mergedFormat) {
             case EnumResponseFormat.Json:

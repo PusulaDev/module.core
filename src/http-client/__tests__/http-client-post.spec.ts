@@ -7,7 +7,7 @@ import {
 } from "../__mocks__/fetch.mock";
 import { CustomServerError } from "../../custom-errors/custom-server-error";
 import { contentTypeKey } from "../client-constants";
-import { EnumContentType } from "../types";
+import { EnumContentType, EnumResponseFormat } from "../types";
 
 describe("Http Client Post Method", () => {
     fetchMock.enableMocks();
@@ -25,6 +25,7 @@ describe("Http Client Post Method", () => {
         const api = new FetchHTTPClient({
             baseUrl: "http://test.com",
             headers,
+            responseFormat: EnumResponseFormat.Json,
         });
 
         const res = await api.post<{ data: number }, { data: string }>("go", {
