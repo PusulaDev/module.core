@@ -1,4 +1,4 @@
-hore### Table of contents
+### Table of contents
 
 -   [Module Based FrontEnd Orginazor](#module-based-frontend-orginazor)
     -   [Features](#features)
