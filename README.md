@@ -1,4 +1,4 @@
-### Table of contents
+hore### Table of contents
 
 -   [Module Based FrontEnd Orginazor](#module-based-frontend-orginazor)
     -   [Features](#features)
@@ -38,7 +38,7 @@ Sits in between two side, from getting and sending data to backend to rendering 
 
 To be more spesific. Communicates with backend and frontEnd framework. (Vue, React or your own render code)
 
-### [Install](#install)
+## [Install](#install)
 
 npm:
 
@@ -51,6 +51,29 @@ yarn:
 pnpm:
 
 `pnpm i @pusula/module.core`
+
+## [Usage](#usage)
+
+If you want to use dependency injection install reflect-metada and import it at the start of your project.
+
+```javascript
+import "reflect-metadata";
+```
+
+Also add experimental decorators and emit metadata options to tsconfig
+
+```json
+
+{
+  "compilerOptions":{
+    ...
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    ...
+  }
+}
+
+```
 
 ## [Layers](#layers)
 
