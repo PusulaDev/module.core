@@ -4,6 +4,7 @@ hore### Table of contents
     -   [Features](#features)
     -   [Motivation](#motivation)
         -   [Install](#install)
+        -   [Usage](#usage)
     -   [Layers](#layers)
         -   [Module](#module)
         -   [Global Module](#global-module)
