@@ -16,7 +16,11 @@ describe("Data Provider", () => {
     const headers = {
         "content-type": EnumContentType.Json,
     };
-    const client = new FetchHTTPClient({ baseUrl: "http://test.com", headers });
+    const client = new FetchHTTPClient({
+        baseUrl: "http://test.com",
+        headers,
+        responseFormat: EnumResponseFormat.Json,
+    });
 
     fetchMock.enableMocks();
 
@@ -210,7 +214,7 @@ describe("Data Provider", () => {
 
         mockFetchResponseWithTimeout({ id: 1 }, 100);
         const firstResponse = await provider.get(
-            { url: "testRace" },
+            { url: "testRace", responseFormat: EnumResponseFormat.Json },
             { search: "te" },
             {
                 raceId: "1",
@@ -219,7 +223,7 @@ describe("Data Provider", () => {
 
         mockFetchResponseWithTimeout({ id: 2 }, 110);
         const secondResponse = await provider.get(
-            { url: "testRace" },
+            { url: "testRace", responseFormat: EnumResponseFormat.Json },
             { search: "test" },
             {
                 raceId: "1",
@@ -258,6 +262,7 @@ describe("Data Provider", () => {
         const config: ICachableRequestConfig<undefined, { id: number }[]> = {
             url: "getAll",
             cacheKey: "item",
+            responseFormat: EnumResponseFormat.Json,
         };
 
         const firstResponse = await provider.cachablePost(config);
@@ -297,6 +302,7 @@ describe("Data Provider", () => {
             validateResponse: (req?: number[]) => {
                 if (!req?.length) throw "error";
             },
+            responseFormat: EnumResponseFormat.Json,
         };
 
         await expect(() => provider.post(config)).rejects.toEqual(

@@ -16,7 +16,10 @@ describe("Http Client Response Type", () => {
         const data = { data: "test" };
         mockFetchJSONResponse(data);
 
-        const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
+        const api = new FetchHTTPClient({
+            baseUrl: "http://test.com",
+            responseFormat: EnumResponseFormat.Json,
+        });
         const res = await api.get("test");
 
         expect(res).toEqual(data);
