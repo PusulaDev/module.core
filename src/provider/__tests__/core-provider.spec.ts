@@ -28,7 +28,7 @@ describe("Data Provider", () => {
         fetchMock.mockClear();
     });
 
-    it("should post using options", () => {
+    it("should post using options", async () => {
         mockFetchJSONResponse({ id: 1 });
 
         const provider = new CoreProvider(client);
@@ -37,7 +37,7 @@ describe("Data Provider", () => {
             url: "getPatient",
         };
 
-        provider.post(config, { id: 1 });
+        await provider.post(config, { id: 1 });
 
         expect(fetchMock).toBeCalledWith("http://test.com/getPatient", {
             method: "POST",
@@ -82,7 +82,7 @@ describe("Data Provider", () => {
         expect(res).toEqual(data);
     });
 
-    it("should post using headers", () => {
+    it("should post using headers", async () => {
         mockFetchJSONResponse({ id: 1 });
 
         const provider = new CoreProvider(client);
@@ -91,7 +91,7 @@ describe("Data Provider", () => {
             url: "getPatient",
         };
 
-        provider.post(
+        await provider.post(
             config,
             { id: 1 },
             {
@@ -108,7 +108,7 @@ describe("Data Provider", () => {
         });
     });
 
-    it("should post using all headers combined", () => {
+    it("should post using all headers combined", async () => {
         mockFetchJSONResponse({ id: 1 });
 
         const provider = new CoreProvider(client);
@@ -124,7 +124,7 @@ describe("Data Provider", () => {
             test: "1",
         };
 
-        provider.post(
+        await provider.post(
             config,
             { id: 1 },
             {
@@ -139,7 +139,7 @@ describe("Data Provider", () => {
         });
     });
 
-    it("should post with baseUrl added to url", () => {
+    it("should post with baseUrl added to url", async () => {
         mockFetchJSONResponse({ id: 1 });
 
         class TestProvider extends CoreProvider {
@@ -148,7 +148,7 @@ describe("Data Provider", () => {
 
         const provider = new TestProvider(client);
         const config: IRequestConfig = { url: "haleluya" };
-        provider.post(config);
+        await provider.post(config);
 
         expect(fetchMock).toBeCalledWith("http://test.com/giganto/haleluya", {
             method: "POST",
@@ -156,11 +156,11 @@ describe("Data Provider", () => {
         });
     });
 
-    it("should get using options", () => {
+    it("should get using options", async () => {
         mockFetchJSONResponse({ id: 1 });
 
         const provider = new CoreProvider(client);
-        provider.get({ url: "getTest" });
+        await provider.get({ url: "getTest" });
 
         expect(fetchMock).toBeCalledWith("http://test.com/getTest", {
             method: "GET",
@@ -168,14 +168,14 @@ describe("Data Provider", () => {
         });
     });
 
-    it("should upload ", () => {
+    it("should upload ", async () => {
         mockFetchJSONResponse({ id: 1 });
         const provider = new CoreProvider(client);
 
         const formData = new FormData();
         formData.append("file", new Blob());
 
-        provider.upload("upload", formData);
+        await provider.upload("upload", formData);
 
         expect(fetchMock).toBeCalledWith("http://test.com/upload", {
             method: "POST",

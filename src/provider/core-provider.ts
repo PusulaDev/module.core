@@ -22,7 +22,7 @@ export class CoreProvider implements IProvider {
         data?: TRequest,
         options?: ProviderRequestOptions
     ): Promise<TResponse | undefined> {
-        this.validateRequest(config, data);
+        await this.validateRequest(config, data);
 
         let requestOptions = this.createRequestOptions(config, options);
 
@@ -33,7 +33,7 @@ export class CoreProvider implements IProvider {
             options
         );
 
-        this.validateResponse<TRequest, TResponse>(config, response);
+        await this.validateResponse<TRequest, TResponse>(config, response);
         return response;
     }
 
@@ -182,12 +182,12 @@ export class CoreProvider implements IProvider {
         this.abortControllers.delete(options?.raceId);
     }
 
-    private validateRequest<TRequest = undefined, TResponse = undefined>(
+    private async validateRequest<TRequest = undefined, TResponse = undefined>(
         config: IRequestConfig<TRequest, TResponse>,
         data: TRequest | undefined
     ) {
         try {
-            config.validateRequest?.(data);
+            await config.validateRequest?.(data);
         } catch (e) {
             throw new CustomProviderError({
                 type: EnumCustomErrorType.RequestValidation,
@@ -196,12 +196,12 @@ export class CoreProvider implements IProvider {
         }
     }
 
-    private validateResponse<TRequest = undefined, TResponse = undefined>(
+    private async validateResponse<TRequest = undefined, TResponse = undefined>(
         config: IRequestConfig<TRequest, TResponse>,
         response: TResponse | undefined
     ) {
         try {
-            config.validateResponse?.(response);
+            await config.validateResponse?.(response);
         } catch (e) {
             throw new CustomProviderError({
                 type: EnumCustomErrorType.ResponseValidation,

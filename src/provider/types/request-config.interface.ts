@@ -12,11 +12,11 @@ export type IRequestConfig<TRequest = undefined, TResponse = undefined> = {
     /**
      * throw error message if request invalid
      */
-    validateRequest?: (req?: TRequest) => void;
+    validateRequest?: (req?: TRequest) => void | Promise<void>;
     /**
      * throw error message if response invalid
      */
-    validateResponse?: (res?: TResponse) => void;
+    validateResponse?: (res?: TResponse) => void | Promise<void>;
 };
 
 export type ICachableRequestConfig<TRequest = undefined, TResponse = undefined> = IRequestConfig<
