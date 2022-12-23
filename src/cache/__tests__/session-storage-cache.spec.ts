@@ -3,21 +3,19 @@ import type { IEncyrptionUtil } from "@/utils/types/encryption-util.interface";
 import { SessionStorageCache } from "../session-storage-cache";
 
 describe("Session Storage Cache", () => {
+  let cache: SessionStorageCache;
   beforeEach(() => {
     globalModule.clear();
+    cache = new SessionStorageCache();
   });
 
   it("should return null for not stored key", () => {
-    const cache = new SessionStorageCache();
-
     const value = cache.get("wololo");
 
     expect(value).toBeNull();
   });
 
   it("should store value to session storage", () => {
-    const cache = new SessionStorageCache();
-
     cache.set("oww", { id: 12 });
 
     const value = cache.get<{ id: number }>("oww");
@@ -26,7 +24,6 @@ describe("Session Storage Cache", () => {
   });
 
   it("should remove value", () => {
-    const cache = new SessionStorageCache();
     const key = "arrayy";
 
     cache.set(key, []);
@@ -38,8 +35,6 @@ describe("Session Storage Cache", () => {
   });
 
   it("should clear cache", () => {
-    const cache = new SessionStorageCache();
-
     cache.set("asd", "asd");
     cache.set("num", 1);
 
@@ -70,7 +65,6 @@ describe("Session Storage Cache", () => {
 
     it("should run registered ecryption algorithm", () => {
       const encryption = new TestEncryption();
-      const cache = new SessionStorageCache();
 
       globalModule.setEncryptionUtil(encryption);
 
@@ -89,7 +83,6 @@ describe("Session Storage Cache", () => {
 
     it("should run registered object ecryption algorithm", () => {
       const encryption = new TestEncryption();
-      const cache = new SessionStorageCache();
 
       globalModule.setEncryptionUtil(encryption);
 
