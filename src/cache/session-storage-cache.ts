@@ -4,6 +4,8 @@ import type { ICache } from ".";
 
 export class SessionStorageCache implements ICache {
   set<T>(key: string, value: T) {
+    if (value === undefined) return;
+
     let stringValue = JSON.stringify(value);
 
     stringValue =
