@@ -42,10 +42,13 @@ export type AppLayerUnionType = IProvider | IController | ICache | IHTTPClient;
 export interface ModuleConstructorOptions {
     key?: string;
     decorators?: IDecorator[];
+    linkedModule?: boolean;
     register?: { constructor: new (...args: unknown[]) => unknown; options?: RegisterClassOptions }[];
 }
 
 export type ModuleConstructor = (new (options?: ModuleConstructorOptions) => ICoreModule) & Function;
+
+export type ResolveType = 'locale' | 'global';
 
 export type ICoreModule = object & {
     bootstrap: (options?: ModuleBootstrapOptions) => Promise<ICoreModule> | ICoreModule;
@@ -54,7 +57,7 @@ export type ICoreModule = object & {
 
     useDecorators: (...decorators: IDecorator[]) => ICoreModule;
 
-    resolve: <T extends AppLayerUnionType>(key: KeyUnionType<T>) => T;
+    resolve: <T extends AppLayerUnionType>(key: KeyUnionType<T>, type?: ResolveType) => T;
     register: <T>(constructor: new (...args: any[]) => T, options?: RegisterClassOptions) => ICoreModule;
 
     registerInstance: <T extends object>(obj: T, key?: string) => ICoreModule;
@@ -63,18 +66,18 @@ export type ICoreModule = object & {
 
     registerHttpClientInstance: (client: IHTTPClient, key?: string) => ICoreModule;
 
-    resolveHttpClient: <T extends IHTTPClient>(client?: IHTTPClientConstuctor) => T;
+    resolveHttpClient: <T extends IHTTPClient>(client?: IHTTPClientConstuctor, locale?: ResolveType) => T;
 
     registerProvider: (provider: IProviderConstructor, options?: RegisterProviderOptions) => ICoreModule;
 
-    resolveProvider: <T extends IProvider>(key: string | IProviderConstructor) => T;
+    resolveProvider: <T extends IProvider>(key: string | IProviderConstructor, locale?: ResolveType) => T;
 
     registerController: <TController extends IController>(
         controller: IControllerConstructor<TController>,
         options?: RegisterControllerOptions
     ) => ICoreModule;
 
-    resolveController: <T extends IController>(key: string | IControllerConstructor<T>) => T;
+    resolveController: <T extends IController>(key: string | IControllerConstructor<T>, locale?: ResolveType) => T;
 
     clear: () => void;
     clearInstances: () => void;
