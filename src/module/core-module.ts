@@ -11,6 +11,7 @@ import type {
     RegisterClassOptions,
     RegisterControllerOptions,
     RegisterProviderOptions,
+    ResolveType,
 } from "./core-module.interface";
 import type { IDecorator } from "../decorators/types/decorator.interface";
 import { coreLogger } from "../logger/core.logger";
@@ -54,15 +55,21 @@ export class CoreModule implements ICoreModule {
     private controllers = new Map<string, IController>();
     private others = new Map<string, any>();
 
-    constructor(options?: ModuleConstructorOptions) {
-        const registeredModule = globalModule.getModule(this.constructor as new () => CoreModule);
+    private linkedModule = true;
+
+    constructor(options: ModuleConstructorOptions = {}) {
+        const { decorators, key, linkedModule, register } = options;
+
+        const registeredModule = globalModule.getModule(key ?? this.constructor as new () => CoreModule);
         if (registeredModule) return registeredModule as CoreModule;
 
-        globalModule.registerModule(this, options?.key);
+        globalModule.registerModule(this, key);
 
-        if (options?.decorators?.length) this.useDecorators(...options.decorators);
-        if (options?.register?.length)
-            options.register.forEach((r) => this.register(r.constructor, r.options));
+        if (decorators?.length) this.useDecorators(...decorators);
+        if (register?.length)
+            register.forEach((r) => this.register(r.constructor, r.options));
+
+        if (linkedModule !== undefined) this.linkedModule = linkedModule
     }
 
     bootstrap(options?: ModuleBootstrapOptions) {
@@ -106,16 +113,22 @@ export class CoreModule implements ICoreModule {
      * Checks 'Provider' | 'Controller' | 'HttpClient' suffix for key or name of class.
      * @param key
      */
-    resolve<T extends AppLayerUnionType>(key: KeyUnionType<T>): T {
+    resolve<T extends AppLayerUnionType>(key: KeyUnionType<T>, locale: ResolveType = 'global'): T {
         let name = this.getName(key);
 
-        if (this.isClient(name)) return this.resolveHttpClient(key as IHTTPClientConstuctor) as T;
+        if (this.isClient(name)) return this.resolveHttpClient(key as IHTTPClientConstuctor, locale) as T;
 
-        if (this.isProvider(name)) return this.resolveProvider(key as IProviderConstructor) as T;
+        if (this.isProvider(name)) return this.resolveProvider(key as IProviderConstructor, locale) as T;
 
-        if (this.isController(name)) return this.resolveController(key as IControllerConstructor<any>) as T;
+        if (this.isController(name)) return this.resolveController(key as IControllerConstructor<any>, locale) as T;
 
-        return this.resolveOther<T>(key);
+        return this.resolveOther<T>(key, locale);
+
+    }
+
+    resolveFromGlobal<T extends AppLayerUnionType>(key: KeyUnionType<T>): T | undefined {
+        if (this.linkedModule)
+            return globalModule.resolveDependency(key, this)
     }
 
     registerHttpClientInstance(client: IHTTPClient, key?: string) {
@@ -132,12 +145,13 @@ export class CoreModule implements ICoreModule {
         return this;
     }
 
-    resolveHttpClient<T extends IHTTPClient>(client?: IHTTPClientConstuctor | string): T {
+    resolveHttpClient<T extends IHTTPClient>(client?: IHTTPClientConstuctor | string, locale: ResolveType = 'global'): T {
         let instance = this.resolveHttpClientInstance(client);
         if (instance) return instance;
 
-        return this.createHttpClientInstance(client) as T;
+        return this.createHttpClientInstance(client, locale) as T;
     }
+
 
     private resolveHttpClientInstance<T extends IHTTPClient>(client?: IHTTPClientConstuctor | string) {
         if (client) {
@@ -146,14 +160,21 @@ export class CoreModule implements ICoreModule {
         } else return this.clients.values().next().value;
     }
 
-    private createHttpClientInstance(client?: IHTTPClientConstuctor | string) {
+    private createHttpClientInstance(client?: IHTTPClientConstuctor | string, locale: ResolveType = 'global') {
         const name = client ? this.getName(client) : "HttpClient";
 
         const constructorObj = client
             ? this.clientConstructors.get(name)
             : this.clientConstructors.values().next().value;
 
-        if (!constructorObj) this.throwNotRegisteredError(name);
+        if (!constructorObj) {
+            if (!locale) {
+                const instanceFromGlobal = this.resolveFromGlobal(name);
+                if (instanceFromGlobal) return instanceFromGlobal;
+            }
+
+            this.throwNotRegisteredError(name);
+        }
 
         const instance = new constructorObj.constructor(constructorObj.options);
         this.registerHttpClientInstance(instance);
@@ -175,11 +196,11 @@ export class CoreModule implements ICoreModule {
         return this;
     }
 
-    resolveProvider<T extends IProvider>(key: string | IProviderConstructor): T {
+    resolveProvider<T extends IProvider>(key: string | IProviderConstructor, locale: ResolveType = 'global'): T {
         const instance = this.resolveProviderInstance<T>(key);
         if (instance) return instance;
 
-        return this.createProviderInstance(key) as T;
+        return this.createProviderInstance(key, locale) as T;
     }
 
     private resolveProviderInstance<T extends IProvider>(key: string | IProviderConstructor): T | undefined {
@@ -187,16 +208,17 @@ export class CoreModule implements ICoreModule {
         else return this.resolveByConstructor<T>(this.providers, key);
     }
 
-    private createProviderInstance(key: string | IProviderConstructor) {
-        return this.createInstance(
-            this.providerConstructors,
-            this.providers,
+    private createProviderInstance(key: string | IProviderConstructor, locale: ResolveType = 'global') {
+        return this.createInstance({
+            constructorMap: this.providerConstructors,
+            instanceMap: this.providers,
             key,
-            (dependencies: any[], constructorObj: ProviderConstructorOptions) => {
+            locale,
+            dependenciesMapFn: (dependencies: any[], constructorObj: ProviderConstructorOptions) => {
                 const client = this.resolveHttpClient(constructorObj.client);
                 return [client, ...dependencies];
             }
-        );
+        })
     }
 
     registerController<TController extends IController>(
@@ -215,11 +237,11 @@ export class CoreModule implements ICoreModule {
         return this;
     }
 
-    resolveController<T extends IController>(key: string | IControllerConstructor<T>): T {
+    resolveController<T extends IController>(key: string | IControllerConstructor<T>, locale: ResolveType = 'global'): T {
         const instance = this.resolveControllerInstance(key);
         if (instance) return instance;
 
-        return this.createControllerInstance(key) as T;
+        return this.createControllerInstance(key, locale) as T;
     }
 
     private resolveControllerInstance<T extends IController>(key: string | IControllerConstructor<T>) {
@@ -227,8 +249,10 @@ export class CoreModule implements ICoreModule {
         return this.resolveByConstructor<T>(this.controllers, key);
     }
 
-    private createControllerInstance(key: string | IControllerConstructor<any>) {
-        return this.createInstance(this.controllerConstructors, this.controllers, key);
+    private createControllerInstance(key: string | IControllerConstructor<any>, locale: ResolveType = 'global') {
+        return this.createInstance({
+            constructorMap: this.controllerConstructors, instanceMap: this.controllers, key, locale
+        });
     }
 
     @coreLogger.logMethod()
@@ -253,11 +277,11 @@ export class CoreModule implements ICoreModule {
         this.others.clear();
     }
 
-    private resolveOther<T>(key: KeyUnionType): T {
+    private resolveOther<T>(key: KeyUnionType, locale?: ResolveType): T {
         const instance = this.resolveOtherInstance<T>(key);
         if (instance) return instance;
 
-        return this.createOtherInstance(key);
+        return this.createOtherInstance(key, locale);
     }
 
     private resolveOtherInstance<T>(key: KeyUnionType): T | undefined {
@@ -265,19 +289,34 @@ export class CoreModule implements ICoreModule {
         return this.others.get(name) as T | undefined;
     }
 
-    private createOtherInstance(key: KeyUnionType) {
-        return this.createInstance(this.othersConstructors, this.others, key);
+    private createOtherInstance(key: KeyUnionType, locale?: ResolveType) {
+        return this.createInstance({
+            constructorMap: this.othersConstructors, instanceMap: this.others, key, locale
+        });
     }
 
     private createInstance(
-        constructorMap: Map<string, OtherConstructorOptions>,
-        instanceMap: Map<string, any>,
-        key: string | IClassConstructor,
-        dependenciesMapFn?: (dependencies: any[], constructorObj: any) => any[]
+        options: {
+            constructorMap: Map<string, OtherConstructorOptions>,
+            instanceMap: Map<string, any>,
+            key: string | IClassConstructor,
+            dependenciesMapFn?: (dependencies: any[], constructorObj: any) => any[],
+            locale?: ResolveType
+        }
     ) {
+        const { constructorMap, instanceMap, key, dependenciesMapFn, locale } = options;
+
         const name = this.getName(key);
         const constructorObj = constructorMap.get(name);
-        if (!constructorObj) this.throwNotRegisteredError(name);
+
+        if (!constructorObj) {
+            if (locale === 'global') {
+                const instanceFromGlobal = this.resolveFromGlobal(name);
+                if (instanceFromGlobal) return instanceFromGlobal;
+            }
+
+            this.throwNotRegisteredError(name);
+        }
 
         let dependencies = this.resolveDependencies(constructorObj.dependencies ?? []);
 

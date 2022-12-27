@@ -75,12 +75,25 @@ describe("Global Module", () => {
     expect(headers).toEqual({ test: '1', test2: '2' });
   });
 
-  it("should remove shared headers by key",() => {
+  it("should remove shared headers by key", () => {
     globalModule.addToSharedHeaders({ test: '1' });
     globalModule.addToSharedHeaders({ test2: '2' });
     globalModule.removeSharedHeaders("test");
     const headers = globalModule.getSharedHeaders();
     expect(headers).toEqual({ test2: '2' });
+  })
+
+  it("should resolve dependency from any module", () => {
+    const module = createModule();
+
+    class Test {
+    }
+
+    module.register(Test);
+
+    const resolved = globalModule.resolveDependency(Test);
+
+    expect(resolved).toBeInstanceOf(Test);
   })
 
   it("should clear", () => {

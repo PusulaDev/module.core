@@ -8,9 +8,11 @@ import {
     TestProvider,
     createModule,
     TestModule,
+    createNotLinkedModule,
 } from "../__mocks__/module.mock";
 import { globalModule } from "@/global-module/global-module";
 import { defaultLocalization, EnumLocalizationKeys } from "@/localization";
+import { CustomModuleError, EnumCustomErrorType } from "@/custom-errors";
 
 describe("Module", () => {
     beforeEach(() => {
@@ -85,7 +87,7 @@ describe("Module", () => {
             const module = createRegisterHttpClient();
 
             class TestApi2 implements IHTTPClient {
-                constructor() {}
+                constructor() { }
                 async get() {
                     return null as any;
                 }
@@ -107,8 +109,8 @@ describe("Module", () => {
                 async upload() {
                     return null as any;
                 }
-                removeHeader() {}
-                setHeader() {}
+                removeHeader() { }
+                setHeader() { }
             }
 
             module.registerHttpClient(TestApi2, {});
@@ -121,7 +123,7 @@ describe("Module", () => {
         it("should clear all registered types", () => {
             const module = createRegisterController();
 
-            class Test {}
+            class Test { }
 
             module.register(Test);
             module.clear();
@@ -134,7 +136,7 @@ describe("Module", () => {
 
         it("should only clear the instances", () => {
             const module = createModule();
-            class Test {}
+            class Test { }
             module.register(Test);
 
             const instance1 = module.resolve(Test);
@@ -170,7 +172,7 @@ describe("Module", () => {
             const module = createRegisterHttpClient();
 
             class Test {
-                constructor() {}
+                constructor() { }
             }
             module.register(Test);
             module.registerProvider(TestProvider, { dependencies: [Test] });
@@ -195,7 +197,7 @@ describe("Module", () => {
             const module = createRegisterProvider();
 
             class Test {
-                constructor() {}
+                constructor() { }
             }
 
             module.register(Test);
@@ -208,10 +210,71 @@ describe("Module", () => {
             expect(controller?.args?.[0]).toBeInstanceOf(Test);
         });
 
+        it("should resolve not found dependency at the other modules", () => {
+            const module = createModule();
+            const module2 = createModule('Module2');
+
+            class Test {
+            }
+
+            module.register(Test);
+
+            class TestWithDependency {
+                constructor(public test: Test) { }
+            }
+
+            module2.register(TestWithDependency, { dependencies: [Test] })
+
+            const testWithDependency = module2.resolve(TestWithDependency);
+
+            expect(module).not.toEqual(module2);
+
+            expect(testWithDependency).toBeInstanceOf(TestWithDependency);
+            expect(testWithDependency.test).toBeInstanceOf(Test)
+        })
+
+        it("should throw not registered error when 'linkedModule' false and dependency is registered in another module", () => {
+            const module = createModule();
+            const module2 = createNotLinkedModule("Module2");
+            class Test {
+            }
+
+            module.register(Test);
+
+            class TestWithDependency {
+                constructor(public test: Test) { }
+            }
+
+            module2.register(TestWithDependency, { dependencies: [Test] })
+
+            expect(() => module2.resolve(TestWithDependency)).toThrow()
+        })
+
+        it("should throw not registered error when dependency is not registered in any module and shouldn't go infinete loop", () => {
+            createModule();
+            createModule("Module2");
+            const module3 = createModule("Module3");
+
+            class Test { }
+
+            class TestWithDependency {
+                constructor(public test: Test) { }
+            }
+
+            module3.register(TestWithDependency, { dependencies: [Test] })
+
+            expect(() => module3.resolve(TestWithDependency)).toThrowError(new CustomModuleError({
+                type: EnumCustomErrorType.Construction,
+                message: EnumLocalizationKeys.NotRegisteredError,
+                translateArgs: ["Test"],
+                translate: true,
+            }))
+        })
+
         it("should resolve any simple class instance", () => {
             const module = createModule();
 
-            class TestClass {}
+            class TestClass { }
 
             module.register(TestClass);
             const resolved = module.resolve(TestClass);
@@ -221,7 +284,7 @@ describe("Module", () => {
         it("should register and resolve class instance", () => {
             const module = createModule();
 
-            class TestClass {}
+            class TestClass { }
             const instance = new TestClass();
             module.registerInstance(instance);
 
@@ -232,7 +295,7 @@ describe("Module", () => {
         it("should resolve any simple class instance by key", () => {
             const module = createModule();
 
-            class TestClass {}
+            class TestClass { }
 
             module.register(TestClass);
             const resolved = module.resolve("TestClass");
@@ -242,7 +305,7 @@ describe("Module", () => {
         it("should resolve any simple class with dependencies at constructor", () => {
             const module = createModule();
 
-            class DepClass {}
+            class DepClass { }
             class TestClass {
                 dep: DepClass;
                 constructor(dep: DepClass) {
@@ -260,7 +323,7 @@ describe("Module", () => {
         it("should resolve any simple class with dependency strings at constructor", () => {
             const module = createModule();
 
-            class DepClass {}
+            class DepClass { }
             class TestClass {
                 dep: DepClass;
                 constructor(dep: DepClass) {
@@ -287,5 +350,6 @@ describe("Module", () => {
 
             expect(() => module.resolve("test")).toThrowError("error test");
         });
+
     });
 });

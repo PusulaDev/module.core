@@ -1,3 +1,4 @@
+import { globalModule } from "@/global-module";
 import {
   createRegisterProvider,
   createRegisterController,
@@ -5,6 +6,8 @@ import {
 } from "../__mocks__/module.mock";
 
 describe("Module Controller", () => {
+  beforeEach(() => globalModule.clear());
+
   it("should register controller", () => {
     const module = createRegisterProvider();
 

@@ -95,7 +95,7 @@ class MyModule extends CoreModule {
   }
 }
 
-const myModule = new MyModule({key:"MyModule"});
+const myModule = new MyModule({ key: "MyModule" });
 
 //(optional)register decorators for dependency Injection
 myModule.useDecorators(xInjectable);
@@ -135,6 +135,9 @@ otherModule.bootstrap({httpClient,config:otherConfig})
 ```
 
 Use module resolve functions, or class constructor arguments.
+Modules by default checks other modules if dependencies are not found.
+You can close this feature for spesific module by giving `linkedModule: false`
+at the constructor
 
 ```Typescript
 const someFunction = () => {
