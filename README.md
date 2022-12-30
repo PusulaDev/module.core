@@ -339,7 +339,9 @@ const res2 = await actionGuard.validate(5);
 ### [Localizations](#localizations)
 
 Register localization to globalModule and use it from there.
-There is a defaultLocalization with basic abilities
+There is a defaultLocalization with basic abilities.
+
+Use '%s' for using variables.
 
 ```Typescript
 

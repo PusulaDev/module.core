@@ -7,6 +7,7 @@ import type { ICache } from "../cache";
 import type { ICacheConstructor } from "../cache/cache.interface";
 import type { IClassConstructor } from "../shared";
 import type { LocalizationTranslations } from "../localization";
+import type { DependencyResolveOptions } from "./resolve-options";
 
 export type RegisterClassOptions = {
     key?: string;
@@ -35,7 +36,7 @@ export type KeyUnionType<T = any> =
     | IControllerConstructor<any>
     | ICacheConstructor
     | IHTTPClientConstuctor
-    | (new () => T);
+    | IClassConstructor<T>;
 
 export type AppLayerUnionType = IProvider | IController | ICache | IHTTPClient;
 
@@ -48,8 +49,6 @@ export interface ModuleConstructorOptions {
 
 export type ModuleConstructor = (new (options?: ModuleConstructorOptions) => ICoreModule) & Function;
 
-export type ResolveType = 'locale' | 'global';
-
 export type ICoreModule = object & {
     bootstrap: (options?: ModuleBootstrapOptions) => Promise<ICoreModule> | ICoreModule;
 
@@ -57,7 +56,8 @@ export type ICoreModule = object & {
 
     useDecorators: (...decorators: IDecorator[]) => ICoreModule;
 
-    resolve: <T extends AppLayerUnionType>(key: KeyUnionType<T>, type?: ResolveType) => T;
+    resolve: <T extends AppLayerUnionType>(key: KeyUnionType<T>, options?: DependencyResolveOptions) => T;
+
     register: <T>(constructor: new (...args: any[]) => T, options?: RegisterClassOptions) => ICoreModule;
 
     registerInstance: <T extends object>(obj: T, key?: string) => ICoreModule;
@@ -66,18 +66,18 @@ export type ICoreModule = object & {
 
     registerHttpClientInstance: (client: IHTTPClient, key?: string) => ICoreModule;
 
-    resolveHttpClient: <T extends IHTTPClient>(client?: IHTTPClientConstuctor, locale?: ResolveType) => T;
+    resolveHttpClient: <T extends IHTTPClient>(client?: IHTTPClientConstuctor, options?: DependencyResolveOptions) => T;
 
     registerProvider: (provider: IProviderConstructor, options?: RegisterProviderOptions) => ICoreModule;
 
-    resolveProvider: <T extends IProvider>(key: string | IProviderConstructor, locale?: ResolveType) => T;
+    resolveProvider: <T extends IProvider>(key: string | IProviderConstructor, options?: DependencyResolveOptions) => T;
 
     registerController: <TController extends IController>(
         controller: IControllerConstructor<TController>,
         options?: RegisterControllerOptions
     ) => ICoreModule;
 
-    resolveController: <T extends IController>(key: string | IControllerConstructor<T>, locale?: ResolveType) => T;
+    resolveController: <T extends IController>(key: string | IControllerConstructor<T>, options?: DependencyResolveOptions) => T;
 
     clear: () => void;
     clearInstances: () => void;
