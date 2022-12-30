@@ -1,10 +1,11 @@
 import type { ICloneUtil } from "../utils/types/clone-util.interface";
 import type { ILocalization } from "../localization/types/localization.interface";
 import type { ICoreModule } from "../module";
-import type { AppLayerUnionType, KeyUnionType, ModuleConstructor } from "../module/core-module.interface";
+import type { AppLayerUnionType, KeyUnionType } from "../module/core-module.interface";
 import type { IEncyrptionUtil } from "../utils/types/encryption-util.interface";
 import type { IDateUtil, IPerformanceUtil } from "../utils";
 import type { IObserver } from "../utils/types/observer.interface";
+import type { DependencyResolveOptions } from "@/module/resolve-options";
 
 declare global {
     interface Window {
@@ -31,18 +32,13 @@ class GlobalModule {
         return this.localization;
     }
 
-    registerModule(module: ICoreModule, key?: string) {
-        this.modules.set(key ?? module.constructor.name, module);
+    registerModule(module: ICoreModule, key: string) {
+        this.modules.set(key, module);
         return this;
     }
 
-    getModule(constructor: ModuleConstructor | string) {
-        const name = this.getName(constructor);
-        return this.modules.get(name);
-    }
-
-    private getName(constructor: ModuleConstructor | string): string {
-        return typeof constructor === "string" ? constructor : constructor.name;
+    getModule<T extends ICoreModule>(name: string): T {
+        return this.modules.get(name) as T;
     }
 
     setCloneUtil(util: ICloneUtil) {
@@ -104,10 +100,14 @@ class GlobalModule {
         keys.forEach((key) => delete this.sharedHeaders[key]);
     }
 
-    resolveDependency<T extends AppLayerUnionType, TModule extends ICoreModule>(key: KeyUnionType<T>, currentModule?: TModule): T | undefined {
-        for (const [, module] of this.modules) {
-            if (!currentModule || module !== currentModule) {
-                const resolved = module.resolve(key, 'locale');
+    resolveDependency<T extends AppLayerUnionType>(key: KeyUnionType<T>, options?: DependencyResolveOptions & { currentModule?: string }): T | undefined {
+        const { currentModule, ...dependencyOptions } = options ?? { type: 'locale', path: [] };
+
+        dependencyOptions.type = "locale";
+
+        for (const [name, module] of this.modules) {
+            if (!currentModule || name !== currentModule) {
+                const resolved = module.resolve(key, dependencyOptions);
                 if (resolved)
                     return resolved
             }

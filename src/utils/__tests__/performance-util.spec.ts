@@ -14,10 +14,10 @@ describe("Performance", () => {
   });
 
   class MockPerformance implements IPerformance {
-    mark(_: string) {}
-    measure(_: string) {}
-    clearMarks() {}
-    clearMeasures() {}
+    mark(_: string) { }
+    measure(_: string) { }
+    clearMarks() { }
+    clearMeasures() { }
     getEntriesByName(_: string) {
       return [];
     }

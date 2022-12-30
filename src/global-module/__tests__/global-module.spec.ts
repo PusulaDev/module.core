@@ -1,4 +1,4 @@
-import { createModule, TestModule } from "@/module/__mocks__/module.mock";
+import { createModule } from "@/module/__mocks__/module.mock";
 import { globalModule } from "../global-module";
 import {
   mockCloneUtil,
@@ -22,9 +22,10 @@ describe("Global Module", () => {
   });
 
   it("should register module", () => {
+    const key = "Module1";
     const module = createModule();
-    globalModule.registerModule(module);
-    const resolved = globalModule.getModule(TestModule);
+    globalModule.registerModule(module, key);
+    const resolved = globalModule.getModule(key);
     expect(resolved).toEqual(module);
   });
 
@@ -105,13 +106,14 @@ describe("Global Module", () => {
     globalModule.setObserver(MockObserver);
     globalModule.addToSharedHeaders({ test: '1' });
 
-    const module = createModule();
-    globalModule.registerModule(module);
+    const key = "Module1";
+    const module = createModule(key);
+    globalModule.registerModule(module, key);
 
     globalModule.clear();
 
     const localization = globalModule.getLocalization();
-    const resolvedModule = globalModule.getModule(TestModule);
+    const resolvedModule = globalModule.getModule(key);
     const clone = globalModule.getCloneUtil();
     const encyription = globalModule.getEncryptionUtil();
     const performance = globalModule.getPerformanceUtil();
