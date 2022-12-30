@@ -7,7 +7,6 @@ import type { ICache } from "../cache";
 import type { ICacheConstructor } from "../cache/cache.interface";
 import type { IClassConstructor } from "../shared";
 import type { LocalizationTranslations } from "../localization";
-import type { ResolveType } from "./resolve-type";
 import type { DependencyResolveOptions } from "./resolve-options";
 
 export type RegisterClassOptions = {
