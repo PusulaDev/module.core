@@ -109,25 +109,22 @@ export class CoreModule implements ICoreModule {
      * @param options
      */
 
-    resolve<T>(
-        key: IClassConstructor<T> | string,
-        options?: DependencyResolveOptions
-    ): T {
+    resolve<T>(key: IClassConstructor<T> | string, options?: DependencyResolveOptions): T {
         const name = this.getName(key);
 
-        if (this.isClient(name)) return this.resolveHttpClient(key as IHTTPClientConstuctor, options) as any;
+        if (this.isClient(name)) return this.resolveHttpClient(key as IHTTPClientConstuctor, options) as T;
 
-        if (this.isProvider(name)) return this.resolveProvider(key as IProviderConstructor, options) as any;
+        if (this.isProvider(name)) return this.resolveProvider(key as IProviderConstructor, options) as T;
 
         return this.resolveOther(key, options);
     }
 
-    resolveFromGlobal<T extends IClassConstructor>(
-        key: T | string,
+    resolveFromGlobal<T>(
+        key: IClassConstructor<T> | string,
         options: DependencyResolveOptions
-    ): InstanceType<T> | undefined {
+    ): T | undefined {
         if (this.linkedModule && options.type !== "locale")
-            return globalModule.resolveDependency(key, { ...options, currentModule: this.key });
+            return globalModule.resolveDependency<T>(key, { ...options, currentModule: this.key });
     }
 
     registerHttpClientInstance(client: IHTTPClient, key?: string) {
@@ -223,7 +220,7 @@ export class CoreModule implements ICoreModule {
         this.checkAndPushPath(name, options);
 
         if (!constructorObj) {
-            const instanceFromGlobal = this.resolveFromGlobal(name, options);
+            const instanceFromGlobal = this.resolveFromGlobal<IHTTPClient>(name, options);
             if (instanceFromGlobal) return instanceFromGlobal;
 
             this.throwNotRegisteredError(name, options.parentName);
@@ -310,7 +307,7 @@ export class CoreModule implements ICoreModule {
         this.ensureParentName(name, dependencyOptions);
 
         if (!constructorObj) {
-            const instanceFromGlobal = this.resolveFromGlobal(name, dependencyOptions);
+            const instanceFromGlobal = this.resolveFromGlobal<T>(name, dependencyOptions);
             if (instanceFromGlobal) return instanceFromGlobal as T;
 
             this.throwNotRegisteredError(name, dependencyOptions.parentName);

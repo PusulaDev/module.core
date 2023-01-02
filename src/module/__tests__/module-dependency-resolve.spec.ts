@@ -34,7 +34,7 @@ describe("Module Dependency Resolve", () => {
     it("should resolve Provider with dependencies", () => {
         const module = createRegisterHttpClient();
 
-        class Test { }
+        class Test {}
 
         module.register(Test);
         module.registerProvider(TestProvider, { dependencies: [Test] });
@@ -46,7 +46,7 @@ describe("Module Dependency Resolve", () => {
     it("should resolve any simple class instance", () => {
         const module = createModule();
 
-        class TestClass { }
+        class TestClass {}
 
         module.register(TestClass);
         const resolved = module.resolve(TestClass);
@@ -56,7 +56,7 @@ describe("Module Dependency Resolve", () => {
     it("should register and resolve class instance", () => {
         const module = createModule();
 
-        class TestClass { }
+        class TestClass {}
 
         const instance = new TestClass();
         module.registerInstance(instance);
@@ -68,7 +68,7 @@ describe("Module Dependency Resolve", () => {
     it("should resolve any simple class instance by key", () => {
         const module = createModule();
 
-        class TestClass { }
+        class TestClass {}
 
         module.register(TestClass);
         const resolved = module.resolve<TestClass>("TestClass");
@@ -78,7 +78,7 @@ describe("Module Dependency Resolve", () => {
     it("should resolve any simple class with dependencies at constructor", () => {
         const module = createModule();
 
-        class DepClass { }
+        class DepClass {}
 
         class TestClass {
             dep: DepClass;
@@ -100,7 +100,7 @@ describe("Module Dependency Resolve", () => {
         const dep = "test";
 
         class Test {
-            constructor(public dep: string) { }
+            constructor(public dep: string) {}
         }
 
         module.register(Test, { dependencies: [{ type: EnumDependencyType.Static, key: "dep" }] });
@@ -115,7 +115,7 @@ describe("Module Dependency Resolve", () => {
         const dep = "test";
 
         class Test {
-            constructor(public dep: string) { }
+            constructor(public dep: string) {}
         }
 
         module.register(Test, { dependencies: [{ type: EnumDependencyType.Static }] });
@@ -130,7 +130,7 @@ describe("Module Dependency Resolve", () => {
         const dep = "test";
 
         class Test {
-            constructor(public dep: string) { }
+            constructor(public dep: string) {}
         }
 
         module.register(Test, {
@@ -145,10 +145,10 @@ describe("Module Dependency Resolve", () => {
     it("should resolve class lazy dependency", () => {
         const module = createModule();
 
-        class Test { }
+        class Test {}
 
         class Test2 {
-            constructor(public getTest: () => Test) { }
+            constructor(public getTest: () => Test) {}
         }
 
         module.register(Test);
@@ -163,7 +163,7 @@ describe("Module Dependency Resolve", () => {
     it("should resolve any simple class with dependency strings at constructor", () => {
         const module = createModule();
 
-        class DepClass { }
+        class DepClass {}
 
         class TestClass {
             dep: DepClass;
@@ -184,12 +184,12 @@ describe("Module Dependency Resolve", () => {
         const module = createModule();
         const module2 = createModule("Module2");
 
-        class Test { }
+        class Test {}
 
         module.register(Test);
 
         class TestWithDependency {
-            constructor(public test: Test) { }
+            constructor(public test: Test) {}
         }
 
         module2.register(TestWithDependency, { dependencies: [Test] });
@@ -206,12 +206,12 @@ describe("Module Dependency Resolve", () => {
         const module = createModule();
         const module2 = createNotLinkedModule("Module2");
 
-        class Test { }
+        class Test {}
 
         module.register(Test);
 
         class TestWithDependency {
-            constructor(public test: Test) { }
+            constructor(public test: Test) {}
         }
 
         module2.register(TestWithDependency, { dependencies: [Test] });
@@ -224,10 +224,10 @@ describe("Module Dependency Resolve", () => {
         createModule("Module2");
         const module3 = createModule("Module3");
 
-        class Test { }
+        class Test {}
 
         class TestWithDependency {
-            constructor(public test: Test) { }
+            constructor(public test: Test) {}
         }
 
         module3.register(TestWithDependency, { dependencies: [Test] });
@@ -246,11 +246,11 @@ describe("Module Dependency Resolve", () => {
         const module = createModule();
 
         class Test {
-            constructor(public test2: Test2) { }
+            constructor(public test2: Test2) {}
         }
 
         class Test2 {
-            constructor(public test: Test) { }
+            constructor(public test: Test) {}
         }
 
         module.register(Test, { dependencies: [Test2] });
@@ -271,15 +271,15 @@ describe("Module Dependency Resolve", () => {
         const module2 = createModule("Module2");
 
         class Test {
-            constructor(public test2: Test2) { }
+            constructor(public test2: Test2) {}
         }
 
         class Test2 {
-            constructor(public test: Test3) { }
+            constructor(public test: Test3) {}
         }
 
         class Test3 {
-            constructor(public test: Test) { }
+            constructor(public test: Test) {}
         }
 
         module.register(Test, { dependencies: [Test2] });

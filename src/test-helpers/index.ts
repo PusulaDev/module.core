@@ -18,7 +18,7 @@ export const createMock = (
     const mockHttpClient = () => module.registerHttpClient(FetchHTTPClient, { baseUrl: "localhost:9999" });
 
     const mockSessionCache = () => module.register(MemoryCache, { key: cacheKey });
-    const getCache = () => module.resolve<MemoryCache>(cacheKey) as MemoryCache;
+    const getCache = () => module.resolve<MemoryCache>(cacheKey);
 
     const mockProvider = <T extends IProvider>(provider: IProviderConstructor<T>, key: string) =>
         module.registerProvider(provider, { key });
@@ -31,7 +31,7 @@ export const createMock = (
             key,
         });
 
-    const get = <T extends IClassConstructor>(key: string) => module.resolve<T>(key) as T;
+    const get = <T extends IClassConstructor>(key: string) => module.resolve<T>(key);
 
     const clear = () => {
         globalModule.clear();

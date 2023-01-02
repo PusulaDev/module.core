@@ -59,10 +59,7 @@ export type ICoreModule = object & {
 
     useDecorators: (...decorators: IDecorator[]) => ICoreModule;
 
-    resolve: <T>(
-        key: IClassConstructor<T> | string,
-        options?: DependencyResolveOptions
-    ) => T;
+    resolve: <T>(key: IClassConstructor<T> | string, options?: DependencyResolveOptions) => T;
 
     register: <T>(constructor: IClassConstructor<T>, options?: RegisterClassOptions) => ICoreModule;
 
