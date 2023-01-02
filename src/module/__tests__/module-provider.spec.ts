@@ -1,11 +1,9 @@
 /*eslint-disable*/
-import type { IHTTPClient } from "../../http-client/types/http-client.interface";
-import type { IHTTPClientOptions } from "../../http-client/types/http-client-options.interface";
-import type { IProvider } from "../../provider/types/provider.interface";
+import type { IHTTPClient, IHTTPClientOptions } from "../../http-client";
+import type { IProvider, IRequestConfig } from "../../provider";
 import { createModule, createRegisterHttpClient, createRegisterProvider, TestProvider } from "../__mocks__/module.mock";
-import type { IRequestConfig } from "@/provider/types/request-config.interface";
-import { defaultLocalization, EnumLocalizationKeys } from "@/localization";
-import { globalModule } from "@/global-module/global-module";
+import { defaultLocalization, EnumLocalizationKeys } from "../../localization";
+import { globalModule } from "../../global-module";
 
 describe("Module Provider", () => {
     it("should throw error if api is not registered", () => {

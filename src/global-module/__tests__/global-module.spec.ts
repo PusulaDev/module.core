@@ -1,4 +1,4 @@
-import { createModule } from "@/module/__mocks__/module.mock";
+import { createModule } from "../../module/__mocks__/module.mock";
 import { globalModule } from "../global-module";
 import {
     mockCloneUtil,

@@ -1,13 +1,10 @@
-import { urlUtils } from "../utils/url.utils";
+import { createFormData, urlUtils } from "../utils";
 import { EnumRequestMethod, type IHTTPClient, type IHTTPClientOptions } from "./index";
-import { CustomServerError } from "../custom-errors/custom-server-error";
-import type { RequestOptions } from "./types/request-options.interface";
-import { CustomHttpClientError } from "../custom-errors/custom-http-client-error";
-import { EnumCustomErrorType } from "../custom-errors/statics/custom-error-type.enum";
-import { globalModule } from "../global-module/global-module";
+import { CustomHttpClientError, CustomServerError, EnumCustomErrorType } from "../custom-errors";
+import type { RequestOptions } from "./types";
+import { globalModule } from "../global-module";
 import { ensureObject } from "..";
 import { contentTypeKey, EnumContentType, EnumResponseFormat } from "./";
-import { createFormData } from "@/utils/create-form-data";
 
 export class FetchHTTPClient implements IHTTPClient {
     private baseUrl: string;

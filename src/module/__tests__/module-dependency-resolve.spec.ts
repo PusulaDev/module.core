@@ -1,6 +1,6 @@
-import { CustomModuleError, EnumCustomErrorType } from "@/custom-errors";
-import { globalModule } from "@/global-module";
-import { defaultLocalization, EnumLocalizationKeys } from "@/localization";
+import { CustomModuleError, EnumCustomErrorType } from "../../custom-errors";
+import { globalModule } from "../../global-module";
+import { defaultLocalization, EnumLocalizationKeys } from "../../localization";
 import {
     createModule,
     createNotLinkedModule,
@@ -8,7 +8,7 @@ import {
     TestHttpClient,
     TestProvider,
 } from "../__mocks__/module.mock";
-import { EnumDependencyType } from "@/shared";
+import { EnumDependencyType } from "../../shared";
 
 describe("Module Dependency Resolve", () => {
     beforeEach(() => globalModule.clear());

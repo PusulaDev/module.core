@@ -1,4 +1,4 @@
-import type { EnumResponseFormat } from "@/http-client";
+import type { EnumResponseFormat } from "../../http-client";
 
 export type ProviderRequestOptions = {
     raceId?: string;

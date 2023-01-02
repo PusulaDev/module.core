@@ -1,6 +1,6 @@
-import { globalModule } from "@/global-module/global-module";
-import { defaultLocalization, EnumLocalizationKeys } from "@/localization";
-import type { URLOptions } from "../types/url-options.interface";
+import { globalModule } from "../../global-module";
+import { defaultLocalization, EnumLocalizationKeys } from "../../localization";
+import type { URLOptions } from "../types";
 import { urlUtils } from "../url.utils";
 
 describe("URL Utils", () => {

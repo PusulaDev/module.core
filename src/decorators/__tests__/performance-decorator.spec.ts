@@ -1,5 +1,5 @@
-import { globalModule } from "@/global-module/global-module";
-import { mockPerformanceUtil } from "@/global-module/__mocks__/global.module.mock";
+import { globalModule } from "../../global-module";
+import { mockPerformanceUtil } from "../../global-module/__mocks__/global.module.mock";
 import mockConsole from "jest-mock-console";
 import { measurePerformance } from "../performance.decorator";
 

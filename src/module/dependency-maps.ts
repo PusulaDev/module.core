@@ -1,6 +1,6 @@
-import type { IHTTPClient, IHTTPClientConstuctor } from "@/http-client/types/http-client.interface";
+import type { IHTTPClient, IHTTPClientConstuctor } from "../http-client";
 import type { IClassConstructor, IHTTPClientOptions, IProvider, IProviderConstructor } from "..";
-import type { DependencyType } from "@/module/core-module.interface";
+import type { DependencyType } from "./core-module.interface";
 
 export type ConstructorOptions<T extends IClassConstructor | IProviderConstructor> = {
     constructor: T;

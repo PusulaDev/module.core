@@ -1,5 +1,4 @@
-import type { EnumRequestMethod } from "@/http-client";
-import type { IHTTPClient } from "../../http-client/types/http-client.interface";
+import type { EnumRequestMethod, IHTTPClient } from "../../http-client";
 import type { ProviderRequestOptions } from "./provider-request-options.interface";
 import type { IRequestConfig } from "./request-config.interface";
 

@@ -1,11 +1,11 @@
 /*eslint-disable*/
 
-import type { IHTTPClient } from "@/http-client";
-import type { IProvider } from "@/provider";
-import { createModule, TestHttpClient } from "@/module/__mocks__/module.mock";
+import type { IHTTPClient } from "../../http-client";
+import type { IProvider } from "../../provider";
+import { createModule, TestHttpClient } from "../../module/__mocks__/module.mock";
 import { InjectableDecorators } from "..";
-import { inject } from "@/decorators";
-import { injectLazy, injectStatic } from "@/decorators/inject.decorator";
+import { inject } from "../../decorators";
+import { injectLazy, injectStatic } from "../inject.decorator";
 
 describe("Injectable Decorators", () => {
     const injectable = new InjectableDecorators();

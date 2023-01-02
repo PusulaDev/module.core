@@ -1,10 +1,7 @@
-import type { ICloneUtil } from "../utils/types/clone-util.interface";
-import type { ILocalization } from "../localization/types/localization.interface";
-import type { ICoreModule } from "../module";
-import type { IEncyrptionUtil } from "../utils/types/encryption-util.interface";
-import type { IDateUtil, IPerformanceUtil } from "../utils";
+import type { ICloneUtil, IDateUtil, IEncyrptionUtil, IPerformanceUtil } from "../utils";
+import type { ILocalization } from "../localization";
+import type { DependencyResolveOptions, ICoreModule } from "../module";
 import type { IObserver } from "../utils/types/observer.interface";
-import type { DependencyResolveOptions } from "@/module/resolve-options";
 import type { IClassConstructor } from "..";
 
 declare global {

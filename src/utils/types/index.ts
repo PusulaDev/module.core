@@ -5,6 +5,8 @@ import type { URLOptions } from "./url-options.interface";
 import type { IPerformanceUtil } from "./performance-util.interface";
 import type { DateDuration, DateUnion, IDateUtil, SetDateValues } from "./date-util.interface";
 
+export type { IObserver, PublishType, SubscribeOptions } from "./observer.interface";
+
 export {
     ICloneUtil,
     IEncyrptionUtil,

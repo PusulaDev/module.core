@@ -5,9 +5,8 @@ import {
     mockFetchResponseWithError,
     mockFetchResponseWithTimeout,
 } from "../__mocks__/fetch.mock";
-import { CustomHttpClientError } from "@/custom-errors/custom-http-client-error";
-import { EnumCustomErrorType } from "@/custom-errors/statics/custom-error-type.enum";
-import { globalModule } from "@/global-module/global-module";
+import { CustomHttpClientError, EnumCustomErrorType } from "../../custom-errors";
+import { globalModule } from "../../global-module";
 
 describe("Http Client", () => {
     fetchMock.enableMocks();
