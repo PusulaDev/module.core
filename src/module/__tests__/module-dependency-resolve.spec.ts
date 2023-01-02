@@ -71,7 +71,7 @@ describe("Module Dependency Resolve", () => {
         class TestClass {}
 
         module.register(TestClass);
-        const resolved = module.resolve("TestClass");
+        const resolved = module.resolve<TestClass>("TestClass");
         expect(resolved).toBeInstanceOf(TestClass);
     });
 

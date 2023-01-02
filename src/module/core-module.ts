@@ -108,22 +108,23 @@ export class CoreModule implements ICoreModule {
      * @param key
      * @param options
      */
-    resolve<T extends AppLayerUnionType>(key: KeyUnionType<T>, options?: DependencyResolveOptions): T {
+
+    resolve<T>(key: IClassConstructor<T> | string, options?: DependencyResolveOptions): T {
         const name = this.getName(key);
 
         if (this.isClient(name)) return this.resolveHttpClient(key as IHTTPClientConstuctor, options) as T;
 
         if (this.isProvider(name)) return this.resolveProvider(key as IProviderConstructor, options) as T;
 
-        return this.resolveOther<T>(key, options);
+        return this.resolveOther(key, options);
     }
 
-    resolveFromGlobal<T extends AppLayerUnionType>(
-        key: KeyUnionType<T>,
+    resolveFromGlobal<T>(
+        key: IClassConstructor<T> | string,
         options: DependencyResolveOptions
     ): T | undefined {
         if (this.linkedModule && options.type !== "locale")
-            return globalModule.resolveDependency(key, { ...options, currentModule: this.key });
+            return globalModule.resolveDependency<T>(key, { ...options, currentModule: this.key });
     }
 
     registerHttpClientInstance(client: IHTTPClient, key?: string) {
@@ -219,7 +220,7 @@ export class CoreModule implements ICoreModule {
         this.checkAndPushPath(name, options);
 
         if (!constructorObj) {
-            const instanceFromGlobal = this.resolveFromGlobal(name, options);
+            const instanceFromGlobal = this.resolveFromGlobal<IHTTPClient>(name, options);
             if (instanceFromGlobal) return instanceFromGlobal;
 
             this.throwNotRegisteredError(name, options.parentName);
@@ -306,7 +307,7 @@ export class CoreModule implements ICoreModule {
         this.ensureParentName(name, dependencyOptions);
 
         if (!constructorObj) {
-            const instanceFromGlobal = this.resolveFromGlobal(name, dependencyOptions);
+            const instanceFromGlobal = this.resolveFromGlobal<T>(name, dependencyOptions);
             if (instanceFromGlobal) return instanceFromGlobal as T;
 
             this.throwNotRegisteredError(name, dependencyOptions.parentName);
@@ -318,10 +319,10 @@ export class CoreModule implements ICoreModule {
 
         if (dependenciesMapFn) dependencies = dependenciesMapFn(dependencies, constructorObj);
 
-        const instance = new constructorObj.constructor(...dependencies);
+        const instance = new constructorObj.constructor(...dependencies) as T;
 
         instanceMap.set(name, instance);
-        return instance as T;
+        return instance;
     }
 
     private resolveDependencies(
@@ -331,11 +332,15 @@ export class CoreModule implements ICoreModule {
         return dependencies.map((e, i) => this.resolveDependency(e, i, options));
     }
 
-    private resolveDependency(dependency: DependencyType, index: number, options: DependencyResolveOptions) {
+    private resolveDependency(
+        dependency: DependencyType,
+        index: number,
+        options: DependencyResolveOptions
+    ): AppLayerUnionType {
         if (ensureDependenyOptions(dependency)) {
             return this.resolveDependencyWithType(dependency, index, options);
         } else if (typeof dependency === "function" || typeof dependency === "string")
-            return this.resolve<AppLayerUnionType>(dependency as KeyUnionType, options);
+            return this.resolve(dependency as KeyUnionType, options);
         else return dependency;
     }
 
@@ -352,9 +357,9 @@ export class CoreModule implements ICoreModule {
                 } else if (dependency.key) return options.dependencies?.[dependency.key] ?? dependency.value;
                 break;
             case EnumDependencyType.Lazy:
-                return () => this.resolve<AppLayerUnionType>(dependency.key as KeyUnionType, options);
+                return () => this.resolve(dependency.key as KeyUnionType, options);
             case EnumDependencyType.Class:
-                return this.resolve<AppLayerUnionType>(dependency.key as KeyUnionType, options);
+                return this.resolve(dependency.key as KeyUnionType, options);
         }
     }
 
@@ -362,7 +367,7 @@ export class CoreModule implements ICoreModule {
         return map.get(typeConstructor.name) as T | undefined;
     }
 
-    private getName(key: string | (new (options?: any) => any)) {
+    private getName(key: string | IClassConstructor) {
         return typeof key === "string" ? key : key.name;
     }
 

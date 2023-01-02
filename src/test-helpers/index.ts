@@ -31,7 +31,7 @@ export const createMock = (
             key,
         });
 
-    const get = <T>(key: string) => module.resolve<T>(key);
+    const get = <T extends IClassConstructor>(key: string) => module.resolve<T>(key);
 
     const clear = () => {
         globalModule.clear();

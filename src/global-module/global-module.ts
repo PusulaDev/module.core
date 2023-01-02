@@ -1,11 +1,11 @@
 import type { ICloneUtil } from "../utils/types/clone-util.interface";
 import type { ILocalization } from "../localization/types/localization.interface";
 import type { ICoreModule } from "../module";
-import type { AppLayerUnionType, KeyUnionType } from "../module/core-module.interface";
 import type { IEncyrptionUtil } from "../utils/types/encryption-util.interface";
 import type { IDateUtil, IPerformanceUtil } from "../utils";
 import type { IObserver } from "../utils/types/observer.interface";
 import type { DependencyResolveOptions } from "@/module/resolve-options";
+import type { IClassConstructor } from "..";
 
 declare global {
     interface Window {
@@ -100,8 +100,8 @@ class GlobalModule {
         keys.forEach((key) => delete this.sharedHeaders[key]);
     }
 
-    resolveDependency<T extends AppLayerUnionType>(
-        key: KeyUnionType<T>,
+    resolveDependency<T>(
+        key: IClassConstructor<T> | string,
         options?: DependencyResolveOptions & { currentModule?: string }
     ): T | undefined {
         const { currentModule, ...dependencyOptions } = options ?? { type: "locale", path: [] };
@@ -110,7 +110,7 @@ class GlobalModule {
 
         for (const [name, module] of this.modules) {
             if (!currentModule || name !== currentModule) {
-                const resolved = module.resolve(key, dependencyOptions);
+                const resolved = module.resolve<T>(key, dependencyOptions);
                 if (resolved) return resolved;
             }
         }
