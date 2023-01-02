@@ -24,7 +24,7 @@ export class CoreProvider implements IProvider {
     ): Promise<TResponse | undefined> {
         await this.validateRequest(config, data);
 
-        let requestOptions = this.createRequestOptions(config, options);
+        const requestOptions = this.createRequestOptions(config, options);
 
         const computedUrl = this.createUrl(config.url);
 
@@ -107,6 +107,14 @@ export class CoreProvider implements IProvider {
         return this.cachableRequest(config, EnumRequestMethod.POST, data, options);
     }
 
+    async cachableGet<TRequest = undefined, TResponse = undefined>(
+        config: ICachableRequestConfig<TRequest, TResponse>,
+        data?: TRequest,
+        options?: ProviderRequestOptions
+    ): Promise<TResponse | undefined> {
+        return this.cachableRequest(config, EnumRequestMethod.GET, data, options);
+    }
+
     async upload<TResponse = undefined>(url: string, formData: FormData): Promise<TResponse | undefined> {
         const computedUrl = this.createUrl(url);
 
@@ -145,7 +153,7 @@ export class CoreProvider implements IProvider {
         config: IRequestConfig<TRequest, TResponse>,
         options?: ProviderRequestOptions
     ): RequestOptions {
-        let requestOptions: RequestOptions = {
+        const requestOptions: RequestOptions = {
             responseFormat: options?.responseFormat ?? config.responseFormat,
         };
 
@@ -170,7 +178,7 @@ export class CoreProvider implements IProvider {
     }
 
     private getAndAbortRacerRequests(raceId: string) {
-        let abortController = this.abortControllers.get(raceId);
+        const abortController = this.abortControllers.get(raceId);
         if (abortController) abortController.abort();
 
         return abortController;
