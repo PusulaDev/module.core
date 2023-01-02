@@ -319,10 +319,10 @@ export class CoreModule implements ICoreModule {
 
         if (dependenciesMapFn) dependencies = dependenciesMapFn(dependencies, constructorObj);
 
-        const instance = new constructorObj.constructor(...dependencies);
+        const instance = new constructorObj.constructor(...dependencies) as T;
 
         instanceMap.set(name, instance);
-        return instance as T;
+        return instance;
     }
 
     private resolveDependencies(
@@ -332,7 +332,11 @@ export class CoreModule implements ICoreModule {
         return dependencies.map((e, i) => this.resolveDependency(e, i, options));
     }
 
-    private resolveDependency(dependency: DependencyType, index: number, options: DependencyResolveOptions) {
+    private resolveDependency(
+        dependency: DependencyType,
+        index: number,
+        options: DependencyResolveOptions
+    ): AppLayerUnionType {
         if (ensureDependenyOptions(dependency)) {
             return this.resolveDependencyWithType(dependency, index, options);
         } else if (typeof dependency === "function" || typeof dependency === "string")
