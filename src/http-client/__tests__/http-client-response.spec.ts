@@ -1,4 +1,4 @@
-import { globalModule } from "@/global-module";
+import { globalModule } from "../../global-module";
 import { FetchHTTPClient } from "../fetch-http-client";
 import { mockFetchJSONResponse, mockFetchTxtResponse } from "../__mocks__/fetch.mock";
 import fetchMock from "jest-fetch-mock";

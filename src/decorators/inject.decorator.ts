@@ -1,5 +1,5 @@
 import { defineInjectionTokenMetaData } from "./reflection.helper";
-import { EnumDependencyType } from "@/shared";
+import { EnumDependencyType } from "../shared";
 
 export const inject = (token: string) => defineInjectionTokenMetaData(token);
 export const injectLazy = (token: string) => {

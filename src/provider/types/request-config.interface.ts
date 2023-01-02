@@ -1,4 +1,4 @@
-import type { EnumResponseFormat } from "@/http-client";
+import type { EnumResponseFormat } from "../../http-client";
 import type { ProviderRequestOptions } from "./provider-request-options.interface";
 
 export type IRequestConfig<TRequest = undefined, TResponse = undefined> = {

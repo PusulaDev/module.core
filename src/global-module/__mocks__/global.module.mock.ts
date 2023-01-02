@@ -1,11 +1,18 @@
 /*eslint-disable*/
 
-import type { ILocalization } from "@/localization";
-import type { IDateUtil, IPerformanceUtil } from "@/utils";
-import type { ICloneUtil } from "@/utils/types/clone-util.interface";
-import type { DateDuration, DateUnion, SetDateValues } from "@/utils/types/date-util.interface";
-import type { IEncyrptionUtil } from "@/utils/types/encryption-util.interface";
-import type { IObserver, PublishType, SubscribeOptions } from "@/utils/types/observer.interface";
+import type { ILocalization } from "../../localization";
+import type {
+    DateDuration,
+    DateUnion,
+    ICloneUtil,
+    IDateUtil,
+    IEncyrptionUtil,
+    IObserver,
+    IPerformanceUtil,
+    PublishType,
+    SetDateValues,
+    SubscribeOptions
+} from "../../utils";
 
 class Testlocalization implements ILocalization {
     clear() {

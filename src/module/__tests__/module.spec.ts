@@ -1,6 +1,6 @@
 /*eslint-disable*/
 
-import type { IHTTPClient } from "../../http-client/types/http-client.interface";
+import type { IHTTPClient } from "../../http-client";
 import {
     createModule,
     createRegisterHttpClient,
@@ -8,8 +8,8 @@ import {
     TestHttpClient,
     TestProvider
 } from "../__mocks__/module.mock";
-import { globalModule } from "@/global-module/global-module";
-import { defaultLocalization } from "@/localization";
+import { globalModule } from "../../global-module";
+import { defaultLocalization } from "../../localization";
 
 describe("Module", () => {
     beforeEach(() => {

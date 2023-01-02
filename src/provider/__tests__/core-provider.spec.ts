@@ -1,16 +1,15 @@
-import { EnumContentType, EnumResponseFormat, FetchHTTPClient } from "@/http-client";
+import { EnumContentType, EnumResponseFormat, FetchHTTPClient } from "../../http-client";
 import {
     mockFetchJSONResponse,
     mockFetchResponseWithTimeout,
     mockFetchTxtResponse,
-} from "@/http-client/__mocks__/fetch.mock";
+} from "../../http-client/__mocks__/fetch.mock";
 import { CoreProvider } from "../core-provider";
 import fetchMock from "jest-fetch-mock";
-import type { ICachableRequestConfig, IRequestConfig } from "../types/request-config.interface";
-import { ICache, MemoryCache } from "@/cache";
+import type { ICachableRequestConfig, IRequestConfig } from "../types";
+import { ICache, MemoryCache } from "../../cache";
 
-import { CustomServerError, EnumCustomErrorType } from "@/custom-errors";
-import { CustomProviderError } from "@/custom-errors/custom-provider-error";
+import { CustomProviderError, CustomServerError, EnumCustomErrorType } from "../../custom-errors";
 
 describe("Data Provider", () => {
     const headers = {

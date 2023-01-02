@@ -1,10 +1,10 @@
-import type { IHTTPClientOptions } from "@/http-client";
+import type { IHTTPClientOptions } from "../http-client";
 import type { IHTTPClient, IHTTPClientConstuctor } from "../http-client/types/http-client.interface";
-import type { IProvider, IProviderConstructor } from "@/provider";
-import type { IDecorator } from "@/decorators";
-import type { ICache, ICacheConstructor } from "@/cache";
-import type { EnumDependencyType, IClassConstructor } from "@/shared";
-import type { LocalizationTranslations } from "@/localization";
+import type { IProvider, IProviderConstructor } from "../provider";
+import type { IDecorator } from "../decorators";
+import type { ICache, ICacheConstructor } from "../cache";
+import type { EnumDependencyType, IClassConstructor } from "../shared";
+import type { LocalizationTranslations } from "../localization";
 import type { DependencyResolveOptions } from "./resolve-options";
 
 export interface DependencyOptions {

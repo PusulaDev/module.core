@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import type { IClassConstructor } from "../shared";
-import type { DependencyType } from "@/module/core-module.interface";
-import { ensureDependenyOptions } from "@/utils/ensure-object.util";
+import type { DependencyType } from "../module/core-module.interface";
+import { ensureDependenyOptions } from "../utils/ensure-object.util";
 
 export const INJECTION_TOKEN_METADATA_KEY = "injectionTokens";
 

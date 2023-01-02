@@ -1,6 +1,6 @@
-import { globalModule } from "@/global-module/global-module";
-import { defaultLocalization } from "@/localization/default-localization";
-import { EnumAppLayer } from "@/shared";
+import { globalModule } from "../../global-module";
+import { defaultLocalization } from "../../localization";
+import { EnumAppLayer } from "../../shared";
 import { CustomError } from "..";
 import { EnumCustomErrorType } from "../statics/custom-error-type.enum";
 

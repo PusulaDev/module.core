@@ -1,5 +1,5 @@
-import { CustomError, EnumCustomErrorType } from "@/custom-errors";
-import { EnumAppLayer, ValidationResult } from "@/shared";
+import { CustomError, EnumCustomErrorType } from "../../custom-errors";
+import { EnumAppLayer, ValidationResult } from "../../shared";
 import { createActionGuard, ValidatorFunc } from "../action-guard";
 
 describe("Action Guard", () => {
