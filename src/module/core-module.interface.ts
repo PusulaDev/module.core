@@ -1,17 +1,25 @@
-import type { IHTTPClientOptions } from "../http-client/types/http-client-options.interface";
+import type { IHTTPClientOptions } from "@/http-client";
 import type { IHTTPClient, IHTTPClientConstuctor } from "../http-client/types/http-client.interface";
-import type { IController, IControllerConstructor } from "../controller/controller.interface";
-import type { IProvider, IProviderConstructor } from "../provider/types/provider.interface";
-import type { IDecorator } from "../decorators/types/decorator.interface";
-import type { ICache } from "../cache";
-import type { ICacheConstructor } from "../cache/cache.interface";
-import type { IClassConstructor } from "../shared";
-import type { LocalizationTranslations } from "../localization";
+import type { IProvider, IProviderConstructor } from "@/provider";
+import type { IDecorator } from "@/decorators";
+import type { ICache } from "@/cache";
+import type { ICacheConstructor } from "@/cache";
+import type { IClassConstructor } from "@/shared";
+import type { LocalizationTranslations } from "@/localization";
 import type { DependencyResolveOptions } from "./resolve-options";
+import type { EnumDependencyType } from "@/shared";
+
+export interface DependencyOptions {
+    value?: unknown;
+    type: EnumDependencyType;
+    key?: string;
+}
+
+export type DependencyType = IClassConstructor | string | DependencyOptions;
 
 export type RegisterClassOptions = {
     key?: string;
-    dependencies?: (IClassConstructor | string)[];
+    dependencies?: DependencyType[];
 };
 
 export type RegisterProviderOptions = {
@@ -33,12 +41,11 @@ export type ModuleBootstrapOptions<T = any> = {
 export type KeyUnionType<T = any> =
     | string
     | IProviderConstructor
-    | IControllerConstructor<any>
     | ICacheConstructor
     | IHTTPClientConstuctor
     | IClassConstructor<T>;
 
-export type AppLayerUnionType = IProvider | IController | ICache | IHTTPClient;
+export type AppLayerUnionType = IProvider | ICache | IHTTPClient | unknown;
 
 export interface ModuleConstructorOptions {
     key?: string;
@@ -46,8 +53,6 @@ export interface ModuleConstructorOptions {
     linkedModule?: boolean;
     register?: { constructor: new (...args: unknown[]) => unknown; options?: RegisterClassOptions }[];
 }
-
-export type ModuleConstructor = (new (options?: ModuleConstructorOptions) => ICoreModule) & Function;
 
 export type ICoreModule = object & {
     bootstrap: (options?: ModuleBootstrapOptions) => Promise<ICoreModule> | ICoreModule;
@@ -66,18 +71,17 @@ export type ICoreModule = object & {
 
     registerHttpClientInstance: (client: IHTTPClient, key?: string) => ICoreModule;
 
-    resolveHttpClient: <T extends IHTTPClient>(client?: IHTTPClientConstuctor, options?: DependencyResolveOptions) => T;
+    resolveHttpClient: <T extends IHTTPClient>(
+        client?: IHTTPClientConstuctor,
+        options?: DependencyResolveOptions
+    ) => T;
 
     registerProvider: (provider: IProviderConstructor, options?: RegisterProviderOptions) => ICoreModule;
 
-    resolveProvider: <T extends IProvider>(key: string | IProviderConstructor, options?: DependencyResolveOptions) => T;
-
-    registerController: <TController extends IController>(
-        controller: IControllerConstructor<TController>,
-        options?: RegisterControllerOptions
-    ) => ICoreModule;
-
-    resolveController: <T extends IController>(key: string | IControllerConstructor<T>, options?: DependencyResolveOptions) => T;
+    resolveProvider: <T extends IProvider>(
+        key: string | IProviderConstructor,
+        options?: DependencyResolveOptions
+    ) => T;
 
     clear: () => void;
     clearInstances: () => void;

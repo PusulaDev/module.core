@@ -1,47 +1,52 @@
-import type { IHTTPClientOptions } from "../http-client/types/http-client-options.interface";
+import type { IHTTPClientOptions } from "@/http-client";
 import type { IHTTPClient, IHTTPClientConstuctor } from "../http-client/types/http-client.interface";
-import type { IController, IControllerConstructor } from "../controller/controller.interface";
-import type { IProvider, IProviderConstructor } from "../provider/types/provider.interface";
+import type { IProvider, IProviderConstructor } from "@/provider";
 import type {
     AppLayerUnionType,
+    DependencyOptions,
+    DependencyType,
     ICoreModule,
     KeyUnionType,
     ModuleBootstrapOptions,
     ModuleConstructorOptions,
     RegisterClassOptions,
-    RegisterControllerOptions,
     RegisterProviderOptions,
 } from "./core-module.interface";
-import type { IDecorator } from "../decorators/types/decorator.interface";
-import { coreLogger } from "../logger/core.logger";
-import { globalModule } from "../global-module/global-module";
-import { EnumCustomErrorType, CustomModuleError } from "../custom-errors";
-import type { IClassConstructor } from "../shared";
-import { EnumLocalizationKeys } from "../localization/statics/localization-keys.enum";
-import type { LocalizationTranslations } from "../localization";
-import type { ConstructorMap, ControllerConstructorOptions, HttpClientConstructorOptions, InstanceMap, OtherConstructorOptions, ProviderConstructorOptions } from "./dependency-maps";
+import type { IDecorator } from "@/decorators";
+import { coreLogger } from "@/logger/core.logger";
+import { globalModule } from "@/global-module";
+import { EnumCustomErrorType, CustomModuleError } from "@/custom-errors";
+import type { IClassConstructor } from "@/shared";
+import { EnumLocalizationKeys } from "@/localization";
+import type { LocalizationTranslations } from "@/localization";
+import type {
+    ConstructorMap,
+    ConstructorOptions,
+    HttpClientConstructorOptions,
+    InstanceMap,
+    OtherConstructorOptions,
+    ProviderConstructorOptions,
+} from "./dependency-maps";
 import type { DependencyResolveOptions } from "./resolve-options";
-
+import { EnumDependencyType } from "@/shared";
+import { ensureDependenyOptions } from "@/utils/ensure-object.util";
 
 export class CoreModule implements ICoreModule {
     private readonly providerSuffix = "Provider";
-    private readonly controllerSuffix = "Controller";
     private readonly clientSuffix = "HttpClient";
     private key;
 
     private constructors: ConstructorMap = {
         clients: new Map<string, HttpClientConstructorOptions>(),
         providers: new Map<string, ProviderConstructorOptions>(),
-        controllers: new Map<string, ControllerConstructorOptions>(),
         others: new Map<string, OtherConstructorOptions>(),
-    }
+    };
 
     private instances: InstanceMap = {
         clients: new Map<string, IHTTPClient>(),
         providers: new Map<string, IProvider>(),
-        controllers: new Map<string, IController>(),
         others: new Map<string, any>(),
-    }
+    };
 
     private linkedModule = true;
 
@@ -56,10 +61,9 @@ export class CoreModule implements ICoreModule {
         globalModule.registerModule(this, this.key);
 
         if (decorators?.length) this.useDecorators(...decorators);
-        if (register?.length)
-            register.forEach((r) => this.register(r.constructor, r.options));
+        if (register?.length) register.forEach((r) => this.register(r.constructor, r.options));
 
-        if (linkedModule !== undefined) this.linkedModule = linkedModule
+        if (linkedModule !== undefined) this.linkedModule = linkedModule;
     }
 
     bootstrap(options?: ModuleBootstrapOptions) {
@@ -100,25 +104,26 @@ export class CoreModule implements ICoreModule {
     }
 
     /**
-     * Checks 'Provider' | 'Controller' | 'HttpClient' suffix for key or name of class.
+     * Checks 'Provider'  | 'HttpClient' suffix for key or name of class.
      * @param key
+     * @param options
      */
     resolve<T extends AppLayerUnionType>(key: KeyUnionType<T>, options?: DependencyResolveOptions): T {
-        let name = this.getName(key);
+        const name = this.getName(key);
 
         if (this.isClient(name)) return this.resolveHttpClient(key as IHTTPClientConstuctor, options) as T;
 
         if (this.isProvider(name)) return this.resolveProvider(key as IProviderConstructor, options) as T;
 
-        if (this.isController(name)) return this.resolveController(key as IControllerConstructor<any>, options) as T;
-
         return this.resolveOther<T>(key, options);
     }
 
-
-    resolveFromGlobal<T extends AppLayerUnionType>(key: KeyUnionType<T>, options: DependencyResolveOptions): T | undefined {
-        if (this.linkedModule && options.type !== 'locale')
-            return globalModule.resolveDependency(key, { ...options, currentModule: this.key })
+    resolveFromGlobal<T extends AppLayerUnionType>(
+        key: KeyUnionType<T>,
+        options: DependencyResolveOptions
+    ): T | undefined {
+        if (this.linkedModule && options.type !== "locale")
+            return globalModule.resolveDependency(key, { ...options, currentModule: this.key });
     }
 
     registerHttpClientInstance(client: IHTTPClient, key?: string) {
@@ -135,14 +140,15 @@ export class CoreModule implements ICoreModule {
         return this;
     }
 
-    resolveHttpClient<T extends IHTTPClient>(client?: IHTTPClientConstuctor | string, options?: DependencyResolveOptions): T {
-        let instance = this.resolveHttpClientInstance(client);
+    resolveHttpClient<T extends IHTTPClient>(
+        client?: IHTTPClientConstuctor | string,
+        options?: DependencyResolveOptions
+    ): T {
+        const instance = this.resolveHttpClientInstance<T>(client);
         if (instance) return instance;
 
         return this.createHttpClientInstance(client, options) as T;
     }
-
-
 
     registerProvider(provider: IProviderConstructor, options?: RegisterProviderOptions) {
         const name = options?.key ?? provider.name;
@@ -158,34 +164,14 @@ export class CoreModule implements ICoreModule {
         return this;
     }
 
-    resolveProvider<T extends IProvider>(key: string | IProviderConstructor, options?: DependencyResolveOptions): T {
+    resolveProvider<T extends IProvider>(
+        key: string | IProviderConstructor,
+        options?: DependencyResolveOptions
+    ): T {
         const instance = this.resolveProviderInstance<T>(key);
         if (instance) return instance;
 
-        return this.createProviderInstance(key, options) as T;
-    }
-
-    registerController<TController extends IController>(
-        controller: IControllerConstructor<TController>,
-        options?: RegisterControllerOptions
-    ) {
-        const name = options?.key ?? controller.name;
-
-        let dependencies = options?.dependencies;
-
-        this.constructors.controllers.set(name, {
-            constructor: controller,
-            dependencies: dependencies,
-        });
-
-        return this;
-    }
-
-    resolveController<T extends IController>(key: string | IControllerConstructor<T>, options?: DependencyResolveOptions): T {
-        const instance = this.resolveControllerInstance(key);
-        if (instance) return instance;
-
-        return this.createControllerInstance(key, options) as T;
+        return this.createProviderInstance<T>(key, options);
     }
 
     @coreLogger.logMethod()
@@ -198,7 +184,6 @@ export class CoreModule implements ICoreModule {
     clearConstructors() {
         this.constructors.clients.clear();
         this.constructors.providers.clear();
-        this.constructors.controllers.clear();
         this.constructors.others.clear();
     }
 
@@ -206,7 +191,6 @@ export class CoreModule implements ICoreModule {
     clearInstances() {
         this.instances.clients.clear();
         this.instances.providers.clear();
-        this.instances.controllers.clear();
         this.instances.others.clear();
     }
 
@@ -214,19 +198,22 @@ export class CoreModule implements ICoreModule {
         if (client) {
             const name = this.getName(client);
             return this.instances.clients.get(name) as T;
-        } else return this.instances.clients.values().next().value;
+        } else return this.instances.clients.values().next().value as T;
     }
 
     private ensureOptions(options?: DependencyResolveOptions): DependencyResolveOptions {
-        return options ?? { path: [] }
+        return options ?? { path: [] };
     }
 
-    private createHttpClientInstance(client?: IHTTPClientConstuctor | string, options?: DependencyResolveOptions) {
+    private createHttpClientInstance(
+        client?: IHTTPClientConstuctor | string,
+        options?: DependencyResolveOptions
+    ) {
         const name = client ? this.getName(client) : "HttpClient";
 
         const constructorObj = client
             ? this.constructors.clients.get(name)
-            : this.constructors.clients.values().next().value;
+            : (this.constructors.clients.values().next().value as HttpClientConstructorOptions);
 
         options = this.ensureOptions(options);
         this.checkAndPushPath(name, options);
@@ -244,34 +231,24 @@ export class CoreModule implements ICoreModule {
         return instance;
     }
 
-
     private resolveProviderInstance<T extends IProvider>(key: string | IProviderConstructor): T | undefined {
         if (typeof key === "string") return this.instances.providers.get(key) as T;
         else return this.resolveByConstructor<T>(this.instances.providers, key);
     }
 
-    private createProviderInstance(key: string | IProviderConstructor, options?: DependencyResolveOptions) {
-        return this.createInstance({
+    private createProviderInstance<T extends IProvider>(
+        key: string | IProviderConstructor,
+        options?: DependencyResolveOptions
+    ): T {
+        return this.createInstance<T, IProviderConstructor>({
             constructorMap: this.constructors.providers,
             instanceMap: this.instances.providers,
             key,
             ...this.ensureOptions(options),
-            dependenciesMapFn: (dependencies: any[], constructorObj: ProviderConstructorOptions) => {
+            dependenciesMapFn: (dependencies: unknown[], constructorObj: ProviderConstructorOptions) => {
                 const client = this.resolveHttpClient(constructorObj.client);
                 return [client, ...dependencies];
-            }
-        })
-    }
-
-
-    private resolveControllerInstance<T extends IController>(key: string | IControllerConstructor<T>) {
-        if (typeof key === "string") return this.instances.controllers.get(key) as T;
-        return this.resolveByConstructor<T>(this.instances.controllers, key);
-    }
-
-    private createControllerInstance(key: string | IControllerConstructor<any>, options?: DependencyResolveOptions) {
-        return this.createInstance({
-            constructorMap: this.constructors.controllers, instanceMap: this.instances.controllers, key, ...this.ensureOptions(options)
+            },
         });
     }
 
@@ -279,7 +256,7 @@ export class CoreModule implements ICoreModule {
         const instance = this.resolveOtherInstance<T>(key);
         if (instance) return instance;
 
-        return this.createOtherInstance(key, options);
+        return this.createOtherInstance<T>(key, options);
     }
 
     private resolveOtherInstance<T>(key: KeyUnionType): T | undefined {
@@ -287,33 +264,40 @@ export class CoreModule implements ICoreModule {
         return this.instances.others.get(name) as T | undefined;
     }
 
-    private createOtherInstance(key: KeyUnionType, options?: DependencyResolveOptions) {
-        return this.createInstance({
-            constructorMap: this.constructors.others, instanceMap: this.instances.others, key, ...this.ensureOptions(options)
+    private createOtherInstance<T>(key: KeyUnionType, options?: DependencyResolveOptions) {
+        return this.createInstance<T, IClassConstructor>({
+            constructorMap: this.constructors.others,
+            instanceMap: this.instances.others,
+            key,
+            ...this.ensureOptions(options),
         });
     }
 
     private checkAndPushPath(name: string, options: DependencyResolveOptions) {
+        if (!options.path) options.path = [];
+
         if (options.path.includes(name)) {
-            this.throwCycleDependencyError(name, options.parentName)
+            this.throwCycleDependencyError(name, options.parentName);
         }
 
-        options.path.push(name)
+        options.path.push(name);
     }
 
     private ensureParentName(name: string, options: DependencyResolveOptions) {
-        if (!options.parentName)
-            options.parentName = name;
+        if (!options.parentName) options.parentName = name;
     }
 
-    private createInstance(
+    private createInstance<T extends AppLayerUnionType, TConstructor extends IClassConstructor>(
         options: {
-            constructorMap: Map<string, OtherConstructorOptions>,
-            instanceMap: Map<string, any>,
-            key: string | IClassConstructor,
-            dependenciesMapFn?: (dependencies: any[], constructorObj: any) => any[],
+            constructorMap: Map<string, ConstructorOptions<TConstructor>>;
+            instanceMap: Map<string, any>;
+            key: KeyUnionType;
+            dependenciesMapFn?: (
+                dependencies: AppLayerUnionType[],
+                constructorObj: ConstructorOptions<TConstructor>
+            ) => AppLayerUnionType[];
         } & DependencyResolveOptions
-    ) {
+    ): T {
         const { constructorMap, instanceMap, key, dependenciesMapFn, ...dependencyOptions } = options;
 
         const name = this.getName(key);
@@ -323,7 +307,7 @@ export class CoreModule implements ICoreModule {
 
         if (!constructorObj) {
             const instanceFromGlobal = this.resolveFromGlobal(name, dependencyOptions);
-            if (instanceFromGlobal) return instanceFromGlobal;
+            if (instanceFromGlobal) return instanceFromGlobal as T;
 
             this.throwNotRegisteredError(name, dependencyOptions.parentName);
         }
@@ -337,14 +321,41 @@ export class CoreModule implements ICoreModule {
         const instance = new constructorObj.constructor(...dependencies);
 
         instanceMap.set(name, instance);
-        return instance;
+        return instance as T;
     }
 
-    private resolveDependencies(dependencies: any[], options: DependencyResolveOptions): any[] {
-        return dependencies.map((e) => {
-            if (typeof e === "function" || typeof e === "string") return this.resolve(e, options);
-            else e;
-        });
+    private resolveDependencies(
+        dependencies: DependencyType[],
+        options: DependencyResolveOptions
+    ): AppLayerUnionType[] {
+        return dependencies.map((e, i) => this.resolveDependency(e, i, options));
+    }
+
+    private resolveDependency(dependency: DependencyType, index: number, options: DependencyResolveOptions) {
+        if (ensureDependenyOptions(dependency)) {
+            return this.resolveDependencyWithType(dependency, index, options);
+        } else if (typeof dependency === "function" || typeof dependency === "string")
+            return this.resolve<AppLayerUnionType>(dependency as KeyUnionType, options);
+        else return dependency;
+    }
+
+    private resolveDependencyWithType(
+        dependency: DependencyOptions,
+        index: number,
+        options: DependencyResolveOptions
+    ) {
+        switch (dependency.type) {
+            case EnumDependencyType.Static:
+                if (!options.dependencies) return dependency.value;
+                if (options.dependencies instanceof Array) {
+                    return options.dependencies[index] ?? dependency.value;
+                } else if (dependency.key) return options.dependencies?.[dependency.key] ?? dependency.value;
+                break;
+            case EnumDependencyType.Lazy:
+                return () => this.resolve<AppLayerUnionType>(dependency.key as KeyUnionType, options);
+            case EnumDependencyType.Class:
+                return this.resolve<AppLayerUnionType>(dependency.key as KeyUnionType, options);
+        }
     }
 
     private resolveByConstructor<T>(map: Map<string, any>, typeConstructor: new (...args: any[]) => any) {
@@ -357,10 +368,6 @@ export class CoreModule implements ICoreModule {
 
     private isProvider(key: string | IProviderConstructor) {
         return this.getName(key).includes(this.providerSuffix);
-    }
-
-    private isController(key: string | IControllerConstructor<any>) {
-        return this.getName(key).includes(this.controllerSuffix);
     }
 
     private isClient(key: string | IHTTPClientConstuctor) {
@@ -381,7 +388,7 @@ export class CoreModule implements ICoreModule {
             type: EnumCustomErrorType.Construction,
             message: EnumLocalizationKeys.CycleDependencyError,
             translateArgs: parent ? [key, parent] : [key],
-            translate: true
-        })
+            translate: true,
+        });
     }
 }

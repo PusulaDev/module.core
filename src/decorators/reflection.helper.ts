@@ -1,32 +1,48 @@
 import "reflect-metadata";
 import type { IClassConstructor } from "../shared";
+import type { DependencyType } from "@/module/core-module.interface";
+import { ensureDependenyOptions } from "@/utils/ensure-object.util";
 
 export const INJECTION_TOKEN_METADATA_KEY = "injectionTokens";
 
 export const getConstructorArgNames = (target: IClassConstructor) => {
-  const types = Reflect.getMetadata("design:paramtypes", target) || [];
+    const types = (Reflect.getMetadata("design:paramtypes", target) as unknown[]) || [];
 
-  const injectionTokens =
-    Reflect.getOwnMetadata(INJECTION_TOKEN_METADATA_KEY, target) || {};
-    Object.keys(injectionTokens).forEach((key) => {
-      types[+key] = injectionTokens[key];
-    });
+    const injectionTokens =
+        (Reflect.getOwnMetadata(INJECTION_TOKEN_METADATA_KEY, target) as Record<
+            string,
+            Partial<DependencyType>
+        >) || {};
 
-  return types;
+    for (const key in injectionTokens) {
+        const token = injectionTokens[key];
+
+        const definedKey = types[+key];
+
+        if (ensureDependenyOptions(token)) {
+            if (!token.key && definedKey) {
+                token.key = definedKey as string;
+            }
+        }
+
+        if (token) types[+key] = token;
+    }
+
+    return types;
 };
 
 export const getConstructorArgNamesAfterFirst = (target: IClassConstructor) => {
-  const [, ...dependencies] = getConstructorArgNames(target);
-  return dependencies;
+    const [, ...dependencies] = getConstructorArgNames(target);
+    return dependencies;
 };
 
 export const defineInjectionTokenMetaData =
-  (token: string) =>
-  (target: any, _propertyKey: string | symbol, parameterIndex: number) => {
-    const descriptors =
-      Reflect.getOwnMetadata(INJECTION_TOKEN_METADATA_KEY, target) || {};
+    (token: Partial<DependencyType>) =>
+    (target: any, _propertyKey: string | symbol, parameterIndex: number) => {
+        const descriptors =
+            (Reflect.getOwnMetadata(INJECTION_TOKEN_METADATA_KEY, target) as Partial<DependencyType>[]) || {};
 
-    descriptors[parameterIndex] = token;
+        descriptors[parameterIndex] = token;
 
-    Reflect.defineMetadata(INJECTION_TOKEN_METADATA_KEY, descriptors, target);
-  };
+        Reflect.defineMetadata(INJECTION_TOKEN_METADATA_KEY, descriptors, target);
+    };

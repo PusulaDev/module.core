@@ -1,10 +1,13 @@
 import type { IHTTPClient, IHTTPClientConstuctor } from "@/http-client/types/http-client.interface";
-import type { IController, IControllerConstructor, IHTTPClientOptions, IProvider, IProviderConstructor } from "..";
+import type { IClassConstructor, IHTTPClientOptions, IProvider, IProviderConstructor } from "..";
+import type { DependencyType } from "@/module/core-module.interface";
 
-export type OtherConstructorOptions = {
-    constructor: new (...args: any[]) => any;
-    dependencies?: any[];
+export type ConstructorOptions<T extends IClassConstructor | IProviderConstructor> = {
+    constructor: T;
+    dependencies?: DependencyType[];
 };
+
+export type OtherConstructorOptions = ConstructorOptions<IClassConstructor>;
 
 export type HttpClientConstructorOptions = {
     constructor: IHTTPClientConstuctor;
@@ -14,23 +17,17 @@ export type HttpClientConstructorOptions = {
 export type ProviderConstructorOptions = {
     constructor: IProviderConstructor;
     client?: string;
-} & OtherConstructorOptions;
-
-export type ControllerConstructorOptions = {
-    constructor: IControllerConstructor<any>;
-} & OtherConstructorOptions;
-
+    dependencies?: DependencyType[];
+};
 
 export type ConstructorMap = {
-    clients: Map<string, HttpClientConstructorOptions>,
-    providers: Map<string, ProviderConstructorOptions>,
-    controllers: Map<string, ControllerConstructorOptions>,
-    others: Map<string, OtherConstructorOptions>,
-}
+    clients: Map<string, HttpClientConstructorOptions>;
+    providers: Map<string, ProviderConstructorOptions>;
+    others: Map<string, OtherConstructorOptions>;
+};
 
 export type InstanceMap = {
-    clients: Map<string, IHTTPClient>,
-    providers: Map<string, IProvider>,
-    controllers: Map<string, IController>,
-    others: Map<string, any>,
-}
+    clients: Map<string, IHTTPClient>;
+    providers: Map<string, IProvider>;
+    others: Map<string, any>;
+};

@@ -95,13 +95,9 @@ class MyModule extends CoreModule {
   }
 }
 
-const myModule = new MyModule({ key: "MyModule" });
+//decorators optional : register decorators for dependency Injection
 
-//(optional)register decorators for dependency Injection
-myModule.useDecorators(xInjectable);
-
-export {myModule};
-
+export const myModule = new MyModule({ key: "MyModule", decorators:[xInjectable] });
 ```
 
 Create Dependency Injection Decorator if you want to use them.
@@ -113,18 +109,33 @@ export const xInjectable = new InjectableDecorators();
 Use injectable decorator to inject dependencies.
 You can use **class** or **@inject** decorator with token to inject.
 
-```Typescript
+```typescript
 @injectable.other('A')
 export class SomeNormalClass {
   constructor(private xController:XController,private yController:YControlller)
   {}
 }
 
-
+//With token
 @injectable.other()
 export class OtherClass{
   constructor(@inject('A') private someNormalClass:any)
 }
+
+// Lazy injection
+@injectable.other()
+export class OtherClass{
+    constructor(@injectLazy("Test") private getTest:() => Test)
+}
+
+// With static values
+@injectable.other()
+export class OtherClass{
+    constructor(private staticValue:number)
+}
+
+module.resolve(OtherClass,{dependencies:[12]})
+
 ```
 
 Use module. HttpClient is required by default.
@@ -141,8 +152,7 @@ at the constructor
 
 ```Typescript
 const someFunction = () => {
-  const xController = xModule.resolveController(XController);
-  const yController = yModule.resolve(XController)
+  const xController = xModule.resolve(XController)
 }
 ```
 

@@ -1,11 +1,10 @@
 import type { IHTTPClient } from "../../http-client/types/http-client.interface";
 import {
     createRegisterHttpClient,
-    createRegisterController,
     TestHttpClient,
-    TestController,
     TestProvider,
     createModule,
+    createRegisterProvider,
 } from "../__mocks__/module.mock";
 import { globalModule } from "@/global-module/global-module";
 import { defaultLocalization } from "@/localization";
@@ -83,7 +82,7 @@ describe("Module", () => {
             const module = createRegisterHttpClient();
 
             class TestApi2 implements IHTTPClient {
-                constructor() { }
+                constructor() {}
                 async get() {
                     return null as any;
                 }
@@ -105,8 +104,8 @@ describe("Module", () => {
                 async upload() {
                     return null as any;
                 }
-                removeHeader() { }
-                setHeader() { }
+                removeHeader() {}
+                setHeader() {}
             }
 
             module.registerHttpClient(TestApi2, {});
@@ -117,22 +116,21 @@ describe("Module", () => {
         });
 
         it("should clear all registered types", () => {
-            const module = createRegisterController();
+            const module = createRegisterProvider();
 
-            class Test { }
+            class Test {}
 
             module.register(Test);
             module.clear();
 
             expect(() => module.resolveHttpClient()).toThrow();
             expect(() => module.resolveProvider(TestProvider)).toThrow();
-            expect(() => module.resolveController(TestController)).toThrow();
             expect(() => module.resolve(Test)).toThrow();
         });
 
         it("should only clear the instances", () => {
             const module = createModule();
-            class Test { }
+            class Test {}
             module.register(Test);
 
             const instance1 = module.resolve(Test);

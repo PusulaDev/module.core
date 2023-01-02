@@ -1,14 +1,14 @@
-import type { IHTTPClient } from "../../http-client/types/http-client.interface";
-import type { IController } from "../../controller/controller.interface";
-import type { IProvider } from "../../provider/types/provider.interface";
+/*eslint-disable*/
+
+import type { IHTTPClient } from "@/http-client";
+import type { IProvider } from "@/provider";
 import {
     createModule,
-    createRegisterProvider,
     TestHttpClient,
-    TestProvider,
-} from "../../module/__mocks__/module.mock";
+} from "@/module/__mocks__/module.mock";
 import { InjectableDecorators } from "..";
-import { inject } from "../inject.decorator";
+import { inject } from "@/decorators";
+import { injectLazy, injectStatic } from "@/decorators/inject.decorator";
 
 describe("Injectable Decorators", () => {
     const injectable = new InjectableDecorators();
@@ -133,42 +133,6 @@ describe("Injectable Decorators", () => {
         expect(provider?.test).toBeInstanceOf(Test);
     });
 
-    it("should register controller with decorator", () => {
-        const module = createRegisterProvider();
-        module.useDecorators(injectable);
-
-        @injectable.controller()
-        class TestController implements IController {
-            constructor() {}
-        }
-
-        const controller = module.resolveController(TestController);
-
-        expect(controller).toBeInstanceOf(TestController);
-    });
-
-    it("should register controller with dependencies", () => {
-        const module = createRegisterProvider();
-        module.useDecorators(injectable);
-
-        class Test {}
-        module.register(Test);
-
-        @injectable.controller()
-        class TestController implements IController {
-            provider?: IProvider;
-            test?: Test;
-            constructor(provider?: TestProvider, test?: Test) {
-                this.provider = provider;
-                this.test = test;
-            }
-        }
-
-        const controller = module.resolveController(TestController);
-
-        expect(controller?.provider).toBeInstanceOf(TestProvider);
-        expect(controller?.test).toBeInstanceOf(Test);
-    });
 
     it("should register any other class with decorator", () => {
         const module = createAndUseInject();
@@ -206,13 +170,60 @@ describe("Injectable Decorators", () => {
 
         @injectable.other()
         class Test {
-            dep: DepClass;
-            constructor(@inject("A1") dep: any) {
-                this.dep = dep;
+            constructor(@inject("A1") public dep: any) {
             }
         }
 
         const resolved = module.resolve(Test);
         expect(resolved?.dep).toBeInstanceOf(DepClass);
     });
+
+    it("should register with lazy dependency",() => {
+        const module = createAndUseInject();
+
+        @injectable.other()
+        class Test{
+        }
+
+        @injectable.other()
+        class Test2{
+            constructor(@injectLazy("Test") public getTest:() => Test){}
+        }
+
+        const test2 = module.resolve(Test2);
+        expect(test2).toBeInstanceOf(Test2);
+        expect(test2?.getTest()).toBeInstanceOf(Test);
+    })
+
+    it("should register with static",() => {
+        const module = createAndUseInject();
+        const dep = "test";
+        const dep2 = "test2";
+
+        @injectable.other()
+        class Test2{
+            constructor(@injectStatic("dep2") public dep2:string,
+                        @injectStatic("dep") public dep:string){}
+        }
+
+        const test2 = module.resolve(Test2,{dependencies:{dep,dep2}});
+        expect(test2).toBeInstanceOf(Test2);
+        expect(test2.dep).toBe(dep)
+        expect(test2.dep2).toBe(dep2)
+    })
+
+    it("should register with static",() => {
+        const module = createAndUseInject();
+        const dep = "test";
+        const dep2 = "test2";
+
+        @injectable.other()
+        class Test2{
+            constructor(@injectStatic() public dep:string,@injectStatic() public dep2:string){}
+        }
+
+        const test2 = module.resolve(Test2,{dependencies:[dep,dep2]});
+        expect(test2).toBeInstanceOf(Test2);
+        expect(test2.dep).toBe(dep)
+    })
 });

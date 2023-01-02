@@ -2,12 +2,12 @@ import {
     FetchHTTPClient,
     ICoreModule,
     MemoryCache,
-    IController,
     IClassConstructor,
     globalModule,
     IProviderConstructor,
     IProvider,
 } from "..";
+import type { DependencyType } from "@/module/core-module.interface";
 
 export const createMock = (
     module: ICoreModule,
@@ -25,17 +25,13 @@ export const createMock = (
 
     const getProvider = <T extends IProvider>(key: string) => module.resolveProvider<T>(key);
 
-    const mockController = (
-        controller: new (...args: any[]) => IController,
-        key: string,
-        dependencies?: (string | IClassConstructor)[]
-    ) =>
-        module.registerController(controller, {
+    const mock = <T>(constructor: IClassConstructor<T>, key: string, dependencies?: DependencyType[]) =>
+        module.register(constructor, {
             dependencies,
             key,
         });
 
-    const getController = <T extends IController>(key: string) => module.resolveController<T>(key);
+    const get = <T>(key: string) => module.resolve<T>(key);
 
     const clear = () => {
         globalModule.clear();
@@ -49,10 +45,10 @@ export const createMock = (
         mockHttpClient,
         mockSessionCache,
         mockProvider,
-        mockController,
+        mock,
         getCache,
         getProvider,
-        getController,
+        get,
         clear,
     };
 };

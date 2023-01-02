@@ -1,15 +1,16 @@
+/* eslint-disable */
+
 import type { IHTTPClientOptions } from "../../http-client/types/http-client-options.interface";
 import type { IHTTPClient } from "../../http-client/types/http-client.interface";
-import type { IController } from "../../controller/controller.interface";
 import type { IProvider } from "../../provider/types/provider.interface";
 import { CoreModule, ICoreModule } from "../index";
 import type { ICache } from "../../cache";
 import type { IRequestConfig } from "../../provider/types/request-config.interface";
 
-export class TestModule extends CoreModule { }
+export class TestModule extends CoreModule {}
 
 export class TestHttpClient implements IHTTPClient {
-    constructor(_: IHTTPClientOptions) { }
+    constructor(_: IHTTPClientOptions) {}
 
     async get<TResponse = null>(_: string): Promise<TResponse> {
         return null as any;
@@ -33,8 +34,8 @@ export class TestHttpClient implements IHTTPClient {
         return null as any;
     }
 
-    setHeader(_: string) { }
-    removeHeader(_: string) { }
+    setHeader(_: string) {}
+    removeHeader(_: string) {}
 }
 
 export class TestProvider implements IProvider {
@@ -82,24 +83,16 @@ export class TestProvider implements IProvider {
     }
 }
 
-export class TestController implements IController {
-    args: any[] | undefined;
-
-    constructor(_?: IProvider, ...args: any[]) {
-        this.args = args;
-    }
-}
-
 export class TestCache implements ICache {
     get(_: string) {
         return null as any;
     }
 
-    set(_: string, __: any) { }
+    set(_: string, __: any) {}
 
-    remove(_: string) { }
+    remove(_: string) {}
 
-    clear() { }
+    clear() {}
 }
 
 export const createModule = (key?: string) => {
@@ -112,7 +105,7 @@ export const createNotLinkedModule = (key?: string) => {
     const testModule = new TestModule({ key, linkedModule: false });
     testModule.clear();
     return testModule;
-}
+};
 
 export const createRegisterHttpClient = (moduleArg?: ICoreModule) => {
     const module = moduleArg ?? createModule();
@@ -123,13 +116,5 @@ export const createRegisterHttpClient = (moduleArg?: ICoreModule) => {
 export const createRegisterProvider = () => {
     const module = createRegisterHttpClient();
     module.registerProvider(TestProvider);
-    return module;
-};
-
-export const createRegisterController = () => {
-    const module = createRegisterProvider();
-    module.registerController(TestController, {
-        dependencies: [TestProvider],
-    });
     return module;
 };
