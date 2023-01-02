@@ -108,20 +108,24 @@ export class CoreModule implements ICoreModule {
      * @param key
      * @param options
      */
-    resolve<T extends AppLayerUnionType>(key: KeyUnionType<T>, options?: DependencyResolveOptions): T {
+
+    resolve<T>(
+        key: IClassConstructor<T> | string,
+        options?: DependencyResolveOptions
+    ): T {
         const name = this.getName(key);
 
-        if (this.isClient(name)) return this.resolveHttpClient(key as IHTTPClientConstuctor, options) as T;
+        if (this.isClient(name)) return this.resolveHttpClient(key as IHTTPClientConstuctor, options) as any;
 
-        if (this.isProvider(name)) return this.resolveProvider(key as IProviderConstructor, options) as T;
+        if (this.isProvider(name)) return this.resolveProvider(key as IProviderConstructor, options) as any;
 
-        return this.resolveOther<T>(key, options);
+        return this.resolveOther(key, options);
     }
 
-    resolveFromGlobal<T extends AppLayerUnionType>(
-        key: KeyUnionType<T>,
+    resolveFromGlobal<T extends IClassConstructor>(
+        key: T | string,
         options: DependencyResolveOptions
-    ): T | undefined {
+    ): InstanceType<T> | undefined {
         if (this.linkedModule && options.type !== "locale")
             return globalModule.resolveDependency(key, { ...options, currentModule: this.key });
     }
@@ -335,7 +339,7 @@ export class CoreModule implements ICoreModule {
         if (ensureDependenyOptions(dependency)) {
             return this.resolveDependencyWithType(dependency, index, options);
         } else if (typeof dependency === "function" || typeof dependency === "string")
-            return this.resolve<AppLayerUnionType>(dependency as KeyUnionType, options);
+            return this.resolve(dependency as KeyUnionType, options);
         else return dependency;
     }
 
@@ -352,9 +356,9 @@ export class CoreModule implements ICoreModule {
                 } else if (dependency.key) return options.dependencies?.[dependency.key] ?? dependency.value;
                 break;
             case EnumDependencyType.Lazy:
-                return () => this.resolve<AppLayerUnionType>(dependency.key as KeyUnionType, options);
+                return () => this.resolve(dependency.key as KeyUnionType, options);
             case EnumDependencyType.Class:
-                return this.resolve<AppLayerUnionType>(dependency.key as KeyUnionType, options);
+                return this.resolve(dependency.key as KeyUnionType, options);
         }
     }
 
@@ -362,7 +366,7 @@ export class CoreModule implements ICoreModule {
         return map.get(typeConstructor.name) as T | undefined;
     }
 
-    private getName(key: string | (new (options?: any) => any)) {
+    private getName(key: string | IClassConstructor) {
         return typeof key === "string" ? key : key.name;
     }
 

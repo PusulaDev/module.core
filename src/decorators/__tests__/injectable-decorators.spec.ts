@@ -223,6 +223,7 @@ describe("Injectable Decorators", () => {
         }
 
         const test2 = module.resolve(Test2);
+
         expect(test2).toBeInstanceOf(Test2);
         expect(test2?.getTest()).toBeInstanceOf(Test);
     });
@@ -235,7 +236,7 @@ describe("Injectable Decorators", () => {
         @injectable.other()
         class Test2 {
             constructor(@injectStatic("dep2") public dep2: string,
-                        @injectStatic("dep") public dep: string) {
+                @injectStatic("dep") public dep: string) {
             }
         }
 

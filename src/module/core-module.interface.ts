@@ -36,7 +36,7 @@ export type ModuleBootstrapOptions<T = any> = {
     config?: T;
 };
 
-export type KeyUnionType<T = any> =
+export type KeyUnionType<T = unknown> =
     | string
     | IProviderConstructor
     | ICacheConstructor
@@ -59,9 +59,12 @@ export type ICoreModule = object & {
 
     useDecorators: (...decorators: IDecorator[]) => ICoreModule;
 
-    resolve: <T extends AppLayerUnionType>(key: KeyUnionType<T>, options?: DependencyResolveOptions) => T;
+    resolve: <T>(
+        key: IClassConstructor<T> | string,
+        options?: DependencyResolveOptions
+    ) => T;
 
-    register: <T>(constructor: new (...args: any[]) => T, options?: RegisterClassOptions) => ICoreModule;
+    register: <T>(constructor: IClassConstructor<T>, options?: RegisterClassOptions) => ICoreModule;
 
     registerInstance: <T extends object>(obj: T, key?: string) => ICoreModule;
 
