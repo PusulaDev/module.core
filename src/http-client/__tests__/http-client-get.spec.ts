@@ -3,8 +3,8 @@ import fetchMock from "jest-fetch-mock";
 import {
     mockFetchJSONResponse,
     mockFetchResponseWithError,
-    mockRejectResponse,
     mockFetchResponseWithStatus,
+    mockRejectResponse,
 } from "../__mocks__/fetch.mock";
 import { CustomServerError } from "../../custom-errors/custom-server-error";
 import { EnumResponseFormat } from "../types";
@@ -156,7 +156,7 @@ describe("Http Client Get Method", () => {
         const api = new FetchHTTPClient({
             baseUrl: "test.com",
             createErrorFn: async (response: Response) => {
-                const responseObj = await response.json();
+                const responseObj = (await response.json()) as { errorMessage: string };
                 return Error(`${responseObj.errorMessage}`);
             },
         });

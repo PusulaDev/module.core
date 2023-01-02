@@ -11,8 +11,8 @@ export default defineConfig({
         lib: {
             entry: resolvePath("src/index.ts"),
             name: "index",
-            fileName: "index",
-        },
+            fileName: "index"
+        }
     },
     plugins: [
         peerDepsExternal(),
@@ -25,8 +25,8 @@ export default defineConfig({
                 resolvePath("node_modules/**"),
                 resolvePath("src/**/*.spec.ts"),
                 resolvePath("src/__tests__/*.ts"),
-                resolvePath("src/__mocks__/*.ts"),
-            ],
-        }),
-    ],
+                resolvePath("src/__mocks__/*.ts")
+            ]
+        })
+    ]
 });

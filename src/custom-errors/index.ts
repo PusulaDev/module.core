@@ -9,13 +9,13 @@ import { CustomModuleError } from "./custom-module-error";
 import { EnumCustomErrorType } from "./statics/custom-error-type.enum";
 
 export {
-  CustomError,
-  CustomServerError,
-  CustomHttpClientError,
-  CustomProviderError,
-  CustomCacheError,
-  CustomControllerError,
-  CustomLogicError,
-  CustomModuleError,
-  EnumCustomErrorType,
+    CustomError,
+    CustomServerError,
+    CustomHttpClientError,
+    CustomProviderError,
+    CustomCacheError,
+    CustomControllerError,
+    CustomLogicError,
+    CustomModuleError,
+    EnumCustomErrorType,
 };

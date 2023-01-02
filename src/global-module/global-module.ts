@@ -100,16 +100,18 @@ class GlobalModule {
         keys.forEach((key) => delete this.sharedHeaders[key]);
     }
 
-    resolveDependency<T extends AppLayerUnionType>(key: KeyUnionType<T>, options?: DependencyResolveOptions & { currentModule?: string }): T | undefined {
-        const { currentModule, ...dependencyOptions } = options ?? { type: 'locale', path: [] };
+    resolveDependency<T extends AppLayerUnionType>(
+        key: KeyUnionType<T>,
+        options?: DependencyResolveOptions & { currentModule?: string }
+    ): T | undefined {
+        const { currentModule, ...dependencyOptions } = options ?? { type: "locale", path: [] };
 
         dependencyOptions.type = "locale";
 
         for (const [name, module] of this.modules) {
             if (!currentModule || name !== currentModule) {
                 const resolved = module.resolve(key, dependencyOptions);
-                if (resolved)
-                    return resolved
+                if (resolved) return resolved;
             }
         }
     }

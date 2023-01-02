@@ -5,22 +5,22 @@ import type { CustomErrorConstructorOptions } from "./types/custom-error-constru
 import type { ICustomError } from "./types/custom-error.interface";
 
 export class CustomError extends Error implements ICustomError {
-  layer: EnumAppLayer;
-  type: EnumCustomErrorType;
-  children?: Error[];
+    layer: EnumAppLayer;
+    type: EnumCustomErrorType;
+    children?: Error[];
 
-  constructor(options: CustomErrorConstructorOptions) {
-    let message = options.message;
+    constructor(options: CustomErrorConstructorOptions) {
+        let message = options.message;
 
-    if (options.translate)
-      message =
-        globalModule
-          .getLocalization()
-          ?.translate(options.message, ...(options.translateArgs ?? [])) ?? "";
+        if (options.translate)
+            message =
+                globalModule
+                    .getLocalization()
+                    ?.translate(options.message, ...(options.translateArgs ?? [])) ?? "";
 
-    super(message);
-    this.layer = options.layer;
-    this.type = options.type;
-    this.children = options.children;
-  }
+        super(message);
+        this.layer = options.layer;
+        this.type = options.type;
+        this.children = options.children;
+    }
 }

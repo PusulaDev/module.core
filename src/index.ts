@@ -1,6 +1,5 @@
 export * from "./global-module";
 export * from "./http-client";
-export * from "./controller";
 export * from "./module";
 export * from "./provider";
 export * from "./cache";

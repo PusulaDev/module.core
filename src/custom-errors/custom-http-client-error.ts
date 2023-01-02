@@ -3,7 +3,7 @@ import { CustomError } from "./custom-error";
 import type { CustomErrorConstructorOptions } from "./types/custom-error-constructor.options";
 
 export class CustomHttpClientError extends CustomError {
-  constructor(options: Omit<CustomErrorConstructorOptions, "layer">) {
-    super({ layer: EnumAppLayer.HttpClient, ...options });
-  }
+    constructor(options: Omit<CustomErrorConstructorOptions, "layer">) {
+        super({ layer: EnumAppLayer.HttpClient, ...options });
+    }
 }

@@ -1,5 +1,5 @@
 import type { IDateUtil } from "./types";
-import { format, formatISO, add, parseISO, parse, set } from "date-fns";
+import { add, format, formatISO, parse, parseISO, set } from "date-fns";
 import type { DateDuration, DateUnion, SetDateValues } from "./types/date-util.interface";
 
 class DefaultDateUtil implements IDateUtil {
@@ -12,6 +12,7 @@ class DefaultDateUtil implements IDateUtil {
     }
 
     now = () => new Date();
+
     nowISO() {
         return this.formatISO(this.now());
     }
@@ -57,7 +58,7 @@ class DefaultDateUtil implements IDateUtil {
     }
 
     private mutateDateUnion<T extends DateUnion>(value: T, mutateFn: (date: Date) => Date) {
-        let date = this.getDate(value);
+        const date = this.getDate(value);
 
         const result = mutateFn(date);
 

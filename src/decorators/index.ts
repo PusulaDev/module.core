@@ -7,10 +7,4 @@ import { inject } from "./inject.decorator";
 
 export type { IInjectableDecorators, IDecorator };
 
-export {
-  InjectableDecorators,
-  cloneArgs,
-  cloneDeepArgs,
-  measurePerformance,
-  inject,
-};
+export { InjectableDecorators, cloneArgs, cloneDeepArgs, measurePerformance, inject };
