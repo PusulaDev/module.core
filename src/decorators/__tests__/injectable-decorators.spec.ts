@@ -2,10 +2,7 @@
 
 import type { IHTTPClient } from "@/http-client";
 import type { IProvider } from "@/provider";
-import {
-    createModule,
-    TestHttpClient,
-} from "@/module/__mocks__/module.mock";
+import { createModule, TestHttpClient } from "@/module/__mocks__/module.mock";
 import { InjectableDecorators } from "..";
 import { inject } from "@/decorators";
 import { injectLazy, injectStatic } from "@/decorators/inject.decorator";
@@ -24,30 +21,42 @@ describe("Injectable Decorators", () => {
 
         @injectable.client({})
         class TestApi implements IHTTPClient {
-            constructor() {}
+            constructor() {
+            }
+
             async get() {
                 return null as any;
             }
+
             async put() {
                 return null as any;
             }
+
             async patch() {
                 return null as any;
             }
+
             async delete() {
                 return null as any;
             }
+
             async request() {
                 return null as any;
             }
+
             async post() {
                 return null as any;
             }
+
             async upload() {
                 return null as any;
             }
-            setHeader() {}
-            removeHeader() {}
+
+            setHeader() {
+            }
+
+            removeHeader() {
+            }
         }
 
         const api = module.resolveHttpClient();
@@ -61,25 +70,33 @@ describe("Injectable Decorators", () => {
 
         @injectable.provider()
         class TestProvider implements IProvider {
-            constructor() {}
+            constructor() {
+            }
+
             async get() {
                 return null as any;
             }
+
             async post() {
                 return null as any;
             }
+
             async put() {
                 return null as any;
             }
+
             async delete() {
                 return null as any;
             }
+
             async patch() {
                 return null as any;
             }
+
             async request() {
                 return null as any;
             }
+
             async upload() {
                 return null as any;
             }
@@ -93,35 +110,45 @@ describe("Injectable Decorators", () => {
         const module = createAndUseInject();
         module.registerHttpClient(TestHttpClient, {});
 
-        class Test {}
+        class Test {
+        }
+
         module.register(Test);
 
         @injectable.provider({ key: "test_p", client: TestHttpClient })
         class TestProvider implements IProvider {
             test: Test;
             client: IHTTPClient;
+
             constructor(client: IHTTPClient, test: Test) {
                 this.test = test;
                 this.client = client;
             }
+
             async get() {
                 return null as any;
             }
+
             async post() {
                 return null as any;
             }
+
             async put() {
                 return null as any;
             }
+
             async delete() {
                 return null as any;
             }
+
             async patch() {
                 return null as any;
             }
+
             async request() {
                 return null as any;
             }
+
             async upload() {
                 return null as any;
             }
@@ -138,7 +165,8 @@ describe("Injectable Decorators", () => {
         const module = createAndUseInject();
 
         @injectable.other()
-        class Test {}
+        class Test {
+        }
 
         const resolved = module.resolve(Test);
         expect(resolved).toBeInstanceOf(Test);
@@ -148,11 +176,13 @@ describe("Injectable Decorators", () => {
         const module = createAndUseInject();
 
         @injectable.other()
-        class DepClass {}
+        class DepClass {
+        }
 
         @injectable.other()
         class Test {
             dep: DepClass;
+
             constructor(dep: DepClass) {
                 this.dep = dep;
             }
@@ -166,7 +196,8 @@ describe("Injectable Decorators", () => {
         const module = createAndUseInject();
 
         @injectable.other("A1")
-        class DepClass {}
+        class DepClass {
+        }
 
         @injectable.other()
         class Test {
@@ -178,52 +209,55 @@ describe("Injectable Decorators", () => {
         expect(resolved?.dep).toBeInstanceOf(DepClass);
     });
 
-    it("should register with lazy dependency",() => {
+    it("should register with lazy dependency", () => {
         const module = createAndUseInject();
 
         @injectable.other()
-        class Test{
+        class Test {
         }
 
         @injectable.other()
-        class Test2{
-            constructor(@injectLazy("Test") public getTest:() => Test){}
+        class Test2 {
+            constructor(@injectLazy("Test") public getTest: () => Test) {
+            }
         }
 
         const test2 = module.resolve(Test2);
         expect(test2).toBeInstanceOf(Test2);
         expect(test2?.getTest()).toBeInstanceOf(Test);
-    })
+    });
 
-    it("should register with static",() => {
+    it("should register with static", () => {
         const module = createAndUseInject();
         const dep = "test";
         const dep2 = "test2";
 
         @injectable.other()
-        class Test2{
-            constructor(@injectStatic("dep2") public dep2:string,
-                        @injectStatic("dep") public dep:string){}
+        class Test2 {
+            constructor(@injectStatic("dep2") public dep2: string,
+                        @injectStatic("dep") public dep: string) {
+            }
         }
 
-        const test2 = module.resolve(Test2,{dependencies:{dep,dep2}});
+        const test2 = module.resolve(Test2, { dependencies: { dep, dep2 } });
         expect(test2).toBeInstanceOf(Test2);
-        expect(test2.dep).toBe(dep)
-        expect(test2.dep2).toBe(dep2)
-    })
+        expect(test2.dep).toBe(dep);
+        expect(test2.dep2).toBe(dep2);
+    });
 
-    it("should register with static",() => {
+    it("should register with static", () => {
         const module = createAndUseInject();
         const dep = "test";
         const dep2 = "test2";
 
         @injectable.other()
-        class Test2{
-            constructor(@injectStatic() public dep:string,@injectStatic() public dep2:string){}
+        class Test2 {
+            constructor(@injectStatic() public dep: string, @injectStatic() public dep2: string) {
+            }
         }
 
-        const test2 = module.resolve(Test2,{dependencies:[dep,dep2]});
+        const test2 = module.resolve(Test2, { dependencies: [dep, dep2] });
         expect(test2).toBeInstanceOf(Test2);
-        expect(test2.dep).toBe(dep)
-    })
+        expect(test2.dep).toBe(dep);
+    });
 });

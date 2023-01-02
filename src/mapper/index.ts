@@ -1,16 +1,11 @@
 import type {
-  IMapper,
-  MapperConfiguration,
-  MapperTargetValue,
-  MapperFieldConfigurations,
+    IMapper,
+    MapperConfiguration,
+    MapperFieldConfigurations,
+    MapperTargetValue,
 } from "./mapper.interface";
 import { CoreMapper } from "./core-mapper";
 
-export type {
-  IMapper,
-  MapperConfiguration,
-  MapperTargetValue,
-  MapperFieldConfigurations,
-};
+export type { IMapper, MapperConfiguration, MapperTargetValue, MapperFieldConfigurations };
 
 export { CoreMapper };

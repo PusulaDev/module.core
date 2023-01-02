@@ -7,10 +7,10 @@ import { CustomProviderError } from "../custom-errors/custom-provider-error";
 import { EnumCustomErrorType } from "../custom-errors";
 
 export class CoreProvider implements IProvider {
-    private client: IHTTPClient;
-    private abortControllers = new Map<string, IAbortController>();
     protected baseUrl: string | null = null;
     protected cache?: ICache;
+    private client: IHTTPClient;
+    private abortControllers = new Map<string, IAbortController>();
 
     constructor(client: IHTTPClient) {
         this.client = client;

@@ -35,6 +35,7 @@ describe("Module Dependency Resolve", () => {
         const module = createRegisterHttpClient();
 
         class Test {}
+
         module.register(Test);
         module.registerProvider(TestProvider, { dependencies: [Test] });
 
@@ -56,6 +57,7 @@ describe("Module Dependency Resolve", () => {
         const module = createModule();
 
         class TestClass {}
+
         const instance = new TestClass();
         module.registerInstance(instance);
 
@@ -77,8 +79,10 @@ describe("Module Dependency Resolve", () => {
         const module = createModule();
 
         class DepClass {}
+
         class TestClass {
             dep: DepClass;
+
             constructor(dep: DepClass) {
                 this.dep = dep;
             }
@@ -160,8 +164,10 @@ describe("Module Dependency Resolve", () => {
         const module = createModule();
 
         class DepClass {}
+
         class TestClass {
             dep: DepClass;
+
             constructor(dep: DepClass) {
                 this.dep = dep;
             }
@@ -199,6 +205,7 @@ describe("Module Dependency Resolve", () => {
     it("should throw not registered error when 'linkedModule' false and dependency is registered in another module", () => {
         const module = createModule();
         const module2 = createNotLinkedModule("Module2");
+
         class Test {}
 
         module.register(Test);
@@ -289,7 +296,7 @@ describe("Module Dependency Resolve", () => {
         );
     });
 
-    it("should throw error if cannot resolve because not registered", async () => {
+    it("should throw error if cannot resolve because not registered", () => {
         const module = createModule();
         defaultLocalization.setLang("en-us");
         defaultLocalization.setTranslations({

@@ -15,10 +15,11 @@ import type {
 import type { IDecorator } from "@/decorators";
 import { coreLogger } from "@/logger/core.logger";
 import { globalModule } from "@/global-module";
-import { EnumCustomErrorType, CustomModuleError } from "@/custom-errors";
+import { CustomModuleError, EnumCustomErrorType } from "@/custom-errors";
 import type { IClassConstructor } from "@/shared";
-import { EnumLocalizationKeys } from "@/localization";
+import { EnumDependencyType } from "@/shared";
 import type { LocalizationTranslations } from "@/localization";
+import { EnumLocalizationKeys } from "@/localization";
 import type {
     ConstructorMap,
     ConstructorOptions,
@@ -28,7 +29,6 @@ import type {
     ProviderConstructorOptions,
 } from "./dependency-maps";
 import type { DependencyResolveOptions } from "./resolve-options";
-import { EnumDependencyType } from "@/shared";
 import { ensureDependenyOptions } from "@/utils/ensure-object.util";
 
 export class CoreModule implements ICoreModule {

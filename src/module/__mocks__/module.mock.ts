@@ -7,39 +7,51 @@ import { CoreModule, ICoreModule } from "../index";
 import type { ICache } from "../../cache";
 import type { IRequestConfig } from "../../provider/types/request-config.interface";
 
-export class TestModule extends CoreModule {}
+export class TestModule extends CoreModule {
+}
 
 export class TestHttpClient implements IHTTPClient {
-    constructor(_: IHTTPClientOptions) {}
+    constructor(_: IHTTPClientOptions) {
+    }
 
     async get<TResponse = null>(_: string): Promise<TResponse> {
         return null as any;
     }
+
     async post(_: string) {
         return null as any;
     }
+
     async request(_: string) {
         return null as any;
     }
+
     async delete(_: string) {
         return null as any;
     }
+
     async put(_: string) {
         return null as any;
     }
+
     async patch(_: string) {
         return null as any;
     }
+
     async upload(_: string, __: FormData) {
         return null as any;
     }
 
-    setHeader(_: string) {}
-    removeHeader(_: string) {}
+    setHeader(_: string) {
+    }
+
+    removeHeader(_: string) {
+    }
 }
 
 export class TestProvider implements IProvider {
     args: any[] | undefined;
+
     constructor(_: IHTTPClient, ...args: any[]) {
         this.args = args;
     }
@@ -49,6 +61,7 @@ export class TestProvider implements IProvider {
     ): Promise<TResponse | undefined> {
         return null as any;
     }
+
     post<TRequest = undefined, TResponse = undefined>(
         _: IRequestConfig<TRequest, TResponse>
     ): Promise<TResponse | undefined> {
@@ -78,6 +91,7 @@ export class TestProvider implements IProvider {
     ): Promise<TResponse | undefined> {
         return null as any;
     }
+
     upload(_: string, __: FormData) {
         return null as any;
     }
@@ -88,11 +102,14 @@ export class TestCache implements ICache {
         return null as any;
     }
 
-    set(_: string, __: any) {}
+    set(_: string, __: any) {
+    }
 
-    remove(_: string) {}
+    remove(_: string) {
+    }
 
-    clear() {}
+    clear() {
+    }
 }
 
 export const createModule = (key?: string) => {

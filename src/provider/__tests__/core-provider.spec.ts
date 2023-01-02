@@ -25,7 +25,7 @@ describe("Data Provider", () => {
     fetchMock.enableMocks();
 
     beforeEach(() => {
-        fetchMock.mockClear();
+        fetchMock.mockReset();
     });
 
     it("should post using options", async () => {
@@ -143,7 +143,7 @@ describe("Data Provider", () => {
         mockFetchJSONResponse({ id: 1 });
 
         class TestProvider extends CoreProvider {
-            protected baseUrl: string = "giganto";
+            protected baseUrl = "giganto";
         }
 
         const provider = new TestProvider(client);
@@ -194,16 +194,14 @@ describe("Data Provider", () => {
         };
 
         mockFetchResponseWithTimeout({ id: 1 }, 200);
-        const firstRequest = provider.post(config, { search: "t" }, { raceId: "1" });
-
         mockFetchResponseWithTimeout({ id: 2 }, 300);
-        const secondRequest = provider.post(config, { search: "tes" }, { raceId: "1" });
-
         mockFetchResponseWithTimeout({ id: 12 }, 100);
+
+        const firstRequest = provider.post(config, { search: "t" }, { raceId: "1" });
+        const secondRequest = provider.post(config, { search: "tes" }, { raceId: "1" });
         const response = await provider.post(config, { search: "test" }, { raceId: "1" });
 
         await expect(async () => await firstRequest).rejects.toEqual(new CustomServerError());
-
         await expect(async () => await secondRequest).rejects.toEqual(new CustomServerError());
 
         expect(response).toEqual({ id: 12 });
@@ -276,6 +274,32 @@ describe("Data Provider", () => {
         expect(fetchMock).toBeCalledTimes(1);
     });
 
+    it("should get values from cache when cachableGet is called second time", async () => {
+        const mockResponse = [{ id: 1 }, { id: 2 }];
+        mockFetchJSONResponse(mockResponse);
+
+        class CachebleProvider extends CoreProvider {
+            cache: ICache = new MemoryCache();
+        }
+
+        const provider = new CachebleProvider(client);
+        const config: ICachableRequestConfig<undefined, { id: number }[]> = {
+            url: "getAll",
+            cacheKey: "item",
+            responseFormat: EnumResponseFormat.Json,
+        };
+
+        const firstResponse = await provider.cachableGet(config);
+
+        mockFetchJSONResponse([]);
+
+        const secondResponse = await provider.cachableGet(config);
+
+        expect(firstResponse).toEqual(mockResponse);
+        expect(secondResponse).toEqual(mockResponse);
+        expect(fetchMock).toBeCalledTimes(1);
+    });
+
     it("should validate request with validation function", async () => {
         const provider = new CoreProvider(client);
 
@@ -296,6 +320,9 @@ describe("Data Provider", () => {
     });
 
     it("should validate response with validation function", async () => {
+        const mockResponse: unknown[] = [];
+        mockFetchJSONResponse(mockResponse);
+
         const provider = new CoreProvider(client);
         const config: IRequestConfig<number, number[]> = {
             url: "test",

@@ -4,27 +4,24 @@ import { globalModule } from "../global-module/global-module";
  * Don't use with async methods
  */
 export const measurePerformance = (
-  target: any,
-  propertyKey: string | symbol,
-  descriptor: PropertyDescriptor
+    target: any,
+    propertyKey: string | symbol,
+    descriptor: PropertyDescriptor
 ) => {
-  const originalMethod = descriptor.value;
+    const originalMethod = descriptor.value as (...args: unknown[]) => unknown;
 
-  descriptor.value = function (...args: any[]) {
-    const performanceUtil = globalModule.getPerformanceUtil();
+    descriptor.value = function (...args: any[]) {
+        const performanceUtil = globalModule.getPerformanceUtil();
 
-    let res: any;
+        let res: unknown;
 
-    const className = target.constructor.name;
-    const name = `${className}:${String(propertyKey)}`;
+        const className = (target as (...args: unknown[]) => unknown).constructor.name;
+        const name = `${className}:${String(propertyKey)}`;
 
-    performanceUtil?.measureFunc(
-      () => (res = originalMethod.apply(this, args)),
-      name
-    );
+        performanceUtil?.measureFunc(() => (res = originalMethod.apply(this, args)), name);
 
-    return res;
-  };
+        return res;
+    };
 
-  return descriptor;
+    return descriptor;
 };

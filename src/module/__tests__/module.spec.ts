@@ -1,10 +1,12 @@
+/*eslint-disable*/
+
 import type { IHTTPClient } from "../../http-client/types/http-client.interface";
 import {
-    createRegisterHttpClient,
-    TestHttpClient,
-    TestProvider,
     createModule,
+    createRegisterHttpClient,
     createRegisterProvider,
+    TestHttpClient,
+    TestProvider
 } from "../__mocks__/module.mock";
 import { globalModule } from "@/global-module/global-module";
 import { defaultLocalization } from "@/localization";
@@ -83,28 +85,37 @@ describe("Module", () => {
 
             class TestApi2 implements IHTTPClient {
                 constructor() {}
+
                 async get() {
                     return null as any;
                 }
+
                 async post() {
                     return null as any;
                 }
+
                 async put() {
                     return null as any;
                 }
+
                 async patch() {
                     return null as any;
                 }
+
                 async delete() {
                     return null as any;
                 }
+
                 async request() {
                     return null as any;
                 }
+
                 async upload() {
                     return null as any;
                 }
+
                 removeHeader() {}
+
                 setHeader() {}
             }
 
@@ -130,7 +141,9 @@ describe("Module", () => {
 
         it("should only clear the instances", () => {
             const module = createModule();
+
             class Test {}
+
             module.register(Test);
 
             const instance1 = module.resolve(Test);

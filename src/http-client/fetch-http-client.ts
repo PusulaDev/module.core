@@ -1,5 +1,5 @@
 import { urlUtils } from "../utils/url.utils";
-import { type IHTTPClient, type IHTTPClientOptions, EnumRequestMethod } from "./index";
+import { EnumRequestMethod, type IHTTPClient, type IHTTPClientOptions } from "./index";
 import { CustomServerError } from "../custom-errors/custom-server-error";
 import type { RequestOptions } from "./types/request-options.interface";
 import { CustomHttpClientError } from "../custom-errors/custom-http-client-error";
@@ -31,19 +31,6 @@ export class FetchHTTPClient implements IHTTPClient {
 
     getPendingRequests() {
         return this.pendingRequests;
-    }
-
-    private mergeUrlRouteParams(url: string, data: Record<string, unknown>) {
-        let parts = url.split(/\$\{(?!\d)[\wæøåÆØÅ]*\}/);
-        let args = url.match(/[^{\}]+(?=})/g) || [];
-        let parameters = args.map(
-            (argument) => data[argument] || (data[argument] === undefined ? "" : data[argument])
-        );
-
-        const string = String.raw({ raw: parts }, ...parameters);
-        args.forEach((arg) => data[arg] && delete data[arg]);
-
-        return string;
     }
 
     async request<TRequest, TResponse = undefined>(
@@ -133,11 +120,24 @@ export class FetchHTTPClient implements IHTTPClient {
         if (isHeadersEmpty) this.headers = undefined;
     }
 
+    private mergeUrlRouteParams(url: string, data: Record<string, unknown>) {
+        const parts = url.split(/\$\{(?!\d)[\wæøåÆØÅ]*\}/);
+        const args = url.match(/[^{}]+(?=})/g) || [];
+        const parameters = args.map(
+            (argument) => data[argument] || (data[argument] === undefined ? "" : data[argument])
+        );
+
+        const string = String.raw({ raw: parts }, ...parameters);
+        args.forEach((arg) => data[arg] && delete data[arg]);
+
+        return string;
+    }
+
     private async handleUpload<TResponse = undefined>(
         url: string,
         formData: FormData,
         options?: RequestOptions
-    ): Promise<TResponse> {
+    ): Promise<TResponse | undefined> {
         const response = await fetch(`${this.baseUrl}${url}`, {
             method: "POST",
             headers: {
@@ -147,7 +147,7 @@ export class FetchHTTPClient implements IHTTPClient {
             body: formData,
         });
 
-        return this.handleResponse(response, options?.responseFormat);
+        return this.handleResponse<TResponse>(response, options?.responseFormat);
     }
 
     private checkContentType = (key: string, value: string, contentType: string) =>
@@ -218,7 +218,7 @@ export class FetchHTTPClient implements IHTTPClient {
         method: EnumRequestMethod;
         data?: TRequest;
         options?: RequestOptions;
-    }): Promise<TResponse> {
+    }): Promise<TResponse | undefined> {
         const { url, key, method, data, options } = opts;
         let customUrl = url;
 
@@ -233,7 +233,7 @@ export class FetchHTTPClient implements IHTTPClient {
         const pendingRequest = this.pendingRequests.get(key);
         const init = this.createFetchInit(method, options, data);
 
-        let response: Response = await this.createResponse({
+        const response: Response = await this.createResponse({
             url: customUrl,
             init,
             key: key,
@@ -242,7 +242,7 @@ export class FetchHTTPClient implements IHTTPClient {
 
         this.pendingRequests.delete(key);
 
-        return this.handleResponse(response, options?.responseFormat);
+        return this.handleResponse<TResponse>(response, options?.responseFormat);
     }
 
     private createKey(url: string, method: string, data?: any) {
@@ -272,7 +272,7 @@ export class FetchHTTPClient implements IHTTPClient {
         return await request;
     }
 
-    private async handleResponse(response: Response, format?: EnumResponseFormat) {
+    private async handleResponse<T>(response: Response, format?: EnumResponseFormat): Promise<T | undefined> {
         if (!response.ok) await this.handleResponseError(response);
 
         const mergedFormat = format ?? this.responseFormat;
@@ -282,23 +282,23 @@ export class FetchHTTPClient implements IHTTPClient {
 
         switch (mergedFormat) {
             case EnumResponseFormat.Json:
-                return response.clone().json();
+                return (await response.clone().json()) as T;
             case EnumResponseFormat.FormData:
-                return response.clone().formData();
+                return (await response.clone().formData()) as T;
             case EnumResponseFormat.Blob:
-                return response.clone().blob();
+                return (await response.clone().blob()) as T;
             case EnumResponseFormat.ArrayBuffer:
-                return response.clone().arrayBuffer();
+                return (await response.clone().arrayBuffer()) as T;
             case EnumResponseFormat.Text:
             default:
-                return await response.clone().text();
+                return (await response.clone().text()) as T;
         }
     }
 
     private async handleResponseError(response: Response) {
         if (this.createErrorFn) throw await this.createErrorFn(response);
 
-        const body = response.body ? ` ${response.body}` : "";
+        const body = response.body ? ` ${String(response.body)}` : "";
         throw new Error(`${response.status}: ${response.statusText}.${body}`);
     }
 

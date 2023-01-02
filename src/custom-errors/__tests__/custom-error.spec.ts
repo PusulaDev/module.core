@@ -5,19 +5,19 @@ import { CustomError } from "..";
 import { EnumCustomErrorType } from "../statics/custom-error-type.enum";
 
 describe("Custom Error", () => {
-  it("should translate message", () => {
-    globalModule.clear();
-    defaultLocalization.setLang("tr");
-    defaultLocalization.setTranslations({ tr: { hi: "Merhaba" } });
-    globalModule.setLocalization(defaultLocalization);
+    it("should translate message", () => {
+        globalModule.clear();
+        defaultLocalization.setLang("tr");
+        defaultLocalization.setTranslations({ tr: { hi: "Merhaba" } });
+        globalModule.setLocalization(defaultLocalization);
 
-    const error = new CustomError({
-      layer: EnumAppLayer.Controller,
-      type: EnumCustomErrorType.Construction,
-      message: "hi",
-      translate: true,
+        const error = new CustomError({
+            layer: EnumAppLayer.Controller,
+            type: EnumCustomErrorType.Construction,
+            message: "hi",
+            translate: true,
+        });
+        const message = error.message;
+        expect(message).toEqual("Merhaba");
     });
-    const message = error.message;
-    expect(message).toEqual("Merhaba");
-  });
 });

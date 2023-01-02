@@ -1,4 +1,4 @@
 export type ICloneUtil = {
-  clone: <T = any>(item: T) => T;
-  cloneDeep: <T = any>(item: T) => T;
+    clone: <T = unknown>(item: T) => T;
+    cloneDeep: <T = unknown>(item: T) => T;
 };

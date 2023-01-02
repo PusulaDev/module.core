@@ -1,9 +1,9 @@
 import {
-    defaultLocalization,
+    browserPerformanceUtil,
     defaultCloneUtil,
     defaultDateUtil,
     defaultEncryptUtil,
-    browserPerformanceUtil,
+    defaultLocalization,
 } from "..";
 import { globalModule } from "./global-module";
 

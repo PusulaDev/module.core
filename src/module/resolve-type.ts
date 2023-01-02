@@ -1,1 +1,1 @@
-export type ResolveType = 'locale' | 'global';
+export type ResolveType = "locale" | "global";

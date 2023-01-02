@@ -1,5 +1,5 @@
 export type ILogger = {
-  log: (...args: any[]) => void;
+    log: (...args: any[]) => void;
 
-  logMethod: (ignoreArguments?:boolean) => MethodDecorator;
+    logMethod: (ignoreArguments?: boolean) => MethodDecorator;
 };

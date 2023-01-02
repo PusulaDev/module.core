@@ -1,12 +1,8 @@
+/*eslint-disable*/
 import type { IHTTPClient } from "../../http-client/types/http-client.interface";
 import type { IHTTPClientOptions } from "../../http-client/types/http-client-options.interface";
 import type { IProvider } from "../../provider/types/provider.interface";
-import {
-    createModule,
-    createRegisterHttpClient,
-    createRegisterProvider,
-    TestProvider,
-} from "../__mocks__/module.mock";
+import { createModule, createRegisterHttpClient, createRegisterProvider, TestProvider } from "../__mocks__/module.mock";
 import type { IRequestConfig } from "@/provider/types/request-config.interface";
 import { defaultLocalization, EnumLocalizationKeys } from "@/localization";
 import { globalModule } from "@/global-module/global-module";
@@ -65,28 +61,37 @@ describe("Module Provider", () => {
 
         class TestApi2 implements IHTTPClient {
             constructor(_: IHTTPClientOptions) {}
+
             async get(_: string) {
                 return null as any;
             }
+
             async post(_: string) {
                 return null as any;
             }
+
             async patch(_: string) {
                 return null as any;
             }
+
             async put(_: string) {
                 return null as any;
             }
+
             async delete(_: string) {
                 return null as any;
             }
+
             async request(_: string) {
                 return null as any;
             }
+
             async upload(_: string, __: FormData) {
                 return null as any;
             }
+
             setHeader(_: string) {}
+
             removeHeader(_: string) {}
         }
 
@@ -94,36 +99,43 @@ describe("Module Provider", () => {
             constructor(api: IHTTPClient) {
                 isInstanceOfTestApi2 = api instanceof TestApi2;
             }
+
             get<TRequest = undefined, TResponse = undefined>(
                 _: IRequestConfig<TRequest, TResponse>
             ): Promise<TResponse | undefined> {
                 return null as any;
             }
+
             post<TRequest = undefined, TResponse = undefined>(
                 _: IRequestConfig<TRequest, TResponse>
             ): Promise<TResponse | undefined> {
                 return null as any;
             }
+
             put<TRequest = undefined, TResponse = undefined>(
                 _: IRequestConfig<TRequest, TResponse>
             ): Promise<TResponse | undefined> {
                 return null as any;
             }
+
             patch<TRequest = undefined, TResponse = undefined>(
                 _: IRequestConfig<TRequest, TResponse>
             ): Promise<TResponse | undefined> {
                 return null as any;
             }
+
             delete<TRequest = undefined, TResponse = undefined>(
                 _: IRequestConfig<TRequest, TResponse>
             ): Promise<TResponse | undefined> {
                 return null as any;
             }
+
             request<TRequest = undefined, TResponse = undefined>(
                 _: IRequestConfig<TRequest, TResponse>
             ): Promise<TResponse | undefined> {
                 return null as any;
             }
+
             async upload(_: string, __: FormData) {
                 return null as any;
             }

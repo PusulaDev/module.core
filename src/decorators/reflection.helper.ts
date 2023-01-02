@@ -5,7 +5,7 @@ import { ensureDependenyOptions } from "@/utils/ensure-object.util";
 
 export const INJECTION_TOKEN_METADATA_KEY = "injectionTokens";
 
-export const getConstructorArgNames = (target: IClassConstructor) => {
+export const getConstructorArgNames = (target: IClassConstructor): DependencyType[] => {
     const types = (Reflect.getMetadata("design:paramtypes", target) as unknown[]) || [];
 
     const injectionTokens =
@@ -28,7 +28,7 @@ export const getConstructorArgNames = (target: IClassConstructor) => {
         if (token) types[+key] = token;
     }
 
-    return types;
+    return types as DependencyType[];
 };
 
 export const getConstructorArgNamesAfterFirst = (target: IClassConstructor) => {
@@ -40,9 +40,16 @@ export const defineInjectionTokenMetaData =
     (token: Partial<DependencyType>) =>
     (target: any, _propertyKey: string | symbol, parameterIndex: number) => {
         const descriptors =
-            (Reflect.getOwnMetadata(INJECTION_TOKEN_METADATA_KEY, target) as Partial<DependencyType>[]) || {};
+            (Reflect.getOwnMetadata(
+                INJECTION_TOKEN_METADATA_KEY,
+                target as (...args: unknown[]) => unknown
+            ) as Partial<DependencyType>[]) || {};
 
         descriptors[parameterIndex] = token;
 
-        Reflect.defineMetadata(INJECTION_TOKEN_METADATA_KEY, descriptors, target);
+        Reflect.defineMetadata(
+            INJECTION_TOKEN_METADATA_KEY,
+            descriptors,
+            target as (...args: unknown[]) => unknown
+        );
     };

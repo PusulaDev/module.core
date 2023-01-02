@@ -4,30 +4,31 @@ import mockConsole from "jest-mock-console";
 import { measurePerformance } from "../performance.decorator";
 
 describe("Performance", () => {
-  const restore = mockConsole();
+    const restore = mockConsole();
 
-  beforeEach(() => {
-    mockConsole();
-    globalModule.clear();
-  });
+    beforeEach(() => {
+        mockConsole();
+        globalModule.clear();
+    });
 
-  afterEach(() => {
-    restore();
-  });
+    afterEach(() => {
+        restore();
+    });
 
-  it("should log to class and name of function", () => {
-    globalModule.setPerformanceUtil(mockPerformanceUtil);
+    it("should log to class and name of function", () => {
+        globalModule.setPerformanceUtil(mockPerformanceUtil);
 
-    class Test {
-      @measurePerformance
-      test() {
-        return 1 + 1;
-      }
-    }
+        class Test {
+            @measurePerformance
+            test() {
+                return 1 + 1;
+            }
+        }
 
-    const test = new Test();
-    test.test();
+        const test = new Test();
+        test.test();
 
-    expect(console.log).toHaveBeenCalledWith("Test:test");
-  });
+        // eslint-disable-next-line no-console
+        expect(console.log).toHaveBeenCalledWith("Test:test");
+    });
 });

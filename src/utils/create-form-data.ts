@@ -9,7 +9,7 @@ export const createFormData = (data: Record<string, unknown>) =>
                 ? property
                 : ensureObject(property)
                 ? JSON.stringify(property)
-                : `${property}`
+                : `${property as string}`
         );
         return formData;
     }, new FormData());

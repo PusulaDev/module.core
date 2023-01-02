@@ -31,7 +31,7 @@ describe("Http Client", () => {
             const formData = new FormData();
             formData.append("file", new Blob());
 
-            api.upload("upload", formData);
+            void api.upload("upload", formData);
 
             expect(fetchMock).toBeCalledWith("http://test.com/upload", {
                 method: "POST",
@@ -72,7 +72,7 @@ describe("Http Client", () => {
     });
 
     describe("Prevent Request Duplication", () => {
-        it("should prevent second same request for post", () => {
+        it("should prevent second same request for post", async () => {
             mockFetchResponseWithTimeout({ id: 1 }, 4000);
 
             const api = new FetchHTTPClient({
@@ -80,13 +80,12 @@ describe("Http Client", () => {
                 preventRequestDuplication: true,
             });
 
-            api.post("test", { id: 1 });
-            api.post("test", { id: 1 });
+            await Promise.all([api.post("test", { id: 1 }), api.post("test", { id: 1 })]);
 
             expect(fetchMock).toHaveBeenCalledTimes(1);
         });
 
-        it("should prevent second same request for get", () => {
+        it("should prevent second same request for get", async () => {
             mockFetchResponseWithTimeout({ id: 1 }, 4000);
 
             const api = new FetchHTTPClient({
@@ -94,8 +93,7 @@ describe("Http Client", () => {
                 preventRequestDuplication: true,
             });
 
-            api.get("test?id=1");
-            api.get("test?id=1");
+            await Promise.all([api.get("test?id=1"), api.get("test?id=1")]);
 
             expect(fetchMock).toHaveBeenCalledTimes(1);
         });
@@ -109,7 +107,7 @@ describe("Http Client", () => {
                 preventRequestDuplication: true,
             });
 
-            api.post("test", { id: 1 });
+            void api.post("test", { id: 1 });
             const res = await api.post("test", { id: 1 });
             response.id = 2;
 
@@ -126,7 +124,9 @@ describe("Http Client", () => {
 
             try {
                 await api.post("test");
-            } catch (e) {}
+            } catch (e) {
+                /* empty */
+            }
 
             const pendingRequests = api.getPendingRequests();
 
@@ -140,11 +140,11 @@ describe("Http Client", () => {
                 baseUrl: "test.com",
             });
 
-            api.get("test?id=1");
+            void api.get("test?id=1");
 
             mockFetchJSONResponse({ id: 1 });
 
-            api.get("test?id=1");
+            void api.get("test?id=1");
 
             expect(fetchMock).toHaveBeenCalledTimes(2);
         });
@@ -160,7 +160,7 @@ describe("Http Client", () => {
 
             api.setHeader("x-app-key", "123Asd");
 
-            api.get("test");
+            void api.get("test");
 
             expect(fetchMock).toBeCalledWith("http://test.com/test", {
                 method: "GET",
@@ -182,7 +182,7 @@ describe("Http Client", () => {
 
             globalModule.addToSharedHeaders({ shared: "2" });
 
-            client.get("get");
+            void client.get("get");
 
             expect(fetchMock).toBeCalledWith("http://test.com/get", {
                 method: "GET",
@@ -207,7 +207,7 @@ describe("Http Client", () => {
                 "content-type": "application/x-www-url-encoded",
             };
 
-            client.get("get", undefined, { headers });
+            void client.get("get", undefined, { headers });
 
             expect(fetchMock).toBeCalledWith("http://test.com/get", {
                 method: "GET",
@@ -230,7 +230,7 @@ describe("Http Client", () => {
 
             client.removeHeader("test-header");
 
-            client.get("get");
+            void client.get("get");
 
             expect(fetchMock).toBeCalledWith("http://a.com/get", { method: "GET" });
         });

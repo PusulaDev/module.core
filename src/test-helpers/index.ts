@@ -1,11 +1,11 @@
 import {
     FetchHTTPClient,
-    ICoreModule,
-    MemoryCache,
-    IClassConstructor,
     globalModule,
-    IProviderConstructor,
+    IClassConstructor,
+    ICoreModule,
     IProvider,
+    IProviderConstructor,
+    MemoryCache,
 } from "..";
 import type { DependencyType } from "@/module/core-module.interface";
 
