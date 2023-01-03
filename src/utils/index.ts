@@ -7,5 +7,6 @@ export { defaultDateUtil } from "./default-date.util";
 export { createUniqueList, UniqueList } from "./unique-list";
 export { ensureObject } from "./ensure-object.util";
 export { createFormData } from "./create-form-data";
+export { Observer } from "./observer";
 
 export * from "./types";
