@@ -1,4 +1,4 @@
-import { globalModule } from "../global-module/global-module";
+import { globalModule } from "../global-module";
 
 const cloneDecorator = (
     deep: boolean,

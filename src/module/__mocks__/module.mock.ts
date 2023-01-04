@@ -1,11 +1,9 @@
 /* eslint-disable */
 
-import type { IHTTPClientOptions } from "../../http-client/types/http-client-options.interface";
-import type { IHTTPClient } from "../../http-client/types/http-client.interface";
-import type { IProvider } from "../../provider/types/provider.interface";
+import type { IHTTPClient, IHTTPClientOptions } from "../../http-client";
+import type { IProvider, IRequestConfig } from "../../provider";
 import { CoreModule, ICoreModule } from "../index";
 import type { ICache } from "../../cache";
-import type { IRequestConfig } from "../../provider/types/request-config.interface";
 
 export class TestModule extends CoreModule {
 }

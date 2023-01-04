@@ -1,10 +1,9 @@
-import type { IHTTPClientOptions } from "../http-client/types/http-client-options.interface";
-import type { IHTTPClientConstuctor } from "../http-client/types/http-client.interface";
-import type { IProviderConstructor } from "../provider/types/provider.interface";
-import type { ICoreModule, RegisterProviderOptions } from "../module/core-module.interface";
+import type { IHTTPClientConstuctor, IHTTPClientOptions } from "../http-client";
+import type { IProviderConstructor } from "../provider";
+import type { ICoreModule, RegisterProviderOptions } from "../module";
 import type { IInjectableDecorators } from "./types/injectable-decorators.interface";
 import type { IClassConstructor } from "../shared";
-import { getConstructorArgNames, getConstructorArgNamesAfterFirst } from "../decorators/reflection.helper";
+import { getConstructorArgNames, getConstructorArgNamesAfterFirst } from "./reflection.helper";
 
 export class InjectableDecorators implements IInjectableDecorators {
     private module: ICoreModule | null = null;

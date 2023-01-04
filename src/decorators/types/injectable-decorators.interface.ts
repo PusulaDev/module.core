@@ -1,7 +1,6 @@
-import type { IHTTPClientOptions } from "../../http-client/types/http-client-options.interface";
-import type { IHTTPClientConstuctor } from "../../http-client/types/http-client.interface";
-import type { IProviderConstructor } from "../../provider/types/provider.interface";
-import type { RegisterProviderOptions } from "../../module/core-module.interface";
+import type { IHTTPClientConstuctor, IHTTPClientOptions } from "../../http-client";
+import type { IProviderConstructor } from "../../provider";
+import type { RegisterProviderOptions } from "../../module";
 import type { IDecorator } from "./decorator.interface";
 import type { IClassConstructor } from "../../shared";
 

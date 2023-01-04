@@ -1,4 +1,4 @@
-import type { IObserver, PublishType, SubscribeOptions } from "./types/observer.interface";
+import type { IObserver, PublishType, SubscribeOptions } from "./types";
 
 export class Observer<T> implements IObserver<T> {
     private subs: Map<number, SubscribeOptions<T>> = new Map();

@@ -1,6 +1,5 @@
-import type { IDateUtil } from "./types";
+import type { DateDuration, DateUnion, IDateUtil, SetDateValues } from "./types";
 import { add, format, formatISO, parse, parseISO, set } from "date-fns";
-import type { DateDuration, DateUnion, SetDateValues } from "./types/date-util.interface";
 
 class DefaultDateUtil implements IDateUtil {
     private readonly timeFormat = "HH:mm:ss";

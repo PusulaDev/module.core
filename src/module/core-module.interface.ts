@@ -1,5 +1,4 @@
-import type { IHTTPClientOptions } from "../http-client";
-import type { IHTTPClient, IHTTPClientConstuctor } from "../http-client/types/http-client.interface";
+import type { IHTTPClient, IHTTPClientConstuctor, IHTTPClientOptions } from "../http-client";
 import type { IProvider, IProviderConstructor } from "../provider";
 import type { IDecorator } from "../decorators";
 import type { ICache, ICacheConstructor } from "../cache";

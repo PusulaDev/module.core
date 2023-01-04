@@ -8,7 +8,7 @@ export type ILocalization = {
      * @param text string path access translation. ex: 'hello' or 'first.second[0]'
      * @param args args for dynamic translations. ex: 'hello %s %s', args will replace %s
      */
-    translate(text?: string, ...args: string[]): string | null;
+    translate(text: string, ...args: string[]): string;
 
     clear(): void;
 };

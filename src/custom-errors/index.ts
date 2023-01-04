@@ -1,21 +1,10 @@
-import { CustomError } from "./custom-error";
-import { CustomServerError } from "./custom-server-error";
-import { CustomHttpClientError } from "./custom-http-client-error";
-import { CustomProviderError } from "./custom-provider-error";
-import { CustomControllerError } from "./custom-controller-error";
-import { CustomCacheError } from "./custom-cache-error";
-import { CustomLogicError } from "./custom-logic-error";
-import { CustomModuleError } from "./custom-module-error";
-import { EnumCustomErrorType } from "./statics/custom-error-type.enum";
-
-export {
-    CustomError,
-    CustomServerError,
-    CustomHttpClientError,
-    CustomProviderError,
-    CustomCacheError,
-    CustomControllerError,
-    CustomLogicError,
-    CustomModuleError,
-    EnumCustomErrorType,
-};
+export { CustomError } from "./custom-error";
+export { CustomServerError } from "./custom-server-error";
+export { CustomHttpClientError } from "./custom-http-client-error";
+export { CustomProviderError } from "./custom-provider-error";
+export { CustomControllerError } from "./custom-controller-error";
+export { CustomCacheError } from "./custom-cache-error";
+export { CustomLogicError } from "./custom-logic-error";
+export { CustomModuleError } from "./custom-module-error";
+export { EnumCustomErrorType } from "./statics/custom-error-type.enum";
+export { CustomGlobalModuleError } from "./custom-global-module-error";

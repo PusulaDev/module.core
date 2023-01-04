@@ -1,4 +1,4 @@
-import type { URLOptions } from "../../utils/types/url-options.interface";
+import type { URLOptions } from "../../utils";
 import type { EnumResponseFormat } from "./response-format.enum";
 
 export interface IHTTPClientOptions extends Partial<URLOptions> {

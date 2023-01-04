@@ -1,5 +1,5 @@
-import { isProduction } from "../utils/env.utils";
-import { Logger } from "./logger";
+import { isProduction } from "../utils/env-utils";
+import { Logger } from "./";
 
 export const coreLogger = new Logger({
     logStyle:

@@ -1,4 +1,4 @@
-import { globalModule } from "../global-module/global-module";
+import { globalModule } from "../global-module";
 import { sessionStorageUtil } from "@pusula/utils";
 import type { ICache } from ".";
 

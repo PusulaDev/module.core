@@ -1,10 +1,8 @@
 import { EnumRequestMethod, IAbortController, IHTTPClient, RequestOptions } from "../http-client";
 import type { IProvider } from ".";
-import type { ProviderRequestOptions } from "./types/provider-request-options.interface";
-import type { ICachableRequestConfig, IRequestConfig } from "./types/request-config.interface";
+import type { ICachableRequestConfig, IRequestConfig, ProviderRequestOptions } from "./types";
 import type { ICache } from "../cache";
-import { CustomProviderError } from "../custom-errors/custom-provider-error";
-import { EnumCustomErrorType } from "../custom-errors";
+import { CustomProviderError, EnumCustomErrorType } from "../custom-errors";
 
 export class CoreProvider implements IProvider {
     protected baseUrl: string | null = null;

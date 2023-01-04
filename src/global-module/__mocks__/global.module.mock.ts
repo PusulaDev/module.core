@@ -32,7 +32,7 @@ class Testlocalization implements ILocalization {
     }
 
     translate(_: string) {
-        return null;
+        return "";
     }
 }
 

@@ -1,5 +1,5 @@
 import { defaultLocalization } from "./default-localization";
-import { globalModule } from "../global-module/global-module";
+import { globalModule } from "../global-module";
 import type { Translations } from "./types";
 
 export const mockTranslations = (translations: Translations) => {
