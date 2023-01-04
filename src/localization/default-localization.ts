@@ -1,5 +1,4 @@
-import type { LocalizationTranslations, Translations } from "./types/localization-translations.interface";
-import type { ILocalization } from "./types/localization.interface";
+import type { ILocalization, LocalizationTranslations, Translations } from "./types";
 import _get from "lodash.get";
 
 class DefaultLocalization implements ILocalization {
@@ -26,9 +25,9 @@ class DefaultLocalization implements ILocalization {
         return this;
     }
 
-    translate(text?: string, ...args: string[]) {
-        if (!text) return null;
-        let res = _get(this.translations[this.lang] ?? {}, text) ?? null;
+    translate(text: string, ...args: string[]) {
+        if (!text) return "";
+        let res = _get(this.translations[this.lang] ?? {}, text) ?? "";
 
         if (!res) return res;
 

@@ -1,6 +1,6 @@
-import { EnumLocalizationKeys } from "../localization/statics/localization-keys.enum";
+import { EnumLocalizationKeys } from "../localization";
 import { CustomHttpClientError, EnumCustomErrorType } from "../custom-errors";
-import type { URLOptions } from "./types/url-options.interface";
+import type { URLOptions } from "./types";
 
 class URLUtils {
     createBaseUrl(options: URLOptions): string {

@@ -78,6 +78,25 @@ Also add experimental decorators and emit metadata options to tsconfig
 
 ```
 
+Register utilities to globalModule if you want to use them
+
+``` typescript
+//use default one or create your implemenatation and register that
+globalModule.setLocalization(defaultLocalization);
+globalModule.setCloneUtil(defaultCloneUtil);
+globalModule.setEncryptionUtil(defaultEncryptionUtil);
+globalModule.setPerformanceUtil(browserPerformanceUtil);
+globalModule.setDateUtil(defaultDateUtil);
+
+//Usage:
+
+// returns dateUtil or null
+globalModule.getDateUtil()
+
+// return dateUtil or throws error
+globalModule.ensureGetDateUtil()
+```
+
 ## [Layers](#layers)
 
 ### [Module](#module)

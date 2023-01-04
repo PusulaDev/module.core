@@ -63,6 +63,30 @@ describe("Global Module", () => {
         expect(observer).toBeInstanceOf(MockObserver);
     });
 
+    it("should throw error at ensureGetLocalization if not set", () => {
+        expect(() => globalModule.ensureGetLocalization()).toThrowError("Localization is not registered");
+    });
+
+    it("should throw error at ensureGetCloneUtil if not set", () => {
+        expect(() => globalModule.ensureGetCloneUtil()).toThrowError("Clone Util is not registered");
+    });
+
+    it("should throw error at ensureGetPerformanceUtil if not set", () => {
+        expect(() => globalModule.ensureGetPerformanceUtil()).toThrowError(
+            "Performance Util is not registered"
+        );
+    });
+
+    it("should throw error at ensureGetDateUtil if not set", () => {
+        expect(() => globalModule.ensureGetDateUtil()).toThrowError("Date Util is not registered");
+    });
+
+    it("should throw error at ensureGetEncryptionUtil if not set", () => {
+        expect(() => globalModule.ensureGetEncryptionUtil()).toThrowError(
+            "Encryption Util is not registered"
+        );
+    });
+
     it("should add to shared headers", () => {
         globalModule.addToSharedHeaders({ test: "1" });
         const headers = globalModule.getSharedHeaders();

@@ -7,7 +7,7 @@ import {
     IProviderConstructor,
     MemoryCache,
 } from "..";
-import type { DependencyType } from "../module/core-module.interface";
+import type { DependencyType } from "../module";
 
 export const createMock = (
     module: ICoreModule,

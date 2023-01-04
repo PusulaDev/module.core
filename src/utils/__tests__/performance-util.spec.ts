@@ -2,7 +2,7 @@
 
 import mockConsole from "jest-mock-console";
 import { PerformanceUtil } from "../performance.util";
-import type { IPerformance } from "../types/performace.interface";
+import type { IPerformance } from "../types";
 
 describe("Performance", () => {
     const restore = mockConsole();

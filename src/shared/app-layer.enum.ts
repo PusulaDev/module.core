@@ -1,4 +1,5 @@
 export enum EnumAppLayer {
+    GlobalModule = "GlobalModule",
     Server = "Server",
     Module = "Module",
     HttpClient = "HttpClient",

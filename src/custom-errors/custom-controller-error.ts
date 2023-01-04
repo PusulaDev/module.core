@@ -1,6 +1,6 @@
-import { EnumAppLayer } from "../shared/app-layer.enum";
+import { EnumAppLayer } from "../shared";
 import { CustomError } from "./custom-error";
-import type { CustomErrorConstructorOptions } from "./types/custom-error-constructor.options";
+import type { CustomErrorConstructorOptions } from "./types";
 
 export class CustomControllerError extends CustomError {
     constructor(options: Omit<CustomErrorConstructorOptions, "layer">) {

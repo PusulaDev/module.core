@@ -6,7 +6,7 @@ import {
     mockFetchResponseWithStatus,
     mockRejectResponse,
 } from "../__mocks__/fetch.mock";
-import { CustomServerError } from "../../custom-errors/custom-server-error";
+import { CustomServerError } from "../../custom-errors";
 import { EnumResponseFormat } from "../types";
 
 describe("Http Client Get Method", () => {

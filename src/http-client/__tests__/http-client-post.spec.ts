@@ -5,7 +5,7 @@ import {
     mockFetchResponseWithError,
     mockRejectResponse,
 } from "../__mocks__/fetch.mock";
-import { CustomServerError } from "../../custom-errors/custom-server-error";
+import { CustomServerError } from "../../custom-errors";
 import { contentTypeKey } from "../client-constants";
 import { EnumContentType, EnumResponseFormat } from "../types";
 

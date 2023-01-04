@@ -1,5 +1,5 @@
 import { defaultDateUtil } from "../default-date.util";
-import type { DateDuration, DateUnion, SetDateValues } from "../types/date-util.interface";
+import type { DateDuration, DateUnion, SetDateValues } from "../types";
 
 describe("Default Date Util", () => {
     describe("Now", () => {
