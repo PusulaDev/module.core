@@ -60,11 +60,11 @@ describe("Default Localization", () => {
         expect(res).toBe("Merhaba salih baki");
     });
 
-    it("should return null for non existence translation", () => {
+    it("should return empty string for non existence translation", () => {
         defaultLocalization.setLang("en");
 
         const res = defaultLocalization.translate("Test");
-        expect(res).toBe(null);
+        expect(res).toBe("");
     });
 
     it("should merge translations", () => {

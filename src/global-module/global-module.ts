@@ -2,8 +2,7 @@ import type { ICloneUtil, IDateUtil, IEncyrptionUtil, IObserver, IPerformanceUti
 import type { ILocalization } from "../localization";
 import type { DependencyResolveOptions, ICoreModule } from "../module";
 import type { IClassConstructor } from "..";
-import { EnumCustomErrorType } from "..";
-import { CustomGlobalModuleError } from "../custom-errors/custom-global-module-error";
+import { EnumCustomErrorType, CustomGlobalModuleError } from "..";
 
 declare global {
     interface Window {

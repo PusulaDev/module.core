@@ -1,7 +1,7 @@
 import type { ILogger } from "./logger.interface";
 
 export class Logger implements ILogger {
-    private logStyle = "";
+    private readonly logStyle: string = "";
     private disabled = false;
 
     constructor(options?: { disabled?: boolean; logStyle?: string }) {

@@ -88,6 +88,10 @@ globalModule.setEncryptionUtil(defaultEncryptionUtil);
 globalModule.setPerformanceUtil(browserPerformanceUtil);
 globalModule.setDateUtil(defaultDateUtil);
 
+// or use this method
+
+setDefaultUtils();
+
 //Usage:
 
 // returns dateUtil or null

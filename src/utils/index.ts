@@ -1,5 +1,5 @@
 export { urlUtils } from "./url.utils";
-export { isDevelopment, isProduction } from "./env.utils";
+export { isDevelopment, isProduction } from "./env-utils";
 export { defaultCloneUtil } from "./default-clone.util";
 export { defaultEncryptUtil } from "./default-encrypt.util";
 export { PerformanceUtil, browserPerformanceUtil } from "./performance.util";
