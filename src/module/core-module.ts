@@ -309,12 +309,17 @@ export class CoreModule implements ICoreModule {
             const instanceFromGlobal = this.resolveFromGlobal<T>(name, dependencyOptions);
             if (instanceFromGlobal) return instanceFromGlobal as T;
 
+            if (options.dontThrowIfNotFound) return undefined as T;
             this.throwNotRegisteredError(name, dependencyOptions.parentName);
         }
 
         this.checkAndPushPath(name, dependencyOptions);
 
-        let dependencies = this.resolveDependencies(constructorObj.dependencies ?? [], dependencyOptions);
+        let dependencies = this.resolveDependencies(constructorObj.dependencies ?? [], {
+            ...dependencyOptions,
+            type: "global",
+            dontThrowIfNotFound: false,
+        });
 
         if (dependenciesMapFn) dependencies = dependenciesMapFn(dependencies, constructorObj);
 

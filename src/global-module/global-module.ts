@@ -139,6 +139,7 @@ class GlobalModule {
         const { currentModule, ...dependencyOptions } = options ?? { type: "locale", path: [] };
 
         dependencyOptions.type = "locale";
+        dependencyOptions.dontThrowIfNotFound = true;
 
         for (const [name, module] of this.modules) {
             if (!currentModule || name !== currentModule) {

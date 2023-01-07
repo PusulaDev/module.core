@@ -296,6 +296,32 @@ describe("Module Dependency Resolve", () => {
         );
     });
 
+    it("should not throw error if dependency is from far module", () => {
+        const module = createModule();
+        const module2 = createModule("Module2");
+        const module3 = createModule("Module3");
+
+        class Test {}
+
+        class Test2 {
+            constructor(public test: Test) {}
+        }
+
+        class Test3 {
+            constructor(public test: Test2) {}
+        }
+
+        module.register(Test);
+        module2.register(Test2, { dependencies: [Test] });
+        module3.register(Test3, { dependencies: [Test2] });
+
+        const resolved = module3.resolve(Test3);
+
+        expect(resolved).toBeInstanceOf(Test3);
+        expect(resolved.test).toBeInstanceOf(Test2);
+        expect(resolved.test.test).toBeInstanceOf(Test);
+    });
+
     it("should throw error if cannot resolve because not registered", () => {
         const module = createModule();
         defaultLocalization.setLang("en-us");
