@@ -348,6 +348,36 @@ describe("Module Dependency Resolve", () => {
         expect(resolved.test.test).toBeInstanceOf(Test);
     });
 
+    it("should not throw cycle dependency if children has same dependency", () => {
+        class Test {}
+
+        class Test2 {
+            constructor(public test: Test) {}
+        }
+        class Test3 {
+            constructor(public test: Test) {}
+        }
+
+        class Test4 {
+            constructor(public test: Test3, public test2: Test2) {}
+        }
+
+        const module = createModule();
+
+        module.register(Test);
+        module.register(Test2, { dependencies: [Test] });
+        module.register(Test3, { dependencies: [Test] });
+        module.register(Test4, { dependencies: [Test3, Test2] });
+
+        const resolved = module.resolve(Test4);
+
+        expect(resolved).toBeInstanceOf(Test4);
+        expect(resolved.test).toBeInstanceOf(Test3);
+        expect(resolved.test2).toBeInstanceOf(Test2);
+        expect(resolved.test.test).toBeInstanceOf(Test);
+        expect(resolved.test2.test).toBeInstanceOf(Test);
+    });
+
     it("should throw error if cannot resolve because not registered", () => {
         const module = createModule();
         defaultLocalization.setLang("en-us");
