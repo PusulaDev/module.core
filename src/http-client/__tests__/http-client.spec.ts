@@ -72,7 +72,7 @@ describe("Http Client", () => {
 
     describe("Prevent Request Duplication", () => {
         it("should prevent second same request for post", async () => {
-            mockFetchResponseWithTimeout({ id: 1 }, 4000);
+            mockFetchResponseWithTimeout({ id: 1 }, 100);
 
             const api = new FetchHTTPClient({
                 baseUrl: "test.com",
@@ -85,7 +85,7 @@ describe("Http Client", () => {
         });
 
         it("should prevent second same request for get", async () => {
-            mockFetchResponseWithTimeout({ id: 1 }, 4000);
+            mockFetchResponseWithTimeout({ id: 1 }, 100);
 
             const api = new FetchHTTPClient({
                 baseUrl: "test.com",

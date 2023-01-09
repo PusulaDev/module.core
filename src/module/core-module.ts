@@ -11,7 +11,7 @@ import type {
     RegisterClassOptions,
     RegisterProviderOptions,
 } from "./core-module.interface";
-import type { IDecorator } from "../decorators";
+import { IDecorator, InjectableDecorators } from "../decorators";
 import { coreLogger } from "../logger/core.logger";
 import { globalModule } from "../global-module";
 import { CustomModuleError, EnumCustomErrorType } from "../custom-errors";
@@ -21,7 +21,6 @@ import type { LocalizationTranslations } from "../localization";
 import { EnumLocalizationKeys } from "../localization";
 import type {
     ConstructorMap,
-    ConstructorOptions,
     HttpClientConstructorOptions,
     InstanceMap,
     OtherConstructorOptions,
@@ -29,6 +28,7 @@ import type {
 } from "./dependency-maps";
 import type { DependencyResolveOptions } from "./resolve-options";
 import { ensureDependenyOptions } from "../utils/ensure-object.util";
+import type { CreateInstanceOptions } from "./create-instance-options";
 
 export class CoreModule implements ICoreModule {
     private readonly providerSuffix = "Provider";
@@ -73,6 +73,12 @@ export class CoreModule implements ICoreModule {
         }
 
         return this;
+    }
+
+    createInjectable() {
+        const injectable = new InjectableDecorators();
+        this.useDecorators(injectable);
+        return injectable;
     }
 
     setTranslations(options: LocalizationTranslations) {
@@ -144,8 +150,10 @@ export class CoreModule implements ICoreModule {
         client?: IHTTPClientConstuctor | string,
         options?: DependencyResolveOptions
     ): T {
-        const instance = this.resolveHttpClientInstance<T>(client);
-        if (instance) return instance;
+        if (!options?.newInstance) {
+            const instance = this.resolveHttpClientInstance<T>(client);
+            if (instance) return instance;
+        }
 
         return this.createHttpClientInstance(client, options) as T;
     }
@@ -168,8 +176,10 @@ export class CoreModule implements ICoreModule {
         key: string | IProviderConstructor,
         options?: DependencyResolveOptions
     ): T {
-        const instance = this.resolveProviderInstance<T>(key);
-        if (instance) return instance;
+        if (!options?.newInstance) {
+            const instance = this.resolveProviderInstance<T>(key);
+            if (instance) return instance;
+        }
 
         return this.createProviderInstance<T>(key, options);
     }
@@ -253,8 +263,10 @@ export class CoreModule implements ICoreModule {
     }
 
     private resolveOther<T>(key: KeyUnionType, options?: DependencyResolveOptions): T {
-        const instance = this.resolveOtherInstance<T>(key);
-        if (instance) return instance;
+        if (!options?.newInstance) {
+            const instance = this.resolveOtherInstance<T>(key);
+            if (instance) return instance;
+        }
 
         return this.createOtherInstance<T>(key, options);
     }
@@ -288,15 +300,7 @@ export class CoreModule implements ICoreModule {
     }
 
     private createInstance<T extends AppLayerUnionType, TConstructor extends IClassConstructor>(
-        options: {
-            constructorMap: Map<string, ConstructorOptions<TConstructor>>;
-            instanceMap: Map<string, any>;
-            key: KeyUnionType;
-            dependenciesMapFn?: (
-                dependencies: AppLayerUnionType[],
-                constructorObj: ConstructorOptions<TConstructor>
-            ) => AppLayerUnionType[];
-        } & DependencyResolveOptions
+        options: CreateInstanceOptions<TConstructor>
     ): T {
         const { constructorMap, instanceMap, key, dependenciesMapFn, ...dependencyOptions } = options;
 
@@ -319,6 +323,7 @@ export class CoreModule implements ICoreModule {
             ...dependencyOptions,
             type: "global",
             dontThrowIfNotFound: false,
+            newInstance: false,
         });
 
         if (dependenciesMapFn) dependencies = dependenciesMapFn(dependencies, constructorObj);

@@ -1,6 +1,6 @@
 import type { IHTTPClient, IHTTPClientConstuctor, IHTTPClientOptions } from "../http-client";
 import type { IProvider, IProviderConstructor } from "../provider";
-import type { IDecorator } from "../decorators";
+import type { IDecorator, InjectableDecorators } from "../decorators";
 import type { ICache, ICacheConstructor } from "../cache";
 import type { EnumDependencyType, IClassConstructor } from "../shared";
 import type { LocalizationTranslations } from "../localization";
@@ -53,6 +53,8 @@ export interface ModuleConstructorOptions {
 
 export type ICoreModule = object & {
     bootstrap: (options?: ModuleBootstrapOptions) => Promise<ICoreModule> | ICoreModule;
+
+    createInjectable: () => InjectableDecorators;
 
     setTranslations: (options: LocalizationTranslations) => ICoreModule;
 

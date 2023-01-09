@@ -6,10 +6,11 @@ import {
     createRegisterHttpClient,
     createRegisterProvider,
     TestHttpClient,
-    TestProvider
+    TestProvider,
 } from "../__mocks__/module.mock";
 import { globalModule } from "../../global-module";
 import { defaultLocalization } from "../../localization";
+import { InjectableDecorators } from "./../../decorators";
 
 describe("Module", () => {
     beforeEach(() => {
@@ -29,6 +30,12 @@ describe("Module", () => {
         const resolved = globalModule.getModule(key);
 
         expect(resolved).toEqual(module);
+    });
+
+    it("should create injectable decorator", () => {
+        const module = createModule();
+        const injectable = module.createInjectable();
+        expect(injectable).toBeInstanceOf(InjectableDecorators);
     });
 
     describe("bootstrap method", () => {

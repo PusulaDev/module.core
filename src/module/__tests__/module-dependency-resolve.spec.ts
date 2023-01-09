@@ -53,6 +53,32 @@ describe("Module Dependency Resolve", () => {
         expect(resolved).toBeInstanceOf(TestClass);
     });
 
+    it("should resolve same instance with resolve method", () => {
+        const module = createModule();
+
+        class TestClass {}
+
+        module.register(TestClass);
+
+        const resolved = module.resolve(TestClass);
+        const resolved2 = module.resolve(TestClass);
+
+        expect(resolved).toEqual(resolved2);
+    });
+
+    it("should resolve new instance with newInstance parameter method", () => {
+        const module = createModule();
+
+        class TestClass {}
+
+        module.register(TestClass);
+
+        const resolved = module.resolve(TestClass);
+        const resolved2 = module.resolve(TestClass, { newInstance: true });
+
+        expect(resolved).not.toBe(resolved2);
+    });
+
     it("should register and resolve class instance", () => {
         const module = createModule();
 
@@ -62,7 +88,7 @@ describe("Module Dependency Resolve", () => {
         module.registerInstance(instance);
 
         const resolved = module.resolve(TestClass);
-        expect(resolved).toEqual(instance);
+        expect(resolved).toBe(instance);
     });
 
     it("should resolve any simple class instance by key", () => {
