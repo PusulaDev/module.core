@@ -5,5 +5,6 @@ export interface DependencyResolveOptions {
     dontThrowIfNotFound?: boolean;
     path?: string[];
     parentName?: string;
+    newInstance?: boolean;
     dependencies?: Record<string, unknown> | unknown[];
 }

@@ -53,6 +53,32 @@ describe("Module Dependency Resolve", () => {
         expect(resolved).toBeInstanceOf(TestClass);
     });
 
+    it("should resolve same instance with resolve method", () => {
+        const module = createModule();
+
+        class TestClass {}
+
+        module.register(TestClass);
+
+        const resolved = module.resolve(TestClass);
+        const resolved2 = module.resolve(TestClass);
+
+        expect(resolved).toEqual(resolved2);
+    });
+
+    it("should resolve new instance with newInstance parameter method", () => {
+        const module = createModule();
+
+        class TestClass {}
+
+        module.register(TestClass);
+
+        const resolved = module.resolve(TestClass);
+        const resolved2 = module.resolve(TestClass, { newInstance: true });
+
+        expect(resolved).not.toBe(resolved2);
+    });
+
     it("should register and resolve class instance", () => {
         const module = createModule();
 
@@ -62,7 +88,7 @@ describe("Module Dependency Resolve", () => {
         module.registerInstance(instance);
 
         const resolved = module.resolve(TestClass);
-        expect(resolved).toEqual(instance);
+        expect(resolved).toBe(instance);
     });
 
     it("should resolve any simple class instance by key", () => {
@@ -320,6 +346,36 @@ describe("Module Dependency Resolve", () => {
         expect(resolved).toBeInstanceOf(Test3);
         expect(resolved.test).toBeInstanceOf(Test2);
         expect(resolved.test.test).toBeInstanceOf(Test);
+    });
+
+    it("should not throw cycle dependency if children has same dependency", () => {
+        class Test {}
+
+        class Test2 {
+            constructor(public test: Test) {}
+        }
+        class Test3 {
+            constructor(public test: Test) {}
+        }
+
+        class Test4 {
+            constructor(public test: Test3, public test2: Test2) {}
+        }
+
+        const module = createModule();
+
+        module.register(Test);
+        module.register(Test2, { dependencies: [Test] });
+        module.register(Test3, { dependencies: [Test] });
+        module.register(Test4, { dependencies: [Test3, Test2] });
+
+        const resolved = module.resolve(Test4);
+
+        expect(resolved).toBeInstanceOf(Test4);
+        expect(resolved.test).toBeInstanceOf(Test3);
+        expect(resolved.test2).toBeInstanceOf(Test2);
+        expect(resolved.test.test).toBeInstanceOf(Test);
+        expect(resolved.test2.test).toBeInstanceOf(Test);
     });
 
     it("should throw error if cannot resolve because not registered", () => {
