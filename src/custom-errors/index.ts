@@ -8,3 +8,4 @@ export { CustomLogicError } from "./custom-logic-error";
 export { CustomModuleError } from "./custom-module-error";
 export { EnumCustomErrorType } from "./statics/custom-error-type.enum";
 export { CustomGlobalModuleError } from "./custom-global-module-error";
+export * from "./types";
