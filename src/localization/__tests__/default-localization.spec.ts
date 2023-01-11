@@ -56,8 +56,56 @@ describe("Default Localization", () => {
             },
         });
 
-        const res = defaultLocalization.translate("hello", "salih", "baki");
+        const res = defaultLocalization.translate("hello", ["salih", "baki"]);
         expect(res).toBe("Merhaba salih baki");
+    });
+
+    it("shoul translate with arguments as object", () => {
+        defaultLocalization.setLang("tr");
+        defaultLocalization.setTranslations({
+            tr: {
+                hello: "Merhaba {name} {surname}",
+            },
+        });
+
+        const res = defaultLocalization.translate("hello", { name: "salih", surname: "baki" });
+        expect(res).toBe("Merhaba salih baki");
+    });
+
+    it("should translate plural with single value", () => {
+        defaultLocalization.setLang("tr");
+        defaultLocalization.setTranslations({
+            tr: {
+                apple: "Elma | Elmalar",
+            },
+        });
+
+        const res = defaultLocalization.translatePlural("apple", 1);
+        expect(res).toBe("Elma");
+    });
+
+    it("should translate plural", () => {
+        defaultLocalization.setLang("tr");
+        defaultLocalization.setTranslations({
+            tr: {
+                apple: "Elma | Elmalar",
+            },
+        });
+
+        const res = defaultLocalization.translatePlural("apple", 2);
+        expect(res).toBe("Elmalar");
+    });
+
+    it("should translate plural with zero", () => {
+        defaultLocalization.setLang("tr");
+        defaultLocalization.setTranslations({
+            tr: {
+                apple: "Elma Yok | Elma | Elmalar",
+            },
+        });
+
+        const res = defaultLocalization.translatePlural("apple", 0);
+        expect(res).toBe("Elma Yok");
     });
 
     it("should return empty string for non existence translation", () => {

@@ -1,5 +1,6 @@
-import type { ILocalization, LocalizationTranslations, Translations } from "./types";
+import type { ILocalization, LocalizationTranslations, TranslateArgs, Translations } from "./types";
 import _get from "lodash.get";
+import { ensureObject } from "../utils";
 
 class DefaultLocalization implements ILocalization {
     private lang = "";
@@ -25,22 +26,68 @@ class DefaultLocalization implements ILocalization {
         return this;
     }
 
-    translate(text: string, ...args: string[]) {
-        if (!text) return "";
-        let res = _get(this.translations[this.lang] ?? {}, text) ?? "";
+    translate(key: string, args?: TranslateArgs): string {
+        if (!key) return "";
+        const res = this.getTranslateValue(key);
 
         if (!res) return res;
 
-        if (args.length) {
-            args.forEach((e) => res && (res = res.toString().replace("%s", e)));
+        return this.translateWithValue(res.toString(), args);
+    }
+
+    translatePlural(key: string, count: number, args?: TranslateArgs): string {
+        if (!key) return "";
+
+        const res = this.getTranslateValue(key);
+
+        if (!res) return res;
+
+        const list = res
+            .toString()
+            .split("|")
+            .map((e) => e.trim());
+
+        if (list.length <= 1) return this.translate(key, args);
+
+        let zero = "",
+            singular = "",
+            plural = "";
+
+        if (list.length === 2) {
+            [singular = "", plural = ""] = list;
+        } else if (list.length === 3) {
+            [zero = "", singular = "", plural = ""] = list;
         }
 
-        return res.toString();
+        let translateValue = "";
+        if (count === 0) translateValue = zero;
+        else if (count === 1) translateValue = singular;
+        else translateValue = plural;
+
+        return this.translateWithValue(translateValue, args);
     }
 
     clear() {
         this.lang = "";
         this.translations = {};
+    }
+
+    private getTranslateValue(key: string) {
+        return _get(this.translations[this.lang] ?? {}, key) ?? "";
+    }
+
+    private translateWithValue(translateValue: string, args?: TranslateArgs) {
+        if (args instanceof Array && args.length) {
+            args.forEach(
+                (e) => translateValue && (translateValue = translateValue.toString().replace("%s", String(e)))
+            );
+        } else if (ensureObject(args)) {
+            Object.entries(args).forEach(([key, value]) => {
+                translateValue = translateValue.toString().replace(`{${key}}`, String(value));
+            });
+        }
+
+        return translateValue.toString();
     }
 
     private combineLang(lang: string, langTranslations: Translations) {
