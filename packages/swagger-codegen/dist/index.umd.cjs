@@ -1,0 +1,5 @@
+(function(e,s){typeof exports=="object"&&typeof module<"u"?s(exports,require("swagger-typescript-api")):typeof define=="function"&&define.amd?define(["exports","swagger-typescript-api"],s):(e=typeof globalThis<"u"?globalThis:e||self,s(e.index={},e.swaggerTypescriptApi))})(this,function(e,s){"use strict";const n={},c=(r,o)=>{const{files:i}=r,a=i.map(({name:t})=>`export * from "./${t.replace(".ts","")}";`).join(`
+`);n.writeFile(n.join(o,"index.ts"),a+`
+`,t=>{t?(console.log(t),process.exit(1)):(console.log(`Codes are generated 
+`),process.exit())})},u=async r=>{const o=n.resolve(process.cwd(),"./src/__generated__"),i=n.resolve(__dirname,"./src/templates"),{url:a,output:t=o,templates:l=i,name:d="api.ts"}=r;try{const p=await s.generateApi({name:d,output:t,url:a,httpClientType:"fetch",generateClient:!0,generateResponses:!0,moduleNameIndex:1,singleHttpClient:!0,cleanOutput:!0,sortTypes:!0,extractEnums:!0,extractRequestParams:!0,modular:!0,moduleNameFirstTag:!0,templates:l});c(p,t)}catch(p){console.error(p),process.exit(1)}};e.generate=u,Object.defineProperty(e,Symbol.toStringTag,{value:"Module"})});
+//# sourceMappingURL=index.umd.cjs.map

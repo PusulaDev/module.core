@@ -1,0 +1,44 @@
+<%
+const {utils, route, config} = it;
+const { requestBodyInfo, responseBodyInfo, specificArgNameResolver } = route;
+const {_, getInlineParseContent, getParseContent, parseSchema, getComponentByRef, require} = utils;
+const { path, method, payload, query, formData, security, requestParams, pathParams } = route.request;
+
+const securityTmpl = security ? 'true' : null;
+let requestType = 'undefined';
+
+if (payload)
+    requestType = payload.type;
+else if (requestParams)
+    requestType = getInlineParseContent(requestParams);
+else if (pathParams)
+    requestType = pathParams.type;
+
+const responseType = route.response.type;
+
+const requestContentKind = {
+    "JSON": "EnumContentType.Json",
+    "URL_ENCODED": "EnumContentType.UrlEncoded",
+    "FORM_DATA": "EnumContentType.FormData",
+    "TEXT": "EnumContentType.Text",
+}
+
+const responseContentKind = {
+    "TEXT": "EnumResponseFormat.Text",
+    "JSON": "EnumResponseFormat.Json",
+    "IMAGE": "EnumResponseFormat.Blob",
+    "FORM_DATA": "EnumResponseFormat.FormData"
+}
+
+const bodyContentKindTmpl = requestContentKind[requestBodyInfo.contentKind] || null;
+const format = responseBodyInfo.success && responseBodyInfo.success.schema && responseBodyInfo.success.schema.contentKind;
+const responseFormatTmpl = responseContentKind[responseBodyInfo.success && responseBodyInfo.success.schema && responseBodyInfo.success.schema.contentKind] || null;
+const requestName = route.routeName.usage;
+%>
+
+export const <% ~requestName %>Config: ICachableRequestConfig<<% ~requestType %>, <% ~responseType %>> = {
+    url: "<% ~path %>",
+    cacheKey: "<% ~requestName %>",
+    <%~ bodyContentKindTmpl ? `headers : { [contentTypeKey]: ${bodyContentKindTmpl} },` : '' %>
+    <%~ responseFormatTmpl ? `responseFormat: ${responseFormatTmpl},` : '' %>
+};

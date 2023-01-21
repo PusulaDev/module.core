@@ -1,0 +1,41 @@
+<%
+const { utils, route, config, modelTypes } = it;
+const { _, pascalCase, require } = utils;
+const apiClassName = pascalCase(route.moduleName);
+const routes = route.routes;
+const dataContracts = _.map(modelTypes, "name");
+const className = `${apiClassName}Provider`
+%>
+
+import {
+    contentTypeKey,
+    CoreProvider,
+    EnumContentType,
+    EnumResponseFormat,
+    type ICachableRequestConfig,
+    type IHTTPClient,
+    inject,
+    type SessionStorageCache,
+} from '@pusula/module.core';
+import { injectable } from "../module";
+
+<% if (dataContracts.length) { %>
+import { <%~ dataContracts.join(", ") %> } from "./<%~ config.fileNames.dataContracts %>"
+<% } %>
+
+
+<% routes.forEach((route) => { %>
+<%~ includeFile('./request-config.ejs', { ...it, route }) %>
+<% }) %>
+
+
+@injectable.provider({key:"<%= className %>"})
+export class <%= className %> extends CoreProvider {
+    constructor(client:IHTTPClient, @inject("SessionStorageCache") protected cache:SessionStorageCache){
+        super(client);
+    }
+
+    <% routes.forEach((route) => { %>
+        <%~ includeFile('./procedure-call.ejs', { ...it, route }) %>
+    <% }) %>
+}
