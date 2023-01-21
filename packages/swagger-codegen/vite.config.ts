@@ -1,9 +1,9 @@
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
-import * as path from "path";
 import peerDepsExternal from "rollup-plugin-peer-deps-external";
+import { resolve } from 'path'
 
-const resolvePath = (str: string) => path.resolve(__dirname, str);
+const resolvePath = (str: string) => resolve(__dirname, str);
 
 export default defineConfig({
     build: {

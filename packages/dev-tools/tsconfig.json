@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "module": "ESNext",
+        "target": "ESNext",
+        "moduleResolution": "Node",
+        "sourceMap": true,
+        "lib": [
+            "ESNext",
+            "DOM",
+            "DOM.Iterable"
+        ]
+    },
+    "baseUrl": ".",
+    "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
+    "exclude": [
+        "node_modules","src/**/__tests__/*"
+    ]
+}

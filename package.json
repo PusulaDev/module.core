@@ -2,8 +2,15 @@
     "name": "monorepo",
     "version": "1.0.0",
     "private": true,
+    "scripts": {
+        "build": "pnpm exec nx run-many --target=build"
+    },
     "devDependencies": {
         "@pusula/module.core": "workspace:*",
-        "@pusula/swagger-codegen": "workspace:*"
+        "@pusula/swagger-codegen": "workspace:*",
+        "@pusula/module.core-docs": "workspace:*",
+        "@pusula/module.core-devtools": "workspace:*",
+        "nx": "15.5.3",
+        "@nrwl/nx-cloud": "latest"
     }
 }

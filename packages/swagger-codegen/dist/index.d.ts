@@ -1,1 +1,1 @@
-export * from './src/index'
+export { generate, type ApiGenerateOptions } from "./generate";
