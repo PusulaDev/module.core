@@ -30,7 +30,8 @@ const coreModule = new CoreModule({ key: "CoreModule" });
 coreModule.register(SessionStorageCache, { key: "SessionStorageCache" });
 const injectable = coreModule.createInjectable();
 
-export { coreModule, injectable };`;
+export { coreModule, injectable };
+`;
 
     if (!fs.existsSync(moduleDirectory)){
         fs.mkdirSync(moduleDirectory);
