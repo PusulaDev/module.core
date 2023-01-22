@@ -1,0 +1,83 @@
+{
+    "name": "@pusula/module.core",
+    "version": "1.3.9",
+    "main": "./dist/index.umd.cjs",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "require": "./dist/index.umd.cjs"
+        }
+    },
+    "author": "Pusula",
+    "license": "MIT",
+    "homepage": "https://github.com/PusulaDev/module.core",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/PusulaDev/module.core"
+    },
+    "bugs": {
+        "url": "https://github.com/PusulaDev/module.core/issues"
+    },
+    "type": "module",
+    "files": [
+        "/dist"
+    ],
+    "keywords": [
+        "typescript",
+        "javascript",
+        "ts",
+        "module",
+        "enterprise"
+    ],
+    "scripts": {
+        "build": "../../node_modules/.bin/vite build",
+        "test": "../../node_modules/.bin/jest",
+        "test-watch": "../../node_modules/.bin/jest --watch",
+        "test-clear": "../../node_modules/.bin/jest --clearCache",
+        "lint": "../../node_modules/.bin/eslint . --ext .ts",
+        "lint-fix": "../../node_modules/.bin/eslint . --ext .ts --fix",
+        "pre-publish": "pnpm run test && npm run build && pnpm run lint",
+        "npm-publish": "pnpm publish --access public"
+    },
+    "devDependencies": {
+        "@pusula/utils": "^1.1.0",
+        "@rollup/plugin-typescript": "9.0.2",
+        "@types/jest": "^26.0.19",
+        "@types/lodash.clonedeep": "4.5.3",
+        "@types/lodash.get": "^4.4.6",
+        "@types/node": "18.11.9",
+        "@typescript-eslint/eslint-plugin": "^5.47.1",
+        "@typescript-eslint/parser": "^5.47.1",
+        "date-fns": "^2.29.3",
+        "eslint": "^8.31.0",
+        "eslint-config-prettier": "^8.5.0",
+        "eslint-plugin-prettier": "^4.0.0",
+        "jest": "^25.x",
+        "jest-fetch-mock": "^3.0.3",
+        "jest-mock-console": "^1.0.1",
+        "lodash.clonedeep": "4.5.0",
+        "lodash.get": "^4.4.2",
+        "mock-local-storage": "^1.1.23",
+        "prettier": "^2.8.1",
+        "reflect-metadata": "^0.1.13",
+        "rollup-plugin-peer-deps-external": "2.2.4",
+        "ts-jest": "^26.4.4",
+        "tslib": "^2.4.1",
+        "typescript": "^4.8.4",
+        "vite": "^4.0.3"
+    },
+    "peerDependencies": {
+        "@pusula/utils": "^1.1.0",
+        "date-fns": "^2.29.3",
+        "lodash.clonedeep": "4.5.0",
+        "lodash.get": "^4.4.2",
+        "reflect-metadata": "^0.1.13"
+    },
+    "prettier": {
+        "tabWidth": 4,
+        "printWidth": 110
+    },
+    "packageManager": "pnpm@7.20.0"
+}

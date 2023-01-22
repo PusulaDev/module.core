@@ -1,0 +1,35 @@
+{
+    "name": "@pusula/swagger-codegen",
+    "version": "1.0.1",
+    "type": "module",
+    "main": "./dist/index.umd.cjs",
+    "module": "./dist/index.js",
+    "exports": {
+        "require": "./dist/index.umd.cjs",
+        "import": "./dist/index.js"
+    },
+    "types": "./dist/index.d.ts",
+    "files": [
+        "/dist",
+        "/src/templates"
+    ],
+    "scripts": {
+        "build": "vite build"
+    },
+    "devDependencies": {
+        "swagger-typescript-api": "^12.0.2",
+        "typescript": "^4.9.4",
+        "vite": "^4.0.4",
+        "vitest": "^0.27.2",
+        "rollup-plugin-peer-deps-external": "^2.2.4",
+        "vite-plugin-dts": "^1.7.1",
+        "@pusula/module.core": "workspace:*"
+    },
+    "peerDependencies": {
+        "swagger-typescript-api": "^12.0.2",
+        "@pusula/module.core": "*",
+        "path": "*",
+        "fs": "*",
+        "url": "*"
+    }
+}

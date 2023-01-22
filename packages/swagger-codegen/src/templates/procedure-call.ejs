@@ -1,0 +1,50 @@
+<%
+const { utils, route, config } = it;
+const { getInlineParseContent } = utils;
+const { pathParams, path, method, payload, security, requestParams } = route.request;
+const { type } = route.response;
+const routeDocs = includeFile("./route-docs", { config, route, utils });
+
+let requestType = 'undefined';
+
+if (payload)
+    requestType = payload.type;
+else if (requestParams)
+    requestType = getInlineParseContent(requestParams);
+else if (pathParams)
+    requestType = pathParams.type;
+
+const responseType = route.response.type;
+const name = route.routeName.usage.replace('app','')
+const capitalize = (name) => name.charAt(0).toUpperCase() + name.slice(1)
+
+const cachableName = `cachable${capitalize(name)}`;
+const methodName = name.replace(name[0],name[0].toLowerCase())
+
+%>
+/**
+<%~ routeDocs.description %>
+
+ *<% /* Here you can add some other JSDoc tags */ %>
+
+ */
+<%~ methodName %> = (request:<%~ requestType %>) =>
+{
+    return this.<%~method%>(<%~route.routeName.usage %>Config,request)
+}
+
+<% if(['get','post'].includes(method)) {
+    const capitalized = method.charAt(0).toUpperCase() + method.slice(1)
+    const cachableMethod = `cachable${capitalized}`
+%>
+/**
+<%~ routeDocs.description %>
+
+*<% /* Here you can add some other JSDoc tags */ %>
+
+*/
+<%~ cachableName %> = (request:<%~ requestType %>) =>
+{
+    return this.<%~cachableMethod%>(<%~route.routeName.usage %>Config,request)
+}
+<% }%>

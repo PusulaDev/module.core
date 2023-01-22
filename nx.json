@@ -1,0 +1,36 @@
+{
+    "tasksRunnerOptions": {
+        "default": {
+            "runner": "@nrwl/nx-cloud",
+            "options": {
+                "cacheableOperations": [
+                    "build",
+                    "test",
+                    "lint"
+                ],
+            }
+        }
+    },
+    "targetDefaults": {
+        "build": {
+            "dependsOn": [
+                "^build"
+            ],
+            "outputs": [
+                "{projectRoot}/dist",
+                "{projectRoot}/docs/.vitepress/dist"
+            ]
+        },
+        "test": {
+            "dependsOn": [
+                "^test"
+            ]
+        },
+        "lint": {
+            "dependsOn": [
+                "^lint"
+            ]
+        }
+    },
+    "defaultBase": "main"
+}
