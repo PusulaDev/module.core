@@ -10,6 +10,7 @@
         "@pusula/swagger-codegen": "workspace:*",
         "@pusula/module.core-docs": "workspace:*",
         "@pusula/module.core-devtools": "workspace:*",
+        "@pusula/module.core-vite-config": "workspace:*",
         "nx": "15.5.3",
         "@nrwl/nx-cloud": "latest"
     }

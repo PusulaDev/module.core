@@ -32,9 +32,13 @@ yarn add @pusula/module.core
 import { generate } from "@pusula/swagger-codegen";
 
 generate({
-    output: path.resolve(process.cwd(), "./src/__generated__"),
+    //output files will be placed under /src/__generated__ if you dont provide a output param
+    //output: path.resolve(process.cwd(), "./src/__generated__"),
+    //templates: path.resolve(__dirname,"./src/templates")
     url: 'http://api.com/swagger.json',
 })
 ```
 
-This will generate api types and @pusula/module.core providers. Check the [@pusula/module.core](https://github.com/PusulaDev/module.core) documentation for more details.
+This will generate api types and @pusula/module.core providers. 
+Check the [@pusula/module.core](https://github.com/PusulaDev/module.core) documentation for more details.
+For more customization options check the documentation of [swagger-typescript-api](https://github.com/acacode/swagger-typescript-api)

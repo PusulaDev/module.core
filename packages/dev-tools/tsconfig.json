@@ -11,8 +11,8 @@
         ]
     },
     "baseUrl": ".",
-    "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
+    "include": ["src/**/*", "src/**/*.vue"],
     "exclude": [
-        "node_modules","src/**/__tests__/*"
+        "node_modules", "src/**/__tests__/*"
     ]
 }

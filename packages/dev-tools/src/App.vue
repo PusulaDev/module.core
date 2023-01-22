@@ -1,11 +1,8 @@
 <template>
-
+    <div>Dev tools</div>
 </template>
 
-<script>
-export default {
-    name: "App.vue"
-};
+<script lang="ts" setup>
 </script>
 
 <style scoped>

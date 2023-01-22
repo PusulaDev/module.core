@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "module": "ESNext",
+        "moduleResolution": "Node",
+        "target": "ESNext",
+        "types": [
+            "node"
+        ],
+        "lib": [
+            "esnext",
+            "dom",
+            "dom.iterable",
+            "scripthost"
+        ]
+    },
+    "include": [
+        "./src/index.ts"
+    ],
+    "exclude": ["node_modules"]
+}

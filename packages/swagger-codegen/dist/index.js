@@ -1,19 +1,32 @@
-import { generateApi as p } from "swagger-typescript-api";
-const t = {}, u = (s, r) => {
-  const { files: o } = s, n = o.map(({ name: e }) => `export * from "./${e.replace(".ts", "")}";`).join(`
+import { generateApi as l } from "swagger-typescript-api";
+import o from "path";
+import { fileURLToPath as a } from "url";
+import c from "fs";
+const u = a(import.meta.url), i = o.dirname(u), m = (e, r) => {
+  const { files: t } = e, s = t.map(({ name: n }) => `export * from "./${n.replace(".ts", "")}";`).join(`
 `);
-  t.writeFile(t.join(r, "index.ts"), n + `
-`, (e) => {
-    e ? (console.log(e), process.exit(1)) : (console.log(`Codes are generated 
+  c.writeFile(o.join(r, "index.ts"), s + `
+`, (n) => {
+    n ? (console.log(n), process.exit(1)) : console.log(`Codes are generated 
+`);
+  });
+}, d = () => {
+  const e = o.resolve(process.cwd(), "./src/module"), r = `import { CoreModule, SessionStorageCache } from "@pusula/module.core";
+
+const coreModule = new CoreModule({ key: "CoreModule" });
+coreModule.register(SessionStorageCache, { key: "SessionStorageCache" });
+const injectable = coreModule.createInjectable();
+
+export { coreModule, injectable };`;
+  c.existsSync(e) || c.mkdirSync(e), c.writeFile(o.join(e, "index.ts"), r, (t) => {
+    t ? (console.log(t), process.exit(1)) : (console.log(`module generated 
 `), process.exit());
   });
-}, m = async (s) => {
-  const r = t.resolve(process.cwd(), "./src/__generated__"), o = t.resolve(__dirname, "./src/templates"), { url: n, output: e = r, templates: c = o, name: l = "api.ts" } = s;
+}, C = async (e) => {
+  const r = o.resolve(process.cwd(), "./src/__generated__"), t = o.resolve(i, "../src/templates");
+  e.output = e.output || r, e.templates = e.templates || t, e.name = e.name || "api.ts";
   try {
-    const a = await p({
-      name: l,
-      output: e,
-      url: n,
+    const s = await l({
       httpClientType: "fetch",
       generateClient: !0,
       generateResponses: !0,
@@ -25,14 +38,14 @@ const t = {}, u = (s, r) => {
       extractRequestParams: !0,
       modular: !0,
       moduleNameFirstTag: !0,
-      templates: c
+      ...e
     });
-    u(a, e);
-  } catch (a) {
-    console.error(a), process.exit(1);
+    m(s, e.output), d();
+  } catch (s) {
+    console.error(s), process.exit(1);
   }
 };
 export {
-  m as generate
+  C as generate
 };
 //# sourceMappingURL=index.js.map

@@ -1,6 +1,6 @@
 {
     "name": "@pusula/swagger-codegen",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "type": "module",
     "main": "./dist/index.umd.cjs",
     "module": "./dist/index.js",
@@ -9,6 +9,10 @@
         "import": "./dist/index.js"
     },
     "types": "./dist/index.d.ts",
+    "files": [
+        "/dist",
+        "/src/templates"
+    ],
     "scripts": {
         "build": "vite build"
     },
@@ -22,9 +26,10 @@
         "@pusula/module.core": "workspace:*"
     },
     "peerDependencies": {
-        "swagger-typescript-api": "^12.0.2"
-    },
-    "optionalDependencies": {
-        "@pusula/module.core": "*"
+        "swagger-typescript-api": "^12.0.2",
+        "@pusula/module.core": "*",
+        "path": "*",
+        "fs": "*",
+        "url": "*"
     }
 }

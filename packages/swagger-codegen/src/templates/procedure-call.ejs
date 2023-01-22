@@ -16,8 +16,9 @@ else if (pathParams)
 
 const responseType = route.response.type;
 const name = route.routeName.usage.replace('app','')
+const capitalize = (name) => name.charAt(0).toUpperCase() + name.slice(1)
 
-const cachableName = `cachable${name}`;
+const cachableName = `cachable${capitalize(name)}`;
 const methodName = name.replace(name[0],name[0].toLowerCase())
 
 %>
@@ -33,7 +34,7 @@ const methodName = name.replace(name[0],name[0].toLowerCase())
 }
 
 <% if(['get','post'].includes(method)) {
-    const capitalized =  method.charAt(0).toUpperCase() + method.slice(1)
+    const capitalized = method.charAt(0).toUpperCase() + method.slice(1)
     const cachableMethod = `cachable${capitalized}`
 %>
 /**

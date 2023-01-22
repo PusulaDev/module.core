@@ -1,1 +1,1 @@
-export { generate, type ApiGenerateOptions } from "./generate"
+export { generate } from "./generate"
