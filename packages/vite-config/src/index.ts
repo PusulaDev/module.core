@@ -1,19 +1,23 @@
-import type { UserConfigExport } from "vite";
-import type { UserConfigExport as VitestUserConfigExport } from "vitest/config";
+import type { PluginOption, UserConfig } from "vite";
+import type { UserConfig as VitestUserConfig } from "vitest/config";
 import dts from "vite-plugin-dts";
 // @ts-ignore
 import peerDepsExternal from "rollup-plugin-peer-deps-external";
 import swc from "./swc";
 import { resolve } from "path";
 
-export type Options = UserConfigExport & {
+export type Options = UserConfig & {
     emitDecoratorMetaData: boolean;
     entryPath?: string;
 }
 
 export const createViteConfig = (
     options: Options = { emitDecoratorMetaData: true }
-): UserConfigExport => {
+): UserConfig => {
+    const deafultEntry = resolve(process.cwd(), "./src/index.ts");
+    const excludedRoutes = ["src/**/__tests__/*.ts", "src/**/*.spec.ts"];
+
+    const { entryPath = deafultEntry, emitDecoratorMetaData, plugins: optionPlugins, ...otherOptions } = options;
 
     options.entryPath = options.entryPath ?? resolve(process.cwd(), "./src/index.ts");
 
@@ -21,16 +25,17 @@ export const createViteConfig = (
         dts({
             insertTypesEntry: true,
             logDiagnostics: true,
-            exclude: ["src/**/__tests__/*.ts", "src/**/*.spec.ts"]
+            exclude: excludedRoutes
         }),
-        peerDepsExternal()
+        peerDepsExternal(),
+        ...(optionPlugins ?? [])
     ];
 
-    if (options.emitDecoratorMetaData)
+    if (emitDecoratorMetaData)
         plugins.push(
             swc.vite(),
             swc.rollup({
-                exclude: ["src/**/__tests__/*.ts", "src/**/*.spec.ts"],
+                exclude: excludedRoutes,
                 minify: true,
                 jsc: {
                     keepClassNames: true
@@ -42,21 +47,26 @@ export const createViteConfig = (
         build: {
             sourcemap: true,
             lib: {
-                entry: options.entryPath,
+                entry: entryPath,
                 name: "index",
                 fileName: "index"
             }
         },
         plugins,
-        ...options
+        ...otherOptions
     };
 };
 
-export const createVitestConfig = (options: Options = { emitDecoratorMetaData: true }): VitestUserConfigExport => ({
-    test: {
-        environment: "jsdom",
-        include: ["**/*.spec.ts"]
-    },
-    plugins: options.emitDecoratorMetaData ? [swc.vite(), swc.rollup()] : [],
-    ...options
-});
+export const createVitestConfig = (options: Options = { emitDecoratorMetaData: true }): VitestUserConfig => {
+    const { plugins = [], ...otherOptions } = options;
+
+    return {
+        test: {
+            environment: "jsdom",
+            include: ["**/*.spec.ts"]
+        },
+        plugins: (options.emitDecoratorMetaData ? [swc.vite(), swc.rollup(),...plugins] : plugins) as  PluginOption[],
+        ...otherOptions
+    };
+
+};
