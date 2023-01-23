@@ -110,12 +110,6 @@ importers:
       vite-plugin-dts: 1.7.1_vite@4.0.4
       vitest: 0.27.2
 
-  packages/test:
-    specifiers:
-      '@pusula/swagger-codegen': workspace:*
-    devDependencies:
-      '@pusula/swagger-codegen': link:../swagger-codegen
-
   packages/vite-config:
     specifiers:
       '@rollup/pluginutils': ^4.1.1
