@@ -1,5 +1,5 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FetchHTTPClient } from "../fetch-http-client";
-import fetchMock from "jest-fetch-mock";
 import {
     mockFetchJSONResponse,
     mockFetchResponseWithError,
@@ -10,10 +10,8 @@ import { contentTypeKey } from "../client-constants";
 import { EnumContentType, EnumResponseFormat } from "../types";
 
 describe("Http Client Post Method", () => {
-    fetchMock.enableMocks();
-
     beforeEach(() => {
-        fetchMock.mockClear();
+        vi.clearAllMocks();
     });
 
     it("should call fetch with post method", async () => {
@@ -32,7 +30,7 @@ describe("Http Client Post Method", () => {
             data: 1,
         });
 
-        expect(fetchMock).toBeCalledWith("http://test.com/go", {
+        expect(fetch).toBeCalledWith("http://test.com/go", {
             method: "POST",
             body: JSON.stringify({ data: 1 }),
             headers,
@@ -68,7 +66,7 @@ describe("Http Client Post Method", () => {
         const headers = { [contentTypeKey]: EnumContentType.UrlEncoded };
         await api.post("test", data, { headers });
 
-        expect(fetchMock).toBeCalledWith("http://test.com/test", {
+        expect(fetch).toBeCalledWith("http://test.com/test", {
             method: "POST",
             body: new URLSearchParams(data),
             headers,
@@ -87,7 +85,7 @@ describe("Http Client Post Method", () => {
         const formData = new FormData();
         formData.append("test", "1");
 
-        expect(fetchMock).toBeCalledWith("http://test.com/test", {
+        expect(fetch).toBeCalledWith("http://test.com/test", {
             method: "POST",
             body: formData,
             headers,

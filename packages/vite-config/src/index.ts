@@ -9,7 +9,7 @@ import { resolve } from "path";
 export type Options = UserConfig & {
     emitDecoratorMetaData: boolean;
     entryPath?: string;
-}
+};
 
 export const createViteConfig = (
     options: Options = { emitDecoratorMetaData: true }
@@ -17,18 +17,24 @@ export const createViteConfig = (
     const deafultEntry = resolve(process.cwd(), "./src/index.ts");
     const excludedRoutes = ["src/**/__tests__/*.ts", "src/**/*.spec.ts"];
 
-    const { entryPath = deafultEntry, emitDecoratorMetaData, plugins: optionPlugins, ...otherOptions } = options;
+    const {
+        entryPath = deafultEntry,
+        emitDecoratorMetaData,
+        plugins: optionPlugins,
+        ...otherOptions
+    } = options;
 
-    options.entryPath = options.entryPath ?? resolve(process.cwd(), "./src/index.ts");
+    options.entryPath =
+        options.entryPath ?? resolve(process.cwd(), "./src/index.ts");
 
     const plugins = [
         dts({
             insertTypesEntry: true,
-            logDiagnostics: true,
-            exclude: excludedRoutes
+            skipDiagnostics: false,
+            exclude: excludedRoutes,
         }),
         peerDepsExternal(),
-        ...(optionPlugins ?? [])
+        ...(optionPlugins ?? []),
     ];
 
     if (emitDecoratorMetaData)
@@ -38,8 +44,8 @@ export const createViteConfig = (
                 exclude: excludedRoutes,
                 minify: true,
                 jsc: {
-                    keepClassNames: true
-                }
+                    keepClassNames: true,
+                },
             })
         );
 
@@ -49,24 +55,27 @@ export const createViteConfig = (
             lib: {
                 entry: entryPath,
                 name: "index",
-                fileName: "index"
-            }
+                fileName: "index",
+            },
         },
         plugins,
-        ...otherOptions
+        ...otherOptions,
     };
 };
 
-export const createVitestConfig = (options: Options = { emitDecoratorMetaData: true }): VitestUserConfig => {
+export const createVitestConfig = (
+    options: Options = { emitDecoratorMetaData: true }
+): VitestUserConfig => {
     const { plugins = [], ...otherOptions } = options;
 
     return {
         test: {
             environment: "jsdom",
-            include: ["**/*.spec.ts"]
+            include: ["**/*.spec.ts"],
         },
-        plugins: (options.emitDecoratorMetaData ? [swc.vite(), swc.rollup(),...plugins] : plugins) as  PluginOption[],
-        ...otherOptions
+        plugins: (options.emitDecoratorMetaData
+            ? [swc.vite(), swc.rollup(), ...plugins]
+            : plugins) as PluginOption[],
+        ...otherOptions,
     };
-
 };

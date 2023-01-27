@@ -1,17 +1,15 @@
-import mockConsole from "jest-mock-console";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Logger } from "../logger";
 
 describe("Logger", () => {
     const logStyle = "font-weight:500;border-left:2px solid steelblue; padding-left:3px;";
 
-    const restore = mockConsole();
-
     beforeEach(() => {
-        mockConsole();
+        vi.spyOn(console, "log").mockImplementationOnce(() => {});
     });
 
     afterEach(() => {
-        restore();
+        vi.clearAllMocks();
     });
 
     it("should console log text", () => {

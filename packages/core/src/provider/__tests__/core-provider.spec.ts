@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { EnumContentType, EnumResponseFormat, FetchHTTPClient } from "../../http-client";
 import {
     mockFetchJSONResponse,
@@ -5,7 +6,6 @@ import {
     mockFetchTxtResponse,
 } from "../../http-client/__mocks__/fetch.mock";
 import { CoreProvider } from "../core-provider";
-import fetchMock from "jest-fetch-mock";
 import type { ICachableRequestConfig, IRequestConfig } from "../types";
 import { ICache, MemoryCache } from "../../cache";
 
@@ -21,10 +21,8 @@ describe("Data Provider", () => {
         responseFormat: EnumResponseFormat.Json,
     });
 
-    fetchMock.enableMocks();
-
     beforeEach(() => {
-        fetchMock.mockReset();
+        vi.restoreAllMocks();
     });
 
     it("should post using options", async () => {
@@ -38,7 +36,7 @@ describe("Data Provider", () => {
 
         await provider.post(config, { id: 1 });
 
-        expect(fetchMock).toBeCalledWith("http://test.com/getPatient", {
+        expect(fetch).toBeCalledWith("http://test.com/getPatient", {
             method: "POST",
             body: JSON.stringify({ id: 1 }),
             headers,
@@ -100,7 +98,7 @@ describe("Data Provider", () => {
             }
         );
 
-        expect(fetchMock).toBeCalledWith("http://test.com/getPatient", {
+        expect(fetch).toBeCalledWith("http://test.com/getPatient", {
             method: "POST",
             body: JSON.stringify({ id: 1 }),
             headers: { ...headers, test: "1" },
@@ -131,7 +129,7 @@ describe("Data Provider", () => {
             }
         );
 
-        expect(fetchMock).toBeCalledWith("http://test.com/getPatient", {
+        expect(fetch).toBeCalledWith("http://test.com/getPatient", {
             method: "POST",
             body: JSON.stringify({ id: 1 }),
             headers: { ...headers, ...config.headers, ...methodHeader },
@@ -149,7 +147,7 @@ describe("Data Provider", () => {
         const config: IRequestConfig = { url: "haleluya" };
         await provider.post(config);
 
-        expect(fetchMock).toBeCalledWith("http://test.com/giganto/haleluya", {
+        expect(fetch).toBeCalledWith("http://test.com/giganto/haleluya", {
             method: "POST",
             headers,
         });
@@ -161,7 +159,7 @@ describe("Data Provider", () => {
         const provider = new CoreProvider(client);
         await provider.get({ url: "getTest" });
 
-        expect(fetchMock).toBeCalledWith("http://test.com/getTest", {
+        expect(fetch).toBeCalledWith("http://test.com/getTest", {
             method: "GET",
             headers,
         });
@@ -176,7 +174,7 @@ describe("Data Provider", () => {
 
         await provider.upload("upload", formData);
 
-        expect(fetchMock).toBeCalledWith("http://test.com/upload", {
+        expect(fetch).toBeCalledWith("http://test.com/upload", {
             method: "POST",
             headers: {
                 "content-type": "multipart/form-data",
@@ -270,7 +268,7 @@ describe("Data Provider", () => {
 
         expect(firstResponse).toEqual(mockResponse);
         expect(secondResponse).toEqual(mockResponse);
-        expect(fetchMock).toBeCalledTimes(1);
+        expect(fetch).toBeCalledTimes(1);
     });
 
     it("should get values from cache when cachableGet is called second time", async () => {
@@ -296,7 +294,7 @@ describe("Data Provider", () => {
 
         expect(firstResponse).toEqual(mockResponse);
         expect(secondResponse).toEqual(mockResponse);
-        expect(fetchMock).toBeCalledTimes(1);
+        expect(fetch).toBeCalledTimes(1);
     });
 
     it("should validate request with validation function", async () => {

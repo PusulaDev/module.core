@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { defaultEncryptUtil } from "../default-encrypt.util";
 
 describe("Default Encrypt Util", () => {

@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it } from "vitest";
 import { CustomModuleError, EnumCustomErrorType } from "../../custom-errors";
 import { globalModule } from "../../global-module";
 import { defaultLocalization, EnumLocalizationKeys } from "../../localization";

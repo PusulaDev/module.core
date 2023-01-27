@@ -1,19 +1,13 @@
 /*eslint-disable*/
-
-import mockConsole from "jest-mock-console";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { PerformanceUtil } from "../performance.util";
 import type { IPerformance } from "../types";
 
 describe("Performance", () => {
-    const restore = mockConsole();
-
-    beforeEach(() => {
-        mockConsole();
-    });
 
     afterEach(() => {
-        restore();
-    });
+        vi.restoreAllMocks()
+    })
 
     class MockPerformance implements IPerformance {
         mark(_: string) {}
@@ -32,10 +26,13 @@ describe("Performance", () => {
     const performanceUtil = new PerformanceUtil(new MockPerformance());
 
     it("should log to console performance duration of function", () => {
+        const spy = vi.spyOn(console,'log')
+
         performanceUtil.measureFunc(() => {
             return 2 + 3;
         }, "add");
 
-        expect(console.log).toHaveBeenCalledTimes(1);
+
+        expect(spy).toHaveBeenCalledTimes(1);
     });
 });

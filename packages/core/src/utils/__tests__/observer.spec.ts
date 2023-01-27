@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it } from "vitest";
 import { globalModule } from "../../global-module";
 import { Observer } from "../observer";
 

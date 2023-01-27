@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { createUniqueList } from "../unique-list";
 
 describe("Unique List", () => {

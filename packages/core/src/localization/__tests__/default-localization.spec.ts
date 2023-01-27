@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it } from "vitest";
 import { defaultLocalization } from "../default-localization";
 
 describe("Default Localization", () => {

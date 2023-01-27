@@ -1,5 +1,5 @@
 /*eslint-disable*/
-
+import { describe, expect, it } from "vitest";
 import type { IHTTPClient } from "../../http-client";
 import type { IProvider } from "../../provider";
 import { createModule, TestHttpClient } from "../../module/__mocks__/module.mock";
@@ -180,9 +180,7 @@ describe("Injectable Decorators", () => {
 
         @injectable.other()
         class Test {
-            dep: DepClass;
-
-            constructor(dep: DepClass) {
+            constructor(public dep: DepClass) {
                 this.dep = dep;
             }
         }

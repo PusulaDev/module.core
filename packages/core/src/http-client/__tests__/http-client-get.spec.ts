@@ -1,5 +1,5 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FetchHTTPClient } from "../fetch-http-client";
-import fetchMock from "jest-fetch-mock";
 import {
     mockFetchJSONResponse,
     mockFetchResponseWithError,
@@ -10,10 +10,8 @@ import { CustomServerError } from "../../custom-errors";
 import { EnumResponseFormat } from "../types";
 
 describe("Http Client Get Method", () => {
-    fetchMock.enableMocks();
-
     beforeEach(() => {
-        fetchMock.mockClear();
+        vi.clearAllMocks();
     });
 
     it("should call fetch with get method", async () => {
@@ -22,7 +20,7 @@ describe("Http Client Get Method", () => {
         const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
         await api.get("test");
 
-        expect(fetchMock).toBeCalledWith("http://test.com/test", {
+        expect(fetch).toBeCalledWith("http://test.com/test", {
             method: "GET",
         });
     });
@@ -33,7 +31,7 @@ describe("Http Client Get Method", () => {
         const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
         await api.get("/test");
 
-        expect(fetchMock).toBeCalledWith("http://test.com/test", {
+        expect(fetch).toBeCalledWith("http://test.com/test", {
             method: "GET",
         });
     });
@@ -44,7 +42,7 @@ describe("Http Client Get Method", () => {
         const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
         await api.get("test", { id: 1, name: "ali" });
 
-        expect(fetchMock).toBeCalledWith("http://test.com/test?id=1&name=ali", {
+        expect(fetch).toBeCalledWith("http://test.com/test?id=1&name=ali", {
             method: "GET",
         });
     });
@@ -55,7 +53,7 @@ describe("Http Client Get Method", () => {
         const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
         await api.get("test");
 
-        expect(fetchMock).toBeCalledWith("http://test.com/test", {
+        expect(fetch).toBeCalledWith("http://test.com/test", {
             method: "GET",
         });
     });
@@ -66,7 +64,7 @@ describe("Http Client Get Method", () => {
         const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
         await api.get("test/${id}", { id: 1, name: "ali" });
 
-        expect(fetchMock).toBeCalledWith("http://test.com/test/1?name=ali", {
+        expect(fetch).toBeCalledWith("http://test.com/test/1?name=ali", {
             method: "GET",
         });
     });
@@ -82,7 +80,7 @@ describe("Http Client Get Method", () => {
 
         await api.get("test");
 
-        expect(fetchMock).toBeCalledWith("https://my-site.net/api/test", {
+        expect(fetch).toBeCalledWith("https://my-site.net/api/test", {
             method: "GET",
         });
     });
@@ -101,7 +99,7 @@ describe("Http Client Get Method", () => {
 
         await api.get("test");
 
-        expect(fetchMock).toBeCalledWith("http://site.com/test", {
+        expect(fetch).toBeCalledWith("http://site.com/test", {
             method: "GET",
             headers: {
                 "x-api-key": "12-23-455",

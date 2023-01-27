@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { CoreMapper } from "../core-mapper";
 
 describe("Core Mapper", () => {

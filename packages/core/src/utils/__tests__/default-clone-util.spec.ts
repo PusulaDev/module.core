@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { defaultCloneUtil } from "../default-clone.util";
 
 describe("Default Clone Util", () => {

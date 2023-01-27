@@ -3,7 +3,8 @@
     "version": "1.0.0",
     "private": true,
     "scripts": {
-        "build": "pnpm exec nx run-many --target=build"
+        "build": "pnpm exec nx run-many --target=build",
+        "test": "pnpm exec nx run-many --target=test"
     },
     "devDependencies": {
         "@pusula/module.core": "workspace:*",
