@@ -1,4 +1,5 @@
 /*eslint-disable*/
+import { describe, expect, it } from "vitest";
 import type { IHTTPClient, IHTTPClientOptions } from "../../http-client";
 import type { IProvider, IRequestConfig } from "../../provider";
 import { createModule, createRegisterHttpClient, createRegisterProvider, TestProvider } from "../__mocks__/module.mock";

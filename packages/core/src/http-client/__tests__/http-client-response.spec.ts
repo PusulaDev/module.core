@@ -1,14 +1,12 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { globalModule } from "../../global-module";
 import { FetchHTTPClient } from "../fetch-http-client";
 import { mockFetchJSONResponse, mockFetchTxtResponse } from "../__mocks__/fetch.mock";
-import fetchMock from "jest-fetch-mock";
 import { EnumResponseFormat } from "../types";
 
 describe("Http Client Response Type", () => {
-    fetchMock.enableMocks();
-
     beforeEach(() => {
-        fetchMock.mockClear();
+        vi.clearAllMocks();
         globalModule.clear();
     });
 

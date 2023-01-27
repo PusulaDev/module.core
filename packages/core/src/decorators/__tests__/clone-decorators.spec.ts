@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it } from "vitest";
 import { globalModule } from "../../global-module";
 import { mockCloneUtil } from "../../global-module/__mocks__/global.module.mock";
 import { cloneArgs, cloneDeepArgs } from "../clone.decorators";

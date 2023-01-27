@@ -1,5 +1,5 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FetchHTTPClient } from "../fetch-http-client";
-import fetchMock from "jest-fetch-mock";
 import {
     mockFetchJSONResponse,
     mockFetchResponseWithError,
@@ -9,10 +9,8 @@ import { CustomHttpClientError, EnumCustomErrorType } from "../../custom-errors"
 import { globalModule } from "../../global-module";
 
 describe("Http Client", () => {
-    fetchMock.enableMocks();
-
     beforeEach(() => {
-        fetchMock.mockClear();
+        vi.clearAllMocks();
         globalModule.clear();
     });
 
@@ -32,7 +30,7 @@ describe("Http Client", () => {
 
             void api.upload("upload", formData);
 
-            expect(fetchMock).toBeCalledWith("http://test.com/upload", {
+            expect(fetch).toBeCalledWith("http://test.com/upload", {
                 method: "POST",
                 headers: {
                     "content-type": "multipart/form-data",
@@ -81,7 +79,7 @@ describe("Http Client", () => {
 
             await Promise.all([api.post("test", { id: 1 }), api.post("test", { id: 1 })]);
 
-            expect(fetchMock).toHaveBeenCalledTimes(1);
+            expect(fetch).toHaveBeenCalledTimes(1);
         });
 
         it("should prevent second same request for get", async () => {
@@ -94,7 +92,7 @@ describe("Http Client", () => {
 
             await Promise.all([api.get("test?id=1"), api.get("test?id=1")]);
 
-            expect(fetchMock).toHaveBeenCalledTimes(1);
+            expect(fetch).toHaveBeenCalledTimes(1);
         });
 
         it("should use new object response for duplicated requests", async () => {
@@ -145,7 +143,7 @@ describe("Http Client", () => {
 
             void api.get("test?id=1");
 
-            expect(fetchMock).toHaveBeenCalledTimes(2);
+            expect(fetch).toHaveBeenCalledTimes(2);
         });
     });
 
@@ -161,7 +159,7 @@ describe("Http Client", () => {
 
             void api.get("test");
 
-            expect(fetchMock).toBeCalledWith("http://test.com/test", {
+            expect(fetch).toBeCalledWith("http://test.com/test", {
                 method: "GET",
                 headers: {
                     "x-app-key": "123Asd",
@@ -183,7 +181,7 @@ describe("Http Client", () => {
 
             void client.get("get");
 
-            expect(fetchMock).toBeCalledWith("http://test.com/get", {
+            expect(fetch).toBeCalledWith("http://test.com/get", {
                 method: "GET",
                 headers: {
                     initial: "1",
@@ -208,7 +206,7 @@ describe("Http Client", () => {
 
             void client.get("get", undefined, { headers });
 
-            expect(fetchMock).toBeCalledWith("http://test.com/get", {
+            expect(fetch).toBeCalledWith("http://test.com/get", {
                 method: "GET",
                 headers: {
                     initial: "1",
@@ -231,7 +229,7 @@ describe("Http Client", () => {
 
             void client.get("get");
 
-            expect(fetchMock).toBeCalledWith("http://a.com/get", { method: "GET" });
+            expect(fetch).toBeCalledWith("http://a.com/get", { method: "GET" });
         });
     });
 });

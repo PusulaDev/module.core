@@ -34,6 +34,10 @@ class Testlocalization implements ILocalization {
     translate(_: string) {
         return "";
     }
+
+    translatePlural(_: string, __: number) {
+        return "";
+    }
 }
 
 export const mockLocalization = new Testlocalization();
@@ -85,7 +89,9 @@ export class MockObserver<T> implements IObserver<T> {
         return 1;
     }
 
-    unsubscribe(_: number) {}
+    unsubscribe(_: number) {
+    }
 
-    publish(_: T, __: PublishType) {}
+    publish(_: T, __: PublishType) {
+    }
 }

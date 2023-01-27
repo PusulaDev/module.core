@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { globalModule } from "../../global-module";
 import { defaultLocalization, EnumLocalizationKeys } from "../../localization";
 import type { URLOptions } from "../types";
@@ -7,10 +8,10 @@ describe("URL Utils", () => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     global.window = Object.create(window);
 
-    Object.defineProperty(window, "location", {
-        value: {
+    beforeEach(() => {
+        vi.stubGlobal("location", {
             host: "test.com",
-        },
+        });
     });
 
     const testTable: [URLOptions, string][] = [

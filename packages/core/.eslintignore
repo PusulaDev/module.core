@@ -1,3 +1,5 @@
 node_modules
 dist
 vite.config.ts
+vitest.config.ts
+setup-vitest.js

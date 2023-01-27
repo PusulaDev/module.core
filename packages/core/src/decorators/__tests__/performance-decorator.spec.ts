@@ -1,21 +1,15 @@
-import { globalModule } from "../../global-module";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { mockPerformanceUtil } from "../../global-module/__mocks__/global.module.mock";
-import mockConsole from "jest-mock-console";
 import { measurePerformance } from "../performance.decorator";
+import { globalModule } from "../../global-module";
 
 describe("Performance", () => {
-    const restore = mockConsole();
-
     beforeEach(() => {
-        mockConsole();
-        globalModule.clear();
-    });
-
-    afterEach(() => {
-        restore();
+        vi.clearAllMocks();
     });
 
     it("should log to class and name of function", () => {
+        vi.spyOn(console, "log").mockImplementation(() => {});
         globalModule.setPerformanceUtil(mockPerformanceUtil);
 
         class Test {

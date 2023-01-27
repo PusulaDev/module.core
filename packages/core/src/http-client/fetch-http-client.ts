@@ -1,16 +1,15 @@
-import { createFormData, urlUtils } from "../utils";
+import { createFormData, ensureObject, urlUtils } from "../utils";
 import {
     contentTypeKey,
     EnumContentType,
     EnumRequestMethod,
     EnumResponseFormat,
     type IHTTPClient,
-    type IHTTPClientOptions
+    type IHTTPClientOptions,
 } from "./index";
 import { CustomHttpClientError, CustomServerError, EnumCustomErrorType } from "../custom-errors";
 import type { RequestOptions } from "./types";
 import { globalModule } from "../global-module";
-import { ensureObject } from "../index";
 
 export class FetchHTTPClient implements IHTTPClient {
     private baseUrl: string;
