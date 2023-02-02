@@ -31,6 +31,7 @@ export const createViteConfig = (
         dts({
             insertTypesEntry: true,
             skipDiagnostics: false,
+            logDiagnostics: true,
             exclude: excludedRoutes,
         }),
         peerDepsExternal(),
