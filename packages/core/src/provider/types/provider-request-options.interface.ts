@@ -1,7 +1,8 @@
-import type { EnumResponseFormat } from "../../http-client";
+import type { EnumResponseFormat, IAbortController } from "../../http-client";
 
 export type ProviderRequestOptions = {
     raceId?: string;
     headers?: Record<string, string>;
     responseFormat?: EnumResponseFormat;
+    abortController?: IAbortController;
 };

@@ -165,17 +165,19 @@ export class CoreProvider implements IProvider {
     }
 
     private handleAbortAndCreateAbortController(options?: ProviderRequestOptions) {
+        if (options?.abortController) return options.abortController;
+
         if (!options?.raceId || !this.client.createAbortController) return;
 
-        let abortController = this.getAndAbortRacerRequests(options.raceId);
+        this.abortPreviousRequest(options.raceId);
 
-        abortController = this.client.createAbortController();
+        const abortController = this.client.createAbortController();
         this.abortControllers.set(options.raceId, abortController);
 
         return abortController;
     }
 
-    private getAndAbortRacerRequests(raceId: string) {
+    private abortPreviousRequest(raceId: string) {
         const abortController = this.abortControllers.get(raceId);
         if (abortController) abortController.abort();
 

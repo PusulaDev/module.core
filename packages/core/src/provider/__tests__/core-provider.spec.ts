@@ -9,7 +9,12 @@ import { CoreProvider } from "../core-provider";
 import type { ICachableRequestConfig, IRequestConfig } from "../types";
 import { ICache, MemoryCache } from "../../cache";
 
-import { CustomProviderError, CustomServerError, EnumCustomErrorType } from "../../custom-errors";
+import {
+    CustomHttpClientError,
+    CustomProviderError,
+    CustomServerError,
+    EnumCustomErrorType,
+} from "../../custom-errors";
 
 describe("Data Provider", () => {
     const headers = {
@@ -196,12 +201,13 @@ describe("Data Provider", () => {
 
         const firstRequest = provider.post(config, { search: "t" }, { raceId: "1" });
         const secondRequest = provider.post(config, { search: "tes" }, { raceId: "1" });
-        const response = await provider.post(config, { search: "test" }, { raceId: "1" });
+        const response = provider.post(config, { search: "test" }, { raceId: "1" });
 
         await expect(async () => await firstRequest).rejects.toEqual(new CustomServerError());
         await expect(async () => await secondRequest).rejects.toEqual(new CustomServerError());
 
-        expect(response).toEqual({ id: 12 });
+        const res = await response;
+        expect(res).toEqual({ id: 12 });
     });
 
     it("should not abort finished request on race condition", async () => {
@@ -334,6 +340,27 @@ describe("Data Provider", () => {
                 type: EnumCustomErrorType.ResponseValidation,
                 message: "error",
             })
+        );
+    });
+
+    it("should abort the request when abort method called", async () => {
+        const mockResponse: unknown[] = [];
+        mockFetchJSONResponse(mockResponse);
+
+        const provider = new CoreProvider(client);
+
+        const config: IRequestConfig<number, number> = {
+            url: "test",
+        };
+
+        const controller = new AbortController();
+
+        const promise = provider.post(config, 1, { abortController: controller });
+
+        controller.abort("test");
+
+        await expect(() => promise).rejects.toEqual(
+            new CustomHttpClientError({ type: EnumCustomErrorType.AbortedRequest })
         );
     });
 });
