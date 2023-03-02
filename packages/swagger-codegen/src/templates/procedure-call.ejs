@@ -28,9 +28,9 @@ const methodName = name.replace(name[0],name[0].toLowerCase())
  *<% /* Here you can add some other JSDoc tags */ %>
 
  */
-<%~ methodName %> = (request:<%~ requestType %>) =>
+<%~ methodName %> = (request:<%~ requestType %>,options?: ProviderRequestOptions) =>
 {
-    return this.<%~method%>(<%~route.routeName.usage %>Config,request)
+    return this.<%~method%>(<%~route.routeName.usage %>Config,request,options)
 }
 
 <% if(['get','post'].includes(method)) {
@@ -43,8 +43,8 @@ const methodName = name.replace(name[0],name[0].toLowerCase())
 *<% /* Here you can add some other JSDoc tags */ %>
 
 */
-<%~ cachableName %> = (request:<%~ requestType %>) =>
+<%~ cachableName %> = (request:<%~ requestType %>,options?: ProviderRequestOptions) =>
 {
-    return this.<%~cachableMethod%>(<%~route.routeName.usage %>Config,request)
+    return this.<%~cachableMethod%>(<%~route.routeName.usage %>Config,request,options)
 }
 <% }%>
