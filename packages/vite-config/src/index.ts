@@ -30,8 +30,6 @@ export const createViteConfig = (
     const plugins = [
         dts({
             insertTypesEntry: true,
-            skipDiagnostics: false,
-            logDiagnostics: true,
             exclude: excludedRoutes,
         }),
         peerDepsExternal(),
