@@ -9,6 +9,7 @@ import { resolve } from "path";
 export type Options = UserConfig & {
     emitDecoratorMetaData: boolean;
     entryPath?: string;
+    minify?: boolean;
 };
 
 export const createViteConfig = (
@@ -50,12 +51,14 @@ export const createViteConfig = (
 
     return {
         build: {
+            minify: options?.minify ?? true,
             sourcemap: true,
             lib: {
                 entry: entryPath,
                 name: "index",
                 fileName: "index",
             },
+            ...(options?.build ?? {})
         },
         plugins,
         ...otherOptions,
