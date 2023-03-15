@@ -4,13 +4,14 @@ import { createUnplugin } from "unplugin";
 import { createFilter, FilterPattern } from "@rollup/pluginutils";
 import { loadTsConfig } from "load-tsconfig";
 
-import { transform, JscConfig, Options as SwcOptions } from "@swc/core";
+import { transform, JscConfig, Options as SwcOptions, ModuleConfig } from "@swc/core";
 import { resolveId } from "./resolve";
 
 export type Options = SwcOptions & {
     include?: FilterPattern;
     exclude?: FilterPattern;
     tsconfigFile?: string | boolean;
+    module?: ModuleConfig;
 };
 
 export default createUnplugin(
@@ -19,9 +20,7 @@ export default createUnplugin(
 
         return {
             name: "swc",
-
             resolveId,
-
             async transform(code, id) {
                 if (!filter(id)) return null;
 
@@ -29,9 +28,9 @@ export default createUnplugin(
                     tsconfigFile === false
                         ? {}
                         : loadTsConfig(
-                              path.dirname(id),
-                              tsconfigFile === true ? undefined : tsconfigFile
-                          )?.data?.compilerOptions || {};
+                            path.dirname(id),
+                            tsconfigFile === true ? undefined : tsconfigFile
+                        )?.data?.compilerOptions || {};
 
                 const isTs = /\.tsx?$/.test(id);
 
@@ -80,6 +79,7 @@ export default createUnplugin(
                     sourceMaps: true,
                     ...options,
                     jsc,
+                    module: options.module
                 });
                 return {
                     code: result.code,
