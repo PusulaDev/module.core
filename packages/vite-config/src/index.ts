@@ -5,15 +5,17 @@ import dts from "vite-plugin-dts";
 import peerDepsExternal from "rollup-plugin-peer-deps-external";
 import swc from "./swc";
 import { resolve } from "path";
+import { ModuleConfig } from "@swc/core";
 
 export type Options = UserConfig & {
     emitDecoratorMetaData: boolean;
     entryPath?: string;
     minify?: boolean;
+    module?: ModuleConfig
 };
 
 export const createViteConfig = (
-    options: Options = { emitDecoratorMetaData: true }
+    options: Options = { emitDecoratorMetaData: true, module: { type: "es6" } }
 ): UserConfig => {
     const deafultEntry = resolve(process.cwd(), "./src/index.ts");
     const excludedRoutes = ["src/**/__tests__/*.ts", "src/**/*.spec.ts"];
