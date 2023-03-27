@@ -19,6 +19,7 @@ class GlobalModule {
     private dateUtil: IDateUtil | null = null;
     private observer: (new () => IObserver<any>) | null = null;
     private sharedHeaders: Record<string, string> = {};
+    private customErrorListener: ((error: Error) => void) | null = null;
 
     private createNotRegisteredErrorMessage(type: string) {
         const message = `${type} is not registered`;
@@ -26,6 +27,14 @@ class GlobalModule {
             type: EnumCustomErrorType.Construction,
             message,
         });
+    }
+
+    setCustomErrorListener(method: (error: Error) => void) {
+        this.customErrorListener = method;
+    }
+
+    onCustomErrorCreated(error: Error) {
+        this.customErrorListener?.(error);
     }
 
     setLocalization(localization: ILocalization) {

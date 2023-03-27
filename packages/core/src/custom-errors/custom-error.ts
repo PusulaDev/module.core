@@ -19,5 +19,7 @@ export class CustomError extends Error implements ICustomError {
         this.layer = options.layer;
         this.type = options.type;
         this.children = options.children;
+
+        globalModule.onCustomErrorCreated(this);
     }
 }

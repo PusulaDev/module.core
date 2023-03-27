@@ -30,7 +30,7 @@ class DefaultLocalization implements ILocalization {
         if (!key) return "";
         const res = this.getTranslateValue(key);
 
-        if (!res) return res;
+        if (!res) return key;
 
         return this.translateWithValue(res.toString(), args);
     }
@@ -40,7 +40,7 @@ class DefaultLocalization implements ILocalization {
 
         const res = this.getTranslateValue(key);
 
-        if (!res) return res;
+        if (!res) return key;
 
         const list = res
             .toString()
