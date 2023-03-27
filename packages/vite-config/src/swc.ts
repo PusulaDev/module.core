@@ -4,7 +4,7 @@ import { createUnplugin } from "unplugin";
 import { createFilter, FilterPattern } from "@rollup/pluginutils";
 import { loadTsConfig } from "load-tsconfig";
 
-import { transform, JscConfig, Options as SwcOptions, ModuleConfig } from "@swc/core";
+import { transform, JscConfig, Options as SwcOptions, ModuleConfig, JscTarget } from "@swc/core";
 import { resolveId } from "./resolve";
 
 export type Options = SwcOptions & {
@@ -12,10 +12,11 @@ export type Options = SwcOptions & {
     exclude?: FilterPattern;
     tsconfigFile?: string | boolean;
     module?: ModuleConfig;
+    target?: JscTarget;
 };
 
 export default createUnplugin(
-    ({ tsconfigFile, minify, include, exclude, ...options }: Options = {}) => {
+    ({ tsconfigFile, minify, include, exclude, target, ...options }: Options = {}) => {
         const filter = createFilter(include || /\.[jt]sx?$/, exclude || /node_modules/);
 
         return {
@@ -39,6 +40,7 @@ export default createUnplugin(
                         syntax: isTs ? "typescript" : "ecmascript",
                     },
                     transform: {},
+                    target: target ?? "es2015"
                 };
 
                 if (compilerOptions.jsx && jsc.parser && jsc.transform) {
@@ -102,6 +104,9 @@ export default createUnplugin(
                             sourceMaps: true,
                             minify: true,
                             filename: chunk.fileName,
+                            jsc: {
+                                target: target ?? "es2015"
+                            }
                         });
                         return {
                             code: result.code,

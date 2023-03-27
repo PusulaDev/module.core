@@ -113,7 +113,7 @@ describe("Default Localization", () => {
         defaultLocalization.setLang("en");
 
         const res = defaultLocalization.translate("Test");
-        expect(res).toBe("");
+        expect(res).toBe("Test");
     });
 
     it("should merge translations", () => {

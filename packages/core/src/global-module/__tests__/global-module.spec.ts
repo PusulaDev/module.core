@@ -1,3 +1,4 @@
+import { EnumAppLayer } from "../../shared";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createModule } from "../../module/__mocks__/module.mock";
 import { globalModule } from "../global-module";
@@ -9,6 +10,7 @@ import {
     MockObserver,
     mockPerformanceUtil,
 } from "../__mocks__/global.module.mock";
+import { CustomError, EnumCustomErrorType } from "../../custom-errors";
 
 describe("Global Module", () => {
     beforeEach(() => {
@@ -112,13 +114,22 @@ describe("Global Module", () => {
     it("should resolve dependency from any module", () => {
         const module = createModule();
 
-        class Test {}
+        class Test { }
 
         module.register(Test);
 
         const resolved = globalModule.resolveDependency(Test);
 
         expect(resolved).toBeInstanceOf(Test);
+    });
+
+    it("should call custom error listener", () => {
+        let isCalled = false;
+        globalModule.setCustomErrorListener(() => (isCalled = true));
+
+        new CustomError({ layer: EnumAppLayer.Cache, type: EnumCustomErrorType.AbortedRequest });
+
+        expect(isCalled).toBe(true);
     });
 
     it("should clear", () => {
