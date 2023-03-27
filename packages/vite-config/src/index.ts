@@ -19,13 +19,13 @@ export type Options = UserConfig & {
      */
     module?: ModuleConfig
     /**
-     * default: es2022
+     * default: es2018
      */
     target?: JscTarget
 };
 
 export const createViteConfig = (
-    options: Options = { emitDecoratorMetaData: true, module: { type: "es6" }, target: "es2022" }
+    options: Options = { emitDecoratorMetaData: true, module: { type: "es6" }, target: "es2018" }
 ): UserConfig => {
     const deafultEntry = resolve(process.cwd(), "./src/index.ts");
     const excludedRoutes = ["src/**/__tests__/*.ts", "src/**/*.spec.ts"];
