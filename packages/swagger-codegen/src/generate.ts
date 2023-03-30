@@ -153,13 +153,19 @@ export const createOnCreateRouteMethod = (suffix: string) => (routeData: ParsedR
 export const generateMultiple = async (options: GenerateMultipleApiOptions) => {
     const { endpoints, ...restOptions } = options;
     const output = path.resolve(process.cwd(), `./src/__generated__`);
-    await Promise.all(endpoints.map((e, i) => generate({
-        ...restOptions,
-        url: e.url,
-        deleteHttpClient: !!i,
-        output: path.join(output, e.name),
-        hooks: e.providerSuffix ? { onCreateRoute: createOnCreateRouteMethod(e.providerSuffix) } : undefined,
-        typeSuffix: e.typeSuffix ?? restOptions.typeSuffix
-    })))
+
+    for (let i = 0; i < endpoints.length; i++) {
+        const e = endpoints[i];
+
+        await generate({
+            ...restOptions,
+            url: e.url,
+            deleteHttpClient: !!i,
+            output: path.join(output, e.name),
+            hooks: e.providerSuffix ? { onCreateRoute: createOnCreateRouteMethod(e.providerSuffix) } : undefined,
+            typeSuffix: e.typeSuffix ?? restOptions.typeSuffix
+        })
+    }
+
     generateMultipleIndex(endpoints, output);
 }
