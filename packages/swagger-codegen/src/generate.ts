@@ -83,15 +83,27 @@ export const generateMultiple = async (options: GenerateMultipleApiOptions) => {
             ...(hooks ?? {})
         }
 
-        await generate({
+        const options: GenerateApiOptions = {
             ...restOptions,
             url: endpoint.url,
             deleteHttpClient: !!i,
             output: path.join(output, endpoint.name),
             hooks: modifiedHooks,
-            typeSuffix: endpoint.typeSuffix ?? restOptions.typeSuffix,
-            typePrefix: endpoint.typePrefix ?? restOptions.typePrefix
-        })
+        }
+
+        if (endpoint.typePrefix)
+            options.typePrefix = endpoint.typePrefix
+
+        if (endpoint.typeSuffix)
+            options.typeSuffix = endpoint.typeSuffix
+
+        if (endpoint.providerPrefix || endpoint.providerSuffix)
+            options.hooks = {
+                onCreateRoute: createOnCreateRouteMethod({ suffix: endpoint.providerSuffix, prefix: endpoint.providerPrefix }),
+                ...(hooks ?? {})
+            }
+
+        await generate(options)
     }
 
     generateMultipleIndex(endpoints, output);
