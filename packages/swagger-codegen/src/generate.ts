@@ -5,7 +5,7 @@ import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
+const httpClientFileName = "http-client.ts"
 
 export type GenerateApiOptions = GenerateApiParams & {
     deleteHttpClient?: boolean;
@@ -42,7 +42,7 @@ const generateIndex = (data: GenerateApiOutput, output: string) => {
 };
 
 const deleteHttpClient = (data: GenerateApiOutput, output: string) => {
-    const httpClientFile = data.files.find(e => e.name === 'http-client.ts');
+    const httpClientFile = data.files.find(e => e.name === httpClientFileName);
 
     if (!httpClientFile) return;
 
@@ -50,6 +50,8 @@ const deleteHttpClient = (data: GenerateApiOutput, output: string) => {
 
     if (fs.existsSync(filePath)) {
         fs.rmSync(filePath);
+        const index = data.files.findIndex(e => e === httpClientFile);
+        data.files.splice(index, 1);
     }
 }
 
@@ -110,10 +112,13 @@ export const generate = async (options: GenerateApiOptions) => {
             extractRequestParams: true,
             modular: true,
             moduleNameFirstTag: true,
+            hooks: {},
             ...options,
         });
 
         if (!generateResult) throw new Error('No generate result');
+
+        console.log(generateResult.files);
 
         if (options.deleteHttpClient)
             deleteHttpClient(generateResult, options.output)
@@ -123,6 +128,7 @@ export const generate = async (options: GenerateApiOptions) => {
         if (createModuleIfNotExists)
             generateModuleIfNotExists()
 
+        return generateResult;
     } catch (e) {
         console.error(e);
         process.exit(1);
@@ -135,7 +141,20 @@ const generateMultipleIndex = (endPointNames: { name: string }[], output: string
 
     try {
         fs.writeFileSync(path.join(output, "index.ts"), imports + "\n");
-        console.log("Codes are generated \n");
+        console.log("Index generated \n");
+    }
+    catch (e) {
+        console.log(e);
+        process.exit(1);
+    }
+}
+
+const generateModuleForMultiple = (output: string) => {
+    const content = 'export * from "../module";\n';
+
+    try {
+        fs.writeFileSync(path.join(output, "module.ts"), content);
+        console.log("module reexport generated \n");
     }
     catch (e) {
         console.log(e);
@@ -144,28 +163,34 @@ const generateMultipleIndex = (endPointNames: { name: string }[], output: string
 }
 
 
-export const createOnCreateRouteMethod = (suffix: string) => (routeData: ParsedRoute) => {
+const createOnCreateRouteMethod = (suffix: string) => (routeData: ParsedRoute) => {
     routeData.raw.moduleName += suffix;
     routeData.namespace += suffix;
     return routeData;
 }
 
 export const generateMultiple = async (options: GenerateMultipleApiOptions) => {
-    const { endpoints, ...restOptions } = options;
+    const { endpoints, hooks, ...restOptions } = options;
     const output = path.resolve(process.cwd(), `./src/__generated__`);
 
     for (let i = 0; i < endpoints.length; i++) {
-        const e = endpoints[i];
+        const endpoint = endpoints[i];
+
+        const modifiedHooks: GenerateApiOptions['hooks'] = {
+            onCreateRoute: endpoint.providerSuffix ? createOnCreateRouteMethod(endpoint.providerSuffix) : undefined,
+            ...(hooks ?? {})
+        }
 
         await generate({
             ...restOptions,
-            url: e.url,
+            url: endpoint.url,
             deleteHttpClient: !!i,
-            output: path.join(output, e.name),
-            hooks: e.providerSuffix ? { onCreateRoute: createOnCreateRouteMethod(e.providerSuffix) } : undefined,
-            typeSuffix: e.typeSuffix ?? restOptions.typeSuffix
+            output: path.join(output, endpoint.name),
+            hooks: modifiedHooks,
+            typeSuffix: endpoint.typeSuffix ?? restOptions.typeSuffix
         })
     }
 
     generateMultipleIndex(endpoints, output);
+    generateModuleForMultiple(output);
 }

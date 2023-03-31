@@ -37,7 +37,8 @@ const getDefaultOptions = () => ({
     moduleNameFirstTag: true,
     name: "api.ts",
     templates: path.resolve(__dirname, "../src/templates"),
-    output: path.resolve(process.cwd(), "./src/__generated__")
+    output: path.resolve(process.cwd(), "./src/__generated__"),
+    hooks: {}
 })
 
 describe("Generate", () => {
@@ -58,7 +59,10 @@ describe("Generate", () => {
     })
 
     it('should call generateApi 3 times for generateMultiple', async () => {
-        (generateApi as any).mockResolvedValue({ files: [{ name: 'http-client.ts' }] });
+        (generateApi as any).mockResolvedValueOnce({ files: [{ name: 'http-client.ts' }] });
+        (generateApi as any).mockResolvedValueOnce({ files: [{ name: 'http-client.ts' }] });
+        (generateApi as any).mockResolvedValueOnce({ files: [{ name: 'http-client.ts' }] });
+
         (fs.existsSync as any).mockResolvedValue(true);
         const options: GenerateMultipleApiOptions = {
             endpoints: [{ name: 'test', url: 'http://test.com' },
@@ -97,6 +101,10 @@ describe("Generate", () => {
         const indexContent = `export * from "./test";\nexport * from "./test1";\nexport * from "./test2";\n`
         const indexPath = path.resolve(process.cwd(), "./src/__generated__/index.ts");
 
+        const moduleContent = 'export * from "../module";\n';
+        const modulePath = path.resolve(process.cwd(), "./src/__generated__/module.ts");
+
         expect(fs.writeFileSync).toHaveBeenCalledWith(indexPath, indexContent)
+        expect(fs.writeFileSync).toHaveBeenCalledWith(modulePath, moduleContent)
     })
 })
