@@ -118,8 +118,6 @@ export const generate = async (options: GenerateApiOptions) => {
 
         if (!generateResult) throw new Error('No generate result');
 
-        console.log(generateResult.files);
-
         if (options.deleteHttpClient)
             deleteHttpClient(generateResult, options.output)
 
