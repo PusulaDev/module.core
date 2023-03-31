@@ -1,60 +1,41 @@
-import { generateApi, type GenerateApiOutput, type GenerateApiParams } from "swagger-typescript-api";
+import { generateApi, ParsedRoute, type GenerateApiOutput, type GenerateApiParams } from "swagger-typescript-api";
 import path from "path";
 import { fileURLToPath } from "url";
-import fs from "fs";
+import { createOnCreateRouteMethod, deleteHttpClient, generateIndex, generateModuleForMultiple, generateModuleIfNotExists, generateMultipleIndex, generateUtilsForMultiple } from "./utils";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const generateIndex = (data: GenerateApiOutput, output: string) => {
-    const { files } = data;
+export type GenerateApiOptions = GenerateApiParams & {
+    deleteHttpClient?: boolean;
+    createModuleIfNotExists?: boolean
+}
 
-    const imports = files.map(({ name }) => `export * from "./${name.replace(".ts", "")}";`).join("\n");
+export interface GenerateApiEndpoint {
+    name: string;
+    url: string;
+    /**
+     * Add suffix or prefix for same named endpoints with different versions
+     */
+    providerSuffix?: string;
+    providerPrefix?: string;
+    typeSuffix?: string;
+    typePrefix?: string;
+}
 
-    fs.writeFile(path.join(output, "index.ts"), imports + "\n", (err) => {
-        if (err) {
-            console.log(err);
-            process.exit(1);
-        } else {
-            console.log("Codes are generated \n");
-        }
-    });
-};
+export interface GenerateMultipleApiOptions extends Omit<GenerateApiOptions, 'url'> {
+    endpoints: GenerateApiEndpoint[]
+}
 
-const generateModule = () => {
-    const moduleDirectory = path.resolve(process.cwd(), "./src/module");
-    const moduleContent =
-        `import { CoreModule, SessionStorageCache } from "@pusula/module.core";
-
-const coreModule = new CoreModule({ key: "CoreModule" });
-coreModule.register(SessionStorageCache, { key: "SessionStorageCache" });
-const injectable = coreModule.createInjectable();
-
-export { coreModule, injectable };
-`;
-
-    if (!fs.existsSync(moduleDirectory)){
-        fs.mkdirSync(moduleDirectory);
-    }
-
-    fs.writeFile(path.join(moduleDirectory, "index.ts"), moduleContent, (err) => {
-        if (err) {
-            console.log(err);
-            process.exit(1);
-        } else {
-            console.log("module generated \n");
-            process.exit();
-        }
-    });
-};
-
-export const generate = async (options: GenerateApiParams) => {
+export const generate = async (options: GenerateApiOptions) => {
     const defaultOutput = path.resolve(process.cwd(), "./src/__generated__");
     const defaultTemplates = path.resolve(__dirname, "../src/templates");
 
     options.output = options.output || defaultOutput;
     options.templates = options.templates || defaultTemplates;
     options.name = options.name || "api.ts";
+
+    const { createModuleIfNotExists = true } = options;
 
     try {
         const generateResult = await generateApi({
@@ -69,13 +50,63 @@ export const generate = async (options: GenerateApiParams) => {
             extractRequestParams: true,
             modular: true,
             moduleNameFirstTag: true,
-            ...options
+            hooks: {},
+            ...options,
         });
 
+        if (!generateResult) throw new Error('No generate result');
+
+        if (options.deleteHttpClient)
+            deleteHttpClient(generateResult, options.output)
+
         generateIndex(generateResult, options.output);
-        generateModule()
+
+        if (createModuleIfNotExists)
+            generateModuleIfNotExists()
+
+        return generateResult;
     } catch (e) {
         console.error(e);
-        process.exit(1);
     }
 };
+
+
+export const generateMultiple = async (options: GenerateMultipleApiOptions) => {
+    const { endpoints, hooks, ...restOptions } = options;
+    const output = path.resolve(process.cwd(), `./src/__generated__`);
+
+    for (let i = 0; i < endpoints.length; i++) {
+        const endpoint = endpoints[i];
+
+        const modifiedHooks: GenerateApiOptions['hooks'] = {
+            onCreateRoute: endpoint.providerSuffix ? createOnCreateRouteMethod({ suffix: endpoint.providerSuffix, prefix: endpoint.providerPrefix }) : undefined,
+            ...(hooks ?? {})
+        }
+
+        const options: GenerateApiOptions = {
+            ...restOptions,
+            url: endpoint.url,
+            deleteHttpClient: !!i,
+            output: path.join(output, endpoint.name),
+            hooks: modifiedHooks,
+        }
+
+        if (endpoint.typePrefix)
+            options.typePrefix = endpoint.typePrefix
+
+        if (endpoint.typeSuffix)
+            options.typeSuffix = endpoint.typeSuffix
+
+        if (endpoint.providerPrefix || endpoint.providerSuffix)
+            options.hooks = {
+                onCreateRoute: createOnCreateRouteMethod({ suffix: endpoint.providerSuffix, prefix: endpoint.providerPrefix }),
+                ...(hooks ?? {})
+            }
+
+        await generate(options)
+    }
+
+    generateMultipleIndex(endpoints, output);
+    generateModuleForMultiple(output);
+    generateUtilsForMultiple(output);
+}

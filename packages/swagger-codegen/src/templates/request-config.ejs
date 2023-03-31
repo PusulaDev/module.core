@@ -36,9 +36,9 @@ const responseFormatTmpl = responseContentKind[responseBodyInfo.success && respo
 const requestName = route.routeName.usage;
 %>
 
-export const <% ~requestName %>Config: ICachableRequestConfig<<% ~requestType %>, <% ~responseType %>> = {
-    url: "<% ~path %>",
-    cacheKey: "<% ~requestName %>",
-    <%~ bodyContentKindTmpl ? `headers : { [contentTypeKey]: ${bodyContentKindTmpl} },` : '' %>
-    <%~ responseFormatTmpl ? `responseFormat: ${responseFormatTmpl},` : '' %>
-};
+const <% ~requestName %>Config: ICachableRequestConfig<<% ~requestType %>, <% ~responseType %>> = {
+  url: "<% ~path %>",
+  cacheKey: "<% ~requestName %>",
+  <%~ bodyContentKindTmpl ? `headers : { [contentTypeKey]: ${bodyContentKindTmpl} },` : '' %>
+  <%~ responseFormatTmpl ? `responseFormat: ${responseFormatTmpl},` : '' %>
+  };
