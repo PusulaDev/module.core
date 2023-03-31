@@ -104,7 +104,12 @@ describe("Generate", () => {
         const moduleContent = 'export * from "../module";\n';
         const modulePath = path.resolve(process.cwd(), "./src/__generated__/module.ts");
 
+        const utilsContent = 'export * from "../utils";\n';
+        const utilsPath = path.resolve(process.cwd(), "./src/__generated__/utils.ts");
+
+
         expect(fs.writeFileSync).toHaveBeenCalledWith(indexPath, indexContent)
         expect(fs.writeFileSync).toHaveBeenCalledWith(modulePath, moduleContent)
+        expect(fs.writeFileSync).toHaveBeenCalledWith(utilsPath, utilsContent)
     })
 })
