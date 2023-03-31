@@ -15,10 +15,12 @@ export interface GenerateApiEndpoint {
     name: string;
     url: string;
     /**
-     * Add suffix for same named endpoints with different versions
+     * Add suffix or prefix for same named endpoints with different versions
      */
     providerSuffix?: string;
+    providerPrefix?: string;
     typeSuffix?: string;
+    typePrefix?: string;
 }
 
 export interface GenerateMultipleApiOptions extends Omit<GenerateApiOptions, 'url'> {
@@ -65,7 +67,6 @@ export const generate = async (options: GenerateApiOptions) => {
         return generateResult;
     } catch (e) {
         console.error(e);
-        process.exit(1);
     }
 };
 
@@ -78,7 +79,7 @@ export const generateMultiple = async (options: GenerateMultipleApiOptions) => {
         const endpoint = endpoints[i];
 
         const modifiedHooks: GenerateApiOptions['hooks'] = {
-            onCreateRoute: endpoint.providerSuffix ? createOnCreateRouteMethod(endpoint.providerSuffix) : undefined,
+            onCreateRoute: endpoint.providerSuffix ? createOnCreateRouteMethod({ suffix: endpoint.providerSuffix, prefix: endpoint.providerPrefix }) : undefined,
             ...(hooks ?? {})
         }
 
@@ -88,7 +89,8 @@ export const generateMultiple = async (options: GenerateMultipleApiOptions) => {
             deleteHttpClient: !!i,
             output: path.join(output, endpoint.name),
             hooks: modifiedHooks,
-            typeSuffix: endpoint.typeSuffix ?? restOptions.typeSuffix
+            typeSuffix: endpoint.typeSuffix ?? restOptions.typeSuffix,
+            typePrefix: endpoint.typePrefix ?? restOptions.typePrefix
         })
     }
 

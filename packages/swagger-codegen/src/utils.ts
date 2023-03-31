@@ -110,8 +110,18 @@ export const generateUtilsForMultiple = (output: string) => {
 }
 
 
-export const createOnCreateRouteMethod = (suffix: string) => (routeData: ParsedRoute) => {
-    routeData.raw.moduleName += suffix;
-    routeData.namespace += suffix;
+export const createOnCreateRouteMethod = (options: { suffix?: string, prefix?: string }) => (routeData: ParsedRoute) => {
+    const { suffix, prefix } = options;
+
+    if (suffix) {
+        routeData.raw.moduleName += suffix;
+        routeData.namespace += suffix;
+    }
+
+    if (prefix) {
+        routeData.raw.moduleName = `${prefix}${routeData.raw.moduleName}`
+        routeData.namespace = `${prefix}${routeData.namespace}`
+    }
+
     return routeData;
 }

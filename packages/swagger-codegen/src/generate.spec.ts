@@ -62,19 +62,22 @@ describe("Generate", () => {
         (generateApi as any).mockResolvedValueOnce({ files: [{ name: 'http-client.ts' }] });
         (generateApi as any).mockResolvedValueOnce({ files: [{ name: 'http-client.ts' }] });
         (generateApi as any).mockResolvedValueOnce({ files: [{ name: 'http-client.ts' }] });
+        (generateApi as any).mockResolvedValueOnce({ files: [{ name: 'http-client.ts' }] });
 
         (fs.existsSync as any).mockResolvedValue(true);
         const options: GenerateMultipleApiOptions = {
             endpoints: [{ name: 'test', url: 'http://test.com' },
             { name: 'test1', url: 'http://test1.com' },
-            { name: 'test2', url: 'http://test2.com', typeSuffix: 'V2' }]
+            { name: 'test2', url: 'http://test2.com', typeSuffix: 'V2' },
+            { name: 'test3', url: 'http://test3.com', typePrefix: 'Test3_' },
+            ]
         }
 
         await generateMultiple(options);
 
 
-        expect(generateApi).toHaveBeenCalledTimes(3);
-        expect(fs.rmSync).toHaveBeenCalledTimes(2);
+        expect(generateApi).toHaveBeenCalledTimes(4);
+        expect(fs.rmSync).toHaveBeenCalledTimes(3);
 
         expect(generateApi).toHaveBeenCalledWith({
             ...getDefaultOptions(),
@@ -98,7 +101,15 @@ describe("Generate", () => {
             output: path.resolve(process.cwd(), `./src/__generated__/${options.endpoints[2].name}`)
         })
 
-        const indexContent = `export * from "./test";\nexport * from "./test1";\nexport * from "./test2";\n`
+        expect(generateApi).toHaveBeenCalledWith({
+            ...getDefaultOptions(),
+            url: options.endpoints[3].url,
+            deleteHttpClient: true,
+            typePrefix: 'Test3_',
+            output: path.resolve(process.cwd(), `./src/__generated__/${options.endpoints[3].name}`)
+        })
+
+        const indexContent = `export * from "./test";\nexport * from "./test1";\nexport * from "./test2";\nexport * from "./test3";\n`
         const indexPath = path.resolve(process.cwd(), "./src/__generated__/index.ts");
 
         const moduleContent = 'export * from "../module";\n';
