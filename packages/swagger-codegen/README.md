@@ -48,7 +48,7 @@ generate({
 
 This will generate api types and @pusula/module.core providers for multiple endpoints in different folders.
 
-Provide suffix options for same named endpoints like versioned services to prevent name collision.
+It detects duplicate of types and providers and adds suffix numbers like 'ProductApi2' to the end.
 
 ```typescript
 import { generate, GenerateApiMultipleOptions } from "@pusula/swagger-codegen";
@@ -60,8 +60,6 @@ const endpoints: GenerateApiMultipleOptions = {
         {
             name: "products-v2",
             url: "http://api.com/products/swagger.json",
-            providerSuffix: "v2",
-            typeSuffic: "v2",
         },
     ],
     ...

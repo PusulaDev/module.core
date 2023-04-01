@@ -117,9 +117,17 @@ export const useNameModifiers = () => {
     const checkAndMakeNameUnique = (list: Set<string>, name: string) => {
         let newName = name;
         if (list.has(name)) {
-            const lastChar = Number(name.charAt(name.length - 1));
-            const count = !Number.isNaN(lastChar) ? lastChar + 1 : 2;
-            newName = `${name}${count}`;
+            const lastChar = name.charAt(name.length - 1);
+            const lastCharNumber = Number(lastChar);
+            const isNotNan = !Number.isNaN(lastCharNumber);
+
+            if (isNotNan) {
+                newName = newName.replace(lastChar, '');
+            }
+
+            const count = isNotNan ? lastCharNumber + 1 : 2;
+            newName = `${newName}${count}`;
+            newName = checkAndMakeNameUnique(list, newName)
         }
         return newName;
     }
