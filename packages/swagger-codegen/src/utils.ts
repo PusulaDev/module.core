@@ -1,6 +1,7 @@
 import path from "path";
 import { GenerateApiOutput, ParsedRoute } from "swagger-typescript-api";
 import fs from "fs";
+import { GenerateApiEndpoint } from "./types";
 
 export const httpClientFileName = "http-client.ts"
 
@@ -109,19 +110,66 @@ export const generateUtilsForMultiple = (output: string) => {
     }
 }
 
+export const useNameModifiers = () => {
+    const types = new Set<string>();
+    const providers = new Map<string, Set<string>>();
 
-export const createOnCreateRouteMethod = (options: { suffix?: string, prefix?: string }) => (routeData: ParsedRoute) => {
-    const { suffix, prefix } = options;
-
-    if (suffix) {
-        routeData.raw.moduleName += suffix;
-        routeData.namespace += suffix;
+    const checkAndMakeNameUnique = (list: Set<string>, name: string) => {
+        let newName = name;
+        if (list.has(name)) {
+            const lastChar = Number(name.charAt(name.length - 1));
+            const count = !Number.isNaN(lastChar) ? lastChar + 1 : 2;
+            newName = `${name}${count}`;
+        }
+        return newName;
     }
 
-    if (prefix) {
-        routeData.raw.moduleName = `${prefix}${routeData.raw.moduleName}`
-        routeData.namespace = `${prefix}${routeData.namespace}`
+    const checkAndAddUniqueName = (list: Set<string>, name: string) => {
+        const newName = checkAndMakeNameUnique(list, name);
+        list.add(newName);
+        return newName;
     }
 
-    return routeData;
+
+    const formatTypeName = (typeName: string) => {
+        return checkAndAddUniqueName(types, typeName)
+    }
+
+    const formatRouteData = (options: GenerateApiEndpoint, routeData: ParsedRoute) => {
+        const { providerSuffix: suffix, providerPrefix: prefix, name } = options;
+
+        if (suffix) {
+            routeData.namespace += suffix;
+        }
+
+        if (prefix) {
+            routeData.namespace = `${prefix}${routeData.namespace}`
+        }
+
+        const otherValues = [...providers].reduce((prev: Set<string>, [key, values]) => {
+            if (key !== name)
+                return new Set([...prev, ...values])
+
+            return prev;
+        }, new Set<string>())
+
+        console.log({ prevName: routeData.namespace });
+
+        routeData.namespace = checkAndMakeNameUnique(otherValues, routeData.namespace)
+
+        let currentSet = providers.get(name);
+        if (!currentSet) {
+            currentSet = new Set();
+            providers.set(name, currentSet);
+        }
+
+        currentSet.add(routeData.namespace)
+
+        console.log({ otherValues, name: routeData.namespace, currentSet });
+
+        return routeData;
+    }
+
+    return { formatTypeName, formatRouteData };
 }
+
