@@ -16,7 +16,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 
-
 export const generate = async (options: GenerateApiOptions) => {
     const defaultOutput = path.resolve(process.cwd(), "./src/__generated__");
     const defaultTemplates = path.resolve(__dirname, "../src/templates");
@@ -56,6 +55,7 @@ export const generate = async (options: GenerateApiOptions) => {
         return generateResult;
     } catch (e) {
         console.error(e);
+        process.exit(1)
     }
 };
 

@@ -153,8 +153,6 @@ export const useNameModifiers = () => {
             return prev;
         }, new Set<string>())
 
-        console.log({ prevName: routeData.namespace });
-
         routeData.namespace = checkAndMakeNameUnique(otherValues, routeData.namespace)
 
         let currentSet = providers.get(name);
@@ -164,8 +162,6 @@ export const useNameModifiers = () => {
         }
 
         currentSet.add(routeData.namespace)
-
-        console.log({ otherValues, name: routeData.namespace, currentSet });
 
         return routeData;
     }
