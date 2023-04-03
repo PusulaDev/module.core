@@ -50,6 +50,8 @@ This will generate api types and @pusula/module.core providers for multiple endp
 
 It detects duplicate of types and providers and adds suffix numbers like 'ProductApi2' to the end.
 
+Provide optional `wordMapForReplacingInTypeNames` object to replace some words.
+
 ```typescript
 import { generate, GenerateApiMultipleOptions } from "@pusula/swagger-codegen";
 
@@ -62,6 +64,8 @@ const endpoints: GenerateApiMultipleOptions = {
             url: "http://api.com/products/swagger.json",
         },
     ],
+    authorizationToken: autToken,
+    wordMapForReplacingInTypeNames: {'ExtraLongWord':'ELW'}
     ...
 };
 

@@ -18,5 +18,6 @@ export interface GenerateApiEndpoint {
 }
 
 export interface GenerateMultipleApiOptions extends Omit<GenerateApiOptions, 'url'> {
-    endpoints: GenerateApiEndpoint[]
+    endpoints: GenerateApiEndpoint[],
+    wordMapForReplacingInTypeNames?: Record<string, string>
 }

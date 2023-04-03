@@ -139,8 +139,15 @@ export const useNameModifiers = () => {
     }
 
 
-    const formatTypeName = (typeName: string) => {
-        return checkAndAddUniqueName(types, typeName)
+    const formatTypeName = (typeName: string, replaceWordsMap?: Record<string, string>) => {
+        let res = checkAndAddUniqueName(types, typeName)
+
+        if (replaceWordsMap)
+            Object.entries(replaceWordsMap).forEach(
+                ([key, value]) => (res = res.replace(key, value))
+            );
+
+        return res;
     }
 
     const formatRouteData = (options: GenerateApiEndpoint, routeData: ParsedRoute) => {
