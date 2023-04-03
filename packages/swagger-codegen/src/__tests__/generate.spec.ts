@@ -1,9 +1,9 @@
 import { generateApi } from "swagger-typescript-api";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { generate, generateMultiple } from "./generate";
+import { generate, generateMultiple } from "../generate";
 import fs from "fs";
 import path from "path";
-import { GenerateMultipleApiOptions } from "./types";
+import { GenerateMultipleApiOptions } from "../types";
 
 vi.mock('swagger-typescript-api', () => {
     const generateApi = vi.fn();
@@ -37,7 +37,7 @@ const getDefaultOptions = () => ({
     modular: true,
     moduleNameFirstTag: true,
     name: "api.ts",
-    templates: path.resolve(__dirname, "../src/templates"),
+    templates: path.resolve(__dirname, "../../src/templates"),
     output: path.resolve(process.cwd(), "./src/__generated__")
 })
 
@@ -83,14 +83,16 @@ describe("Generate", () => {
             ...getDefaultOptions(),
             url: options.endpoints[0].url,
             deleteHttpClient: false,
-            output: path.resolve(process.cwd(), `./src/__generated__/${options.endpoints[0].name}`)
+            output: path.resolve(process.cwd(), `./src/__generated__/${options.endpoints[0].name}`),
+            hooks: expect.objectContaining({})
         }))
 
         expect(generateApi).toHaveBeenCalledWith(expect.objectContaining({
             ...getDefaultOptions(),
             url: options.endpoints[1].url,
             deleteHttpClient: true,
-            output: path.resolve(process.cwd(), `./src/__generated__/${options.endpoints[1].name}`)
+            output: path.resolve(process.cwd(), `./src/__generated__/${options.endpoints[1].name}`),
+            hooks: expect.objectContaining({})
         }))
 
         expect(generateApi).toHaveBeenCalledWith(expect.objectContaining({
@@ -98,7 +100,8 @@ describe("Generate", () => {
             url: options.endpoints[2].url,
             deleteHttpClient: true,
             typeSuffix: 'V2',
-            output: path.resolve(process.cwd(), `./src/__generated__/${options.endpoints[2].name}`)
+            output: path.resolve(process.cwd(), `./src/__generated__/${options.endpoints[2].name}`),
+            hooks: expect.objectContaining({})
         }))
 
         expect(generateApi).toHaveBeenCalledWith(expect.objectContaining({
@@ -106,7 +109,8 @@ describe("Generate", () => {
             url: options.endpoints[3].url,
             deleteHttpClient: true,
             typePrefix: 'Test3_',
-            output: path.resolve(process.cwd(), `./src/__generated__/${options.endpoints[3].name}`)
+            output: path.resolve(process.cwd(), `./src/__generated__/${options.endpoints[3].name}`),
+            hooks: expect.objectContaining({})
         }))
 
         const indexContent = `export * from "./test";\nexport * from "./test1";\nexport * from "./test2";\nexport * from "./test3";\n`

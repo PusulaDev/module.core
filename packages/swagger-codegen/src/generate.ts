@@ -61,7 +61,7 @@ export const generate = async (options: GenerateApiOptions) => {
 
 
 export const generateMultiple = async (options: GenerateMultipleApiOptions) => {
-    const { endpoints, hooks = {}, ...restOptions } = options;
+    const { endpoints, wordMapForReplacingInTypeNames, hooks = {}, ...restOptions } = options;
     const { onFormatTypeName, onCreateRoute, ...otherHooks } = hooks;
     const output = path.resolve(process.cwd(), `./src/__generated__`);
 
@@ -77,7 +77,7 @@ export const generateMultiple = async (options: GenerateMultipleApiOptions) => {
             output: path.join(output, endpoint.name),
             hooks: {
                 onFormatTypeName: (typeName, rawTypeName, schemaType) => {
-                    const res = formatTypeName(typeName);
+                    const res = formatTypeName(typeName, wordMapForReplacingInTypeNames);
                     return hooks.onFormatTypeName ? hooks.onFormatTypeName(res, rawTypeName, schemaType) : res
                 },
                 onCreateRoute: (routeData) => {
