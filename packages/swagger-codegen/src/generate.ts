@@ -75,8 +75,14 @@ export const generateMultiple = async (options: GenerateMultipleApiOptions) => {
             deleteHttpClient: !!i,
             output: path.join(output, endpoint.name),
             hooks: {
-                onFormatTypeName: (typeName) => formatTypeName(typeName),
-                onCreateRoute: (routeData) => formatRouteData(endpoint, routeData),
+                onFormatTypeName: (typeName, rawTypeName, schemaType) => {
+                    const res = formatTypeName(typeName);
+                    return hooks.onFormatTypeName ? hooks.onFormatTypeName(res, rawTypeName, schemaType) : res
+                },
+                onCreateRoute: (routeData) => {
+                    const res = formatRouteData(endpoint, routeData);
+                    return hooks.onCreateRoute ? hooks.onCreateRoute(res) : routeData;
+                },
                 ...hooks
             }
         }
