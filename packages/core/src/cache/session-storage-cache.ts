@@ -1,5 +1,4 @@
 import { globalModule } from "../global-module";
-import { sessionStorageUtil } from "@pusula/utils";
 import type { ICache } from "./index";
 
 export class SessionStorageCache implements ICache {
@@ -10,11 +9,11 @@ export class SessionStorageCache implements ICache {
 
         stringValue = globalModule.getEncryptionUtil()?.encrypt(stringValue) ?? stringValue;
 
-        sessionStorageUtil.setItem(key, stringValue);
+        window.sessionStorage.setItem(key, stringValue);
     }
 
     get<T>(key: string) {
-        let value = sessionStorageUtil.getItem(key);
+        let value = window.sessionStorage.getItem(key);
         if (!value) return null;
 
         value = globalModule.getEncryptionUtil()?.decrypt(value) ?? value;
@@ -23,10 +22,10 @@ export class SessionStorageCache implements ICache {
     }
 
     remove(key: string) {
-        sessionStorageUtil.removeItem(key);
+        window.sessionStorage.removeItem(key);
     }
 
     clear() {
-        sessionStorageUtil.clear();
+        window.sessionStorage.clear();
     }
 }
