@@ -5,7 +5,7 @@ import {
     ICoreModule,
     IProvider,
     IProviderConstructor,
-    MemoryCache
+    MemoryCache,
 } from "../index";
 import type { DependencyType } from "../module";
 
@@ -31,6 +31,10 @@ export const createMock = (
             key,
         });
 
+    const mockInstance = <T extends object>(instance: T, key: string) => {
+        module.registerInstance(instance, key);
+    };
+
     const get = <T extends IClassConstructor>(key: string) => module.resolve<T>(key);
 
     const clear = () => {
@@ -46,6 +50,7 @@ export const createMock = (
         mockSessionCache,
         mockProvider,
         mock,
+        mockInstance,
         getCache,
         getProvider,
         get,

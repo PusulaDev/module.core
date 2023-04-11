@@ -2,7 +2,7 @@ import type { ILocalization, LocalizationTranslations, TranslateArgs, Translatio
 import _get from "lodash.get";
 import { ensureObject } from "../utils";
 
-class DefaultLocalization implements ILocalization {
+class DefaultLocalization implements ILocalization<LocalizationTranslations> {
     private lang = "";
     private translations: LocalizationTranslations = {};
 
@@ -24,6 +24,10 @@ class DefaultLocalization implements ILocalization {
         }
 
         return this;
+    }
+
+    getTranslations(): LocalizationTranslations {
+        return this.translations;
     }
 
     translate(key: string, args?: TranslateArgs): string {

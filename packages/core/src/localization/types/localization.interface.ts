@@ -1,10 +1,11 @@
 export type TranslateArgs = unknown[] | Record<string, unknown>;
 
-export type ILocalization = {
+export type ILocalization<Translations = unknown> = {
     setLang(lang: string): ILocalization;
     getLang(): string | null;
 
-    setTranslations(translations: any): ILocalization;
+    setTranslations(translations: Translations): ILocalization;
+    getTranslations(): Translations;
 
     /**
      * translate with registered translations
