@@ -30,6 +30,12 @@ import type { DependencyResolveOptions } from "./resolve-options";
 import { ensureDependenyOptions } from "../utils/ensure-object.util";
 import type { CreateInstanceOptions } from "./create-instance-options";
 
+export interface DependencyErrorOptions {
+    key: string;
+    parent?: string;
+    path?: string[];
+}
+
 export class CoreModule implements ICoreModule {
     private readonly providerSuffix = "Provider";
     private readonly clientSuffix = "HttpClient";
@@ -105,6 +111,12 @@ export class CoreModule implements ICoreModule {
     registerInstance<T extends object>(obj: T, key?: string) {
         const name: string = this.getName(key ?? obj.constructor.name);
         this.instances.others.set(name, obj);
+        return this;
+    }
+
+    registerProviderInstance<T extends IProvider>(obj: T, key?: string) {
+        const name: string = this.getName(key ?? obj.constructor.name);
+        this.instances.providers.set(name, obj);
         return this;
     }
 
@@ -232,7 +244,11 @@ export class CoreModule implements ICoreModule {
             const instanceFromGlobal = this.resolveFromGlobal<IHTTPClient>(name, options);
             if (instanceFromGlobal) return instanceFromGlobal;
 
-            this.throwNotRegisteredError(name, options.parentName);
+            this.throwNotRegisteredError({
+                key: name,
+                parent: options.parentName,
+                path: options.path,
+            });
         }
 
         const instance = new constructorObj.constructor(constructorObj.options);
@@ -289,7 +305,11 @@ export class CoreModule implements ICoreModule {
         if (!options.path) options.path = [];
 
         if (options.path.includes(name)) {
-            this.throwCycleDependencyError(name, options.parentName);
+            this.throwCycleDependencyError({
+                key: name,
+                parent: options.parentName,
+                path: options.path,
+            });
         }
 
         options.path.push(name);
@@ -314,7 +334,11 @@ export class CoreModule implements ICoreModule {
             if (instanceFromGlobal) return instanceFromGlobal as T;
 
             if (options.dontThrowIfNotFound) return undefined as T;
-            this.throwNotRegisteredError(name, dependencyOptions.parentName);
+            this.throwNotRegisteredError({
+                key: name,
+                parent: dependencyOptions.parentName,
+                path: options.path,
+            });
         }
 
         this.checkAndPushPath(name, dependencyOptions);
@@ -388,21 +412,23 @@ export class CoreModule implements ICoreModule {
         return this.getName(key).includes(this.clientSuffix);
     }
 
-    private throwNotRegisteredError(key: string, parent?: string): never {
+    private throwNotRegisteredError({ key, parent, path }: DependencyErrorOptions): never {
         throw new CustomModuleError({
             type: EnumCustomErrorType.Construction,
             message: EnumLocalizationKeys.NotRegisteredError,
             translateArgs: parent ? [key, parent] : [key],
             translate: true,
+            details: path ? `path: ${path.join(", ")}` : undefined,
         });
     }
 
-    private throwCycleDependencyError(key: string, parent?: string): never {
+    private throwCycleDependencyError({ key, parent, path }: DependencyErrorOptions): never {
         throw new CustomModuleError({
             type: EnumCustomErrorType.Construction,
             message: EnumLocalizationKeys.CycleDependencyError,
             translateArgs: parent ? [key, parent] : [key],
             translate: true,
+            details: path ? `path: ${path.join(", ")}` : undefined,
         });
     }
 }

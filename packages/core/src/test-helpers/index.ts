@@ -23,6 +23,9 @@ export const createMock = (
     const mockProvider = <T extends IProvider>(provider: IProviderConstructor<T>, key: string) =>
         module.registerProvider(provider, { key });
 
+    const mockProviderInstance = <T extends IProvider>(instance: T, key: string) =>
+        module.registerProviderInstance(instance, key);
+
     const getProvider = <T extends IProvider>(key: string) => module.resolveProvider<T>(key);
 
     const mock = <T>(constructor: IClassConstructor<T>, key: string, dependencies?: DependencyType[]) =>
@@ -51,6 +54,7 @@ export const createMock = (
         mockProvider,
         mock,
         mockInstance,
+        mockProviderInstance,
         getCache,
         getProvider,
         get,

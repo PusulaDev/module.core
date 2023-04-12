@@ -65,6 +65,7 @@ export type ICoreModule = object & {
     register: <T>(constructor: IClassConstructor<T>, options?: RegisterClassOptions) => ICoreModule;
 
     registerInstance: <T extends object>(obj: T, key?: string) => ICoreModule;
+    registerProviderInstance: <T extends IProvider>(obj: T, key?: string) => ICoreModule;
 
     registerHttpClient: (client: IHTTPClientConstuctor, options: IHTTPClientOptions) => ICoreModule;
 
