@@ -6,6 +6,7 @@ import type { CustomErrorConstructorOptions, ICustomError } from "./types";
 export class CustomError extends Error implements ICustomError {
     layer: EnumAppLayer;
     type: EnumCustomErrorType;
+    details?: string;
     children?: Error[];
 
     constructor(options: CustomErrorConstructorOptions) {
@@ -19,6 +20,7 @@ export class CustomError extends Error implements ICustomError {
         this.layer = options.layer;
         this.type = options.type;
         this.children = options.children;
+        this.details = options.details;
 
         globalModule.onCustomErrorCreated(this);
     }
