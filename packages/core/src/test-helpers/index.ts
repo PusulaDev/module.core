@@ -27,8 +27,8 @@ export const createMock = (
         key: string | IClassConstructor
     ) => module.registerProvider(provider, { key: getName(key) });
 
-    const mockProviderInstance = <T extends IProvider>(instance: T, key: string | IClassConstructor) =>
-        module.registerProviderInstance(instance, getName(key));
+    const mockProviderInstance = <T extends object>(instance: T, key: string | IClassConstructor) =>
+        module.registerProviderInstance(instance as IProvider, getName(key));
 
     const getProvider = <T extends IProvider>(key: string) => module.resolveProvider<T>(key);
 
