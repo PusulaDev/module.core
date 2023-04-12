@@ -6,6 +6,7 @@ export type CustomErrorConstructorOptions = {
     layer: EnumAppLayer;
     type: EnumCustomErrorType;
     message?: string;
+    details?: string;
     translate?: boolean;
     translateArgs?: TranslateArgs;
     children?: Error[];

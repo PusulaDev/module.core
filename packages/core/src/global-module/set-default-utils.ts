@@ -3,7 +3,7 @@ import {
     defaultCloneUtil,
     defaultDateUtil,
     defaultEncryptUtil,
-    defaultLocalization
+    defaultLocalization,
 } from "../index";
 import { globalModule } from "./global-module";
 

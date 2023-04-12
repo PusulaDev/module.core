@@ -23,6 +23,19 @@ describe("Default Localization", () => {
         expect(res).toBe("Merhaba");
     });
 
+    it("should return the translations at getTranslations method", () => {
+        const translations = {
+            tr: {
+                hello: "Merhaba",
+            },
+        };
+
+        defaultLocalization.setTranslations(translations);
+        const result = defaultLocalization.getTranslations();
+
+        expect(result).toEqual(translations);
+    });
+
     it("should access deep object and translate", () => {
         defaultLocalization.setLang("tr");
         defaultLocalization.setTranslations({
@@ -109,7 +122,7 @@ describe("Default Localization", () => {
         expect(res).toBe("Elma Yok");
     });
 
-    it("should return empty string for non existence translation", () => {
+    it("should return key for non existence translation", () => {
         defaultLocalization.setLang("en");
 
         const res = defaultLocalization.translate("Test");
@@ -136,6 +149,4 @@ describe("Default Localization", () => {
         expect(hi).toBe("hi");
         expect(by).toBe("by");
     });
-
-    it;
 });
