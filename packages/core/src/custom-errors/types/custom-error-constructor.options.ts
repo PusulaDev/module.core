@@ -1,13 +1,8 @@
 import type { TranslateArgs } from "../../localization";
-import type { EnumAppLayer } from "../../shared";
-import type { EnumCustomErrorType } from "../index";
+import type { ICustomError } from "../index";
 
-export type CustomErrorConstructorOptions = {
-    layer: EnumAppLayer;
-    type: EnumCustomErrorType;
-    message?: string;
-    details?: string;
+export interface CustomErrorConstructorOptions extends ICustomError {
+    message: string;
     translate?: boolean;
     translateArgs?: TranslateArgs;
-    children?: Error[];
-};
+}

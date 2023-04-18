@@ -7,17 +7,22 @@ import {
     type IHTTPClient,
     type IHTTPClientOptions,
 } from "./index";
-import { CustomHttpClientError, CustomServerError, EnumCustomErrorType } from "../custom-errors";
+import { CustomError, CustomHttpClientError, CustomServerError, EnumCustomErrorType } from "../custom-errors";
 import type { RequestOptions } from "./types";
 import { globalModule } from "../global-module";
+import type { RetryOnErrorOptions } from "./types/retry-on-error-options";
 
 export class FetchHTTPClient implements IHTTPClient {
-    private baseUrl: string;
+    private readonly baseUrl: string;
     private headers?: Record<string, string>;
-    private createErrorFn?: IHTTPClientOptions["createErrorFn"];
+    private readonly createErrorFn?: IHTTPClientOptions["createErrorFn"];
     private pendingRequests = new Map<string, Promise<Response>>();
-    private preventRequestDuplication?: boolean;
-    private responseFormat: EnumResponseFormat | undefined;
+    private readonly preventRequestDuplication?: boolean;
+    private readonly responseFormat?: EnumResponseFormat;
+    private readonly retryOnErrorOptions?: RetryOnErrorOptions;
+    private readonly defaultRetryCount = 3;
+
+    private requestRetryCounts = new Map<string, number>();
 
     constructor(options: IHTTPClientOptions) {
         this.baseUrl = this.createBaseUrl(options);
@@ -25,6 +30,7 @@ export class FetchHTTPClient implements IHTTPClient {
         this.createErrorFn = options.createErrorFn;
         this.preventRequestDuplication = options.preventRequestDuplication;
         this.responseFormat = options.responseFormat;
+        this.retryOnErrorOptions = options.retryOnErrorOptions;
     }
 
     createAbortController() {
@@ -44,15 +50,45 @@ export class FetchHTTPClient implements IHTTPClient {
         const key = this.createKey(url, method, data);
 
         try {
-            return await this.handleRequest({
+            const res = await this.handleRequest({
                 url,
                 data,
                 options,
                 key,
                 method,
             });
+            this.requestRetryCounts.delete(key);
+            return res;
         } catch (e) {
-            this.handleError(e, url);
+            return this.handleErrorWithRetry(e as CustomError, { key, url, data, method, options });
+        }
+    }
+
+    private async handleErrorWithRetry<TRequest, TResponse = undefined>(
+        e: CustomError,
+        requestOptions: {
+            url: string;
+            method: EnumRequestMethod;
+            data?: TRequest;
+            options?: RequestOptions;
+            key: string;
+        }
+    ): Promise<TResponse | undefined> {
+        const { url, key, options, data, method } = requestOptions;
+
+        const count = this.requestRetryCounts.get(key) ?? 0;
+        const maxRetryCount = this.retryOnErrorOptions?.maxRetryCount ?? this.defaultRetryCount;
+
+        if (
+            count < maxRetryCount &&
+            this.retryOnErrorOptions?.retryCondition({ error: e, url, data, method })
+        ) {
+            await this.retryOnErrorOptions?.beforeRetry({ error: e, url, data, method });
+            this.requestRetryCounts.set(key, count + 1);
+            return this.request(url, method, data, options);
+        } else {
+            this.requestRetryCounts.delete(key);
+            this.handleError(e, key);
         }
     }
 
@@ -301,7 +337,12 @@ export class FetchHTTPClient implements IHTTPClient {
         if (this.createErrorFn) throw await this.createErrorFn(response);
 
         const body = response.body ? ` ${String(response.body)}` : "";
-        throw new Error(`${response.status}: ${response.statusText}.${body}`);
+        const message = `${response.status}: ${response.statusText}.${body}`;
+
+        throw new CustomServerError({
+            message,
+            code: response.status.toString(),
+        });
     }
 
     private handleError(error: unknown, key: string) {
@@ -310,6 +351,7 @@ export class FetchHTTPClient implements IHTTPClient {
         if (error instanceof DOMException && error.name == "AbortError")
             throw new CustomHttpClientError({
                 type: EnumCustomErrorType.AbortedRequest,
+                message: "Aborted request",
             });
 
         throw new CustomServerError({ message: (error as Error).message });

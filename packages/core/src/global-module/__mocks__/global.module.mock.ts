@@ -31,6 +31,10 @@ class Testlocalization implements ILocalization {
         return this;
     }
 
+    getTranslations(){
+
+    }
+
     translate(_: string) {
         return "";
     }

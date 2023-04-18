@@ -1,3 +1,5 @@
+import "vitest-fetch-mock";
+
 export const mockFetchJSONResponse = (value: object) => {
     fetchMock.mockOnce(() => new Promise((resolve) => resolve(JSON.stringify(value))));
 };
@@ -12,6 +14,25 @@ export const mockFetchResponseWithError = (
     bodyErrorMessage?: string
 ) => {
     fetchMock.mockOnce(
+        () =>
+            new Promise((resolve) =>
+                resolve({
+                    body: bodyErrorMessage,
+                    init: {
+                        status,
+                        statusText,
+                    },
+                })
+            )
+    );
+};
+
+export const mockFetchAllResponseWithError = (
+    status: number,
+    statusText?: string,
+    bodyErrorMessage?: string
+) => {
+    fetchMock.mockResponse(
         () =>
             new Promise((resolve) =>
                 resolve({
