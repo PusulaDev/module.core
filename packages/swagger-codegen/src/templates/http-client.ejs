@@ -5,15 +5,17 @@ const { apiConfig } = it;
 import { FetchHTTPClient, IHTTPClientOptions } from "@pusula/module.core";
 import { createError } from "../utils"
 
-export const createHttpClient = (options: Pick<IHTTPClientOptions, "protocol"|"baseUrl">) => {
+export const createHttpClient = (options: IHTTPClientOptions) => {
+    const { protocol, baseUrl, ...restOptions } = options;
     const coreHttpClient = new FetchHTTPClient({
-        protocol: options.protocol,
-        baseUrl: options.baseUrl,
+        protocol: protocol,
+        baseUrl: baseUrl,
         preventRequestDuplication: true,
         headers: {
             'content-type': 'application/json',
         },
         createErrorFn: createError,
+        ...restOptions
     });
 
     return coreHttpClient;
