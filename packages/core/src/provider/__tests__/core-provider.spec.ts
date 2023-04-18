@@ -203,8 +203,16 @@ describe("Data Provider", () => {
         const secondRequest = provider.post(config, { search: "tes" }, { raceId: "1" });
         const response = provider.post(config, { search: "test" }, { raceId: "1" });
 
-        await expect(async () => await firstRequest).rejects.toEqual(new CustomServerError());
-        await expect(async () => await secondRequest).rejects.toEqual(new CustomServerError());
+        await expect(() => firstRequest).rejects.toEqual(
+            new CustomServerError({
+                message: "Aborted request",
+            })
+        );
+        await expect(() => secondRequest).rejects.toEqual(
+            new CustomServerError({
+                message: "Aborted request",
+            })
+        );
 
         const res = await response;
         expect(res).toEqual({ id: 12 });
@@ -360,7 +368,10 @@ describe("Data Provider", () => {
         controller.abort("test");
 
         await expect(() => promise).rejects.toEqual(
-            new CustomHttpClientError({ type: EnumCustomErrorType.AbortedRequest })
+            new CustomHttpClientError({
+                type: EnumCustomErrorType.AbortedRequest,
+                message: "Aborted request",
+            })
         );
     });
 });

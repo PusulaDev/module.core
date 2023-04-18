@@ -8,6 +8,7 @@ export class CustomError extends Error implements ICustomError {
     type: EnumCustomErrorType;
     details?: string;
     children?: Error[];
+    code?: string;
 
     constructor(options: CustomErrorConstructorOptions) {
         let message = options.message;
@@ -21,6 +22,9 @@ export class CustomError extends Error implements ICustomError {
         this.type = options.type;
         this.children = options.children;
         this.details = options.details;
+        this.code = options.code;
+
+        if (options.stack) this.stack = options.stack;
 
         globalModule.onCustomErrorCreated(this);
     }
