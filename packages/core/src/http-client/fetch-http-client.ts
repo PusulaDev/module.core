@@ -14,13 +14,13 @@ import type { RetryOnErrorOptions } from "./types/retry-on-error-options";
 
 export class FetchHTTPClient implements IHTTPClient {
     private readonly baseUrl: string;
-    private headers?: Record<string, string>;
     private readonly createErrorFn?: IHTTPClientOptions["createErrorFn"];
-    private pendingRequests = new Map<string, Promise<Response>>();
     private readonly preventRequestDuplication?: boolean;
     private readonly responseFormat?: EnumResponseFormat;
-    private readonly retryOnErrorOptions?: RetryOnErrorOptions;
     private readonly defaultRetryCount = 3;
+    private retryOnErrorOptions?: RetryOnErrorOptions;
+    private pendingRequests = new Map<string, Promise<Response>>();
+    private headers?: Record<string, string>;
 
     private requestRetryCounts = new Map<string, number>();
 
@@ -31,6 +31,10 @@ export class FetchHTTPClient implements IHTTPClient {
         this.preventRequestDuplication = options.preventRequestDuplication;
         this.responseFormat = options.responseFormat;
         this.retryOnErrorOptions = options.retryOnErrorOptions;
+    }
+
+    setRetryOnErrorOptions(options: RetryOnErrorOptions) {
+        this.retryOnErrorOptions = options;
     }
 
     createAbortController() {
