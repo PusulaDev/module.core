@@ -132,6 +132,12 @@ describe("Global Module", () => {
         expect(isCalled).toBe(true);
     });
 
+    it("should turn on translate at custom error", () => {
+        globalModule.useTranslateAsDefault();
+
+        expect(globalModule.isTranslateDefault).toBe(true);
+    });
+
     it("should clear", () => {
         globalModule.setLocalization(mockLocalization);
         globalModule.setCloneUtil(mockCloneUtil);
@@ -140,6 +146,7 @@ describe("Global Module", () => {
         globalModule.setDateUtil(mockDateUtil);
         globalModule.setObserver(MockObserver);
         globalModule.addToSharedHeaders({ test: "1" });
+        globalModule.useTranslateAsDefault();
 
         const key = "Module1";
         const module = createModule(key);
@@ -155,6 +162,7 @@ describe("Global Module", () => {
         const dateUtil = globalModule.getDateUtil();
         const observer = globalModule.createObserver<string>();
         const headers = globalModule.getSharedHeaders();
+        const isTranslateDefault = globalModule.isTranslateDefault;
 
         expect(localization).toBe(null);
         expect(clone).toBe(null);
@@ -164,5 +172,6 @@ describe("Global Module", () => {
         expect(resolvedModule).toBe(undefined);
         expect(observer).toBe(undefined);
         expect(headers).toEqual({});
+        expect(isTranslateDefault).toBe(false);
     });
 });

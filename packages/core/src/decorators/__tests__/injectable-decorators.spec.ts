@@ -105,6 +105,60 @@ describe("Injectable Decorators", () => {
         expect(provider).toBeInstanceOf(TestProvider);
     });
 
+    it("should register provider with client as string", () => {
+        const module = createAndUseInject();
+        module.registerHttpClient(TestHttpClient, {});
+
+        class Test {
+        }
+
+        module.register(Test);
+
+        @injectable.provider({ key: "test_p", client: "TestHttpClient" })
+        class TestProvider implements IProvider {
+            test: Test;
+            client: IHTTPClient;
+
+            constructor(client: IHTTPClient, test: Test) {
+                this.test = test;
+                this.client = client;
+            }
+
+            async get() {
+                return null as any;
+            }
+
+            async post() {
+                return null as any;
+            }
+
+            async put() {
+                return null as any;
+            }
+
+            async delete() {
+                return null as any;
+            }
+
+            async patch() {
+                return null as any;
+            }
+
+            async request() {
+                return null as any;
+            }
+
+            async upload() {
+                return null as any;
+            }
+        }
+
+        const provider = module.resolveProvider<TestProvider>("test_p");
+        expect(provider).toBeInstanceOf(TestProvider);
+        expect(provider?.client).toBeInstanceOf(TestHttpClient);
+        expect(provider?.test).toBeInstanceOf(Test);
+    });
+
     it("should register provider with options and dependencies", () => {
         const module = createAndUseInject();
         module.registerHttpClient(TestHttpClient, {});
