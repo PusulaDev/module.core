@@ -21,7 +21,7 @@ export type RegisterClassOptions = {
 
 export type RegisterProviderOptions = {
     key?: string;
-    client?: IHTTPClientConstuctor;
+    client?: IHTTPClientConstuctor | string;
 } & RegisterClassOptions;
 
 export type RegisterControllerOptions = {

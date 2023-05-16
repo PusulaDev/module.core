@@ -20,6 +20,7 @@ class GlobalModule {
     private observer: (new () => IObserver<any>) | null = null;
     private sharedHeaders: Record<string, string> = {};
     private customErrorListener: ((error: Error) => void) | null = null;
+    private _isTranslateDefault = false;
 
     private createNotRegisteredErrorMessage(type: string) {
         const message = `${type} is not registered`;
@@ -27,6 +28,14 @@ class GlobalModule {
             type: EnumCustomErrorType.Construction,
             message,
         });
+    }
+
+    get isTranslateDefault() {
+        return this._isTranslateDefault;
+    }
+
+    useTranslateAsDefault() {
+        this._isTranslateDefault = true;
     }
 
     setCustomErrorListener(method: (error: Error) => void) {
@@ -166,6 +175,7 @@ class GlobalModule {
         this.dateUtil = null;
         this.observer = null;
         this.sharedHeaders = {};
+        this._isTranslateDefault = false;
         this.modules.clear();
     }
 }

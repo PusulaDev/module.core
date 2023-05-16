@@ -13,7 +13,9 @@ export class CustomError extends Error implements ICustomError {
     constructor(options: CustomErrorConstructorOptions) {
         let message = options.message;
 
-        if (options.translate)
+        const shouldTranslate = options.translate || globalModule.isTranslateDefault;
+
+        if (shouldTranslate)
             message =
                 globalModule.getLocalization()?.translate(options.message ?? "", options.translateArgs) ?? "";
 
