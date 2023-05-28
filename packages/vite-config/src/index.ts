@@ -1,11 +1,11 @@
 import type { PluginOption, UserConfig } from "vite";
 import type { UserConfig as VitestUserConfig } from "vitest/config";
-import dts from "vite-plugin-dts";
 // @ts-ignore
 import peerDepsExternal from "rollup-plugin-peer-deps-external";
 import swc from "./swc";
 import { resolve } from "path";
 import { JscTarget, ModuleConfig } from "@swc/core";
+import { exec } from "child_process";
 
 export type Options = UserConfig & {
     /**
@@ -22,7 +22,18 @@ export type Options = UserConfig & {
      * default: es2018
      */
     target?: JscTarget
+    tsconfig?: string
 };
+
+function tscPlugin(config?: { tsconfig: string }) {
+    const tsConfigName = config?.tsconfig ?? "./tsconfig.json"
+    return {
+        name: "tsc-plugin",
+        async writeBundle() {
+            exec(`tsc --declaration --emitDeclarationOnly --declarationDir dist --project ${tsConfigName}`);
+        },
+    };
+}
 
 export const createViteConfig = (
     options: Options = { emitDecoratorMetaData: true, module: { type: "es6" }, target: "es2018" }
@@ -33,6 +44,7 @@ export const createViteConfig = (
     const {
         entryPath = deafultEntry,
         emitDecoratorMetaData,
+        tsconfig,
         plugins: optionPlugins,
         ...otherOptions
     } = options;
@@ -41,9 +53,8 @@ export const createViteConfig = (
         options.entryPath ?? resolve(process.cwd(), "./src/index.ts");
 
     const plugins = [
-        dts({
-            insertTypesEntry: true,
-            exclude: excludedRoutes,
+        tscPlugin({
+            tsconfig
         }),
         peerDepsExternal(),
         ...(optionPlugins ?? []),
