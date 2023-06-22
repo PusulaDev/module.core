@@ -8,7 +8,7 @@ export enum EnumCustomErrorType {
     BusinessLogic = "BusinessLogic",
     Permission = "Permission",
     Navigation = "Navigation",
-    ActionPermission = "Permission",
-    NavigationPermission = "Permission",
+    ActionPermission = "ActionPermission",
+    NavigationPermission = "NavigationPermission",
     Application = "Application",
 }
