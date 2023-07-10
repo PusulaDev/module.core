@@ -5,4 +5,5 @@ export type ProviderRequestOptions = {
     headers?: Record<string, string>;
     responseFormat?: EnumResponseFormat;
     abortController?: IAbortController;
+    invalidateCache?: boolean;
 };
