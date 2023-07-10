@@ -87,6 +87,8 @@ export class CoreProvider implements IProvider {
                 message: "'cache' property must be defined.",
             });
 
+        if (options?.invalidateCache) this.cache.remove(config.cacheKey);
+
         const cached = this.getFromCache<TResponse>(config.cacheKey);
         if (cached != undefined) return cached;
 

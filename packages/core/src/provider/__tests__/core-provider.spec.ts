@@ -285,7 +285,7 @@ describe("Data Provider", () => {
         expect(fetch).toBeCalledTimes(1);
     });
 
-    it("should get values from cache when cachableGet is called second time", async () => {
+    it("should call fetch if invalidate cache true ", async () => {
         const mockResponse = [{ id: 1 }, { id: 2 }];
         mockFetchJSONResponse(mockResponse);
 
@@ -304,11 +304,11 @@ describe("Data Provider", () => {
 
         mockFetchJSONResponse([]);
 
-        const secondResponse = await provider.cachableGet(config);
+        const secondResponse = await provider.cachableGet(config, undefined, { invalidateCache: true });
 
         expect(firstResponse).toEqual(mockResponse);
-        expect(secondResponse).toEqual(mockResponse);
-        expect(fetch).toBeCalledTimes(1);
+        expect(secondResponse).toEqual([]);
+        expect(fetch).toBeCalledTimes(2);
     });
 
     it("should validate request with validation function", async () => {
