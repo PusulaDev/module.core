@@ -358,7 +358,15 @@ export class FetchHTTPClient implements IHTTPClient {
                 message: "Aborted request",
             });
 
-        throw new CustomServerError({ message: (error as Error).message });
+        if (error instanceof CustomError) {
+            throw new CustomServerError({ message: error.message, code: error.code, details: error.details });
+        }
+
+        if (error instanceof Error) {
+            throw new CustomServerError({ message: error.message });
+        }
+
+        throw new CustomServerError({ message: JSON.stringify(error) });
     }
 
     private createBaseUrl(options: IHTTPClientOptions): string {

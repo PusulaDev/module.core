@@ -19,7 +19,7 @@ class GlobalModule {
     private dateUtil: IDateUtil | null = null;
     private observer: (new () => IObserver<any>) | null = null;
     private sharedHeaders: Record<string, string> = {};
-    private customErrorListener: ((error: Error) => void) | null = null;
+    private customErrorListeners: ((error: Error) => void)[] = [];
     private _isTranslateDefault = false;
 
     private createNotRegisteredErrorMessage(type: string) {
@@ -39,11 +39,11 @@ class GlobalModule {
     }
 
     setCustomErrorListener(method: (error: Error) => void) {
-        this.customErrorListener = method;
+        this.customErrorListeners.push(method);
     }
 
     onCustomErrorCreated(error: Error) {
-        this.customErrorListener?.(error);
+        this.customErrorListeners.forEach((listener) => listener(error));
     }
 
     setLocalization(localization: ILocalization) {

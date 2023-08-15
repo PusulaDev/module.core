@@ -123,13 +123,16 @@ describe("Global Module", () => {
         expect(resolved).toBeInstanceOf(Test);
     });
 
-    it("should call custom error listener", () => {
+    it("should call custom error listeners", () => {
         let isCalled = false;
+        let isCalled2 = false;
         globalModule.setCustomErrorListener(() => (isCalled = true));
+        globalModule.setCustomErrorListener(() => (isCalled2 = true));
 
-        new CustomError({ layer: EnumAppLayer.Cache, type: EnumCustomErrorType.AbortedRequest });
+        new CustomError({ layer: EnumAppLayer.Cache, type: EnumCustomErrorType.AbortedRequest, message: "" });
 
         expect(isCalled).toBe(true);
+        expect(isCalled2).toBe(true);
     });
 
     it("should turn on translate at custom error", () => {
