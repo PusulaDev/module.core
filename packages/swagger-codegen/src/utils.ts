@@ -3,7 +3,7 @@ import { GenerateApiOutput, ParsedRoute } from "swagger-typescript-api";
 import fs from "fs";
 import { GenerateApiEndpoint } from "./types";
 
-export const httpClientFileName = "http-client.ts"
+export const httpClientFileName = "http-client"
 
 function capitalizeFirstLetter(string: string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -12,7 +12,7 @@ function capitalizeFirstLetter(string: string) {
 export const generateIndex = (data: GenerateApiOutput, output: string) => {
     const { files } = data;
 
-    const imports = files.map(({ fileName }) => `export * from "./${fileName.replace(".ts", "")}";`).join("\n");
+    const imports = files.map(({ fileName }) => `export * from "./${fileName}";`).join("\n");
 
     try {
         fs.writeFileSync(path.join(output, "index.ts"), imports + "\n");
@@ -29,7 +29,7 @@ export const deleteHttpClient = (data: GenerateApiOutput, output: string) => {
 
     if (!httpClientFile) return;
 
-    const filePath = path.join(output, httpClientFile.fileName);
+    const filePath = path.join(output, httpClientFile.fileName + httpClientFile.fileExtension);
 
     if (fs.existsSync(filePath)) {
         fs.rmSync(filePath);

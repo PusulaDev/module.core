@@ -11,6 +11,7 @@ import {
     useNameModifiers
 } from "./utils";
 import { GenerateApiOptions, GenerateMultipleApiOptions } from "./types";
+import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,6 +28,13 @@ export const generate = async (options: GenerateApiOptions) => {
     const { createModuleIfNotExists = true } = options;
 
     try {
+
+        if (fs.existsSync(defaultOutput)) {
+            console.info('Clearing output folder...');
+            fs.rmSync(defaultOutput, { recursive: true, force: true });
+            console.info('Cleared output folder.');
+        }
+
         const generateResult = await generateApi({
             httpClientType: "fetch",
             generateClient: true,
