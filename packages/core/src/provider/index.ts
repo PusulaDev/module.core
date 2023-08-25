@@ -1,5 +1,3 @@
-import { CoreProvider } from "./core-provider";
-
 export * from "./types";
-
-export { CoreProvider };
+export { CoreProvider } from "./core-provider";
+export { validate } from "./validator";

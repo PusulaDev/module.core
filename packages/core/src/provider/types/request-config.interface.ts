@@ -17,6 +17,23 @@ export type IRequestConfig<TRequest = undefined, TResponse = undefined> = {
      * throw error message if response invalid
      */
     validateResponse?: (res?: TResponse) => void | Promise<void>;
+    validationProperties?: ValidationProperty<TRequest>[];
+};
+
+export type ValidationProperty<T> = {
+    name: keyof T;
+    type: string;
+    rules: {
+        isRequired?: boolean;
+        maxLength?: number;
+        minLength?: number;
+        minimum?: number;
+        maximum?: number;
+        exclusiveMinimum?: boolean;
+        exclusiveMaximum?: boolean;
+        pattern?: string;
+        uniqueItems?: boolean;
+    };
 };
 
 export type ICachableRequestConfig<TRequest = undefined, TResponse = undefined> = IRequestConfig<
