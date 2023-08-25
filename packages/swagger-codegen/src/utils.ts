@@ -5,10 +5,14 @@ import { GenerateApiEndpoint } from "./types";
 
 export const httpClientFileName = "http-client.ts"
 
+function capitalizeFirstLetter(string: string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 export const generateIndex = (data: GenerateApiOutput, output: string) => {
     const { files } = data;
 
-    const imports = files.map(({ name }) => `export * from "./${name.replace(".ts", "")}";`).join("\n");
+    const imports = files.map(({ fileName }) => `export * from "./${fileName.replace(".ts", "")}";`).join("\n");
 
     try {
         fs.writeFileSync(path.join(output, "index.ts"), imports + "\n");
@@ -21,11 +25,11 @@ export const generateIndex = (data: GenerateApiOutput, output: string) => {
 };
 
 export const deleteHttpClient = (data: GenerateApiOutput, output: string) => {
-    const httpClientFile = data.files.find(e => e.name === httpClientFileName);
+    const httpClientFile = data.files.find(e => e.fileName === httpClientFileName);
 
     if (!httpClientFile) return;
 
-    const filePath = path.join(output, httpClientFile.name);
+    const filePath = path.join(output, httpClientFile.fileName);
 
     if (fs.existsSync(filePath)) {
         fs.rmSync(filePath);
@@ -114,33 +118,43 @@ export const useNameModifiers = () => {
     const types = new Set<string>();
     const providers = new Map<string, Set<string>>();
 
-    const checkAndMakeNameUnique = (list: Set<string>, name: string) => {
+    const checkAndMakeNameUnique = (options: GenerateApiEndpoint, list: Set<string>, name: string) => {
         let newName = name;
-        if (list.has(name)) {
-            const lastChar = name.charAt(name.length - 1);
-            const lastCharNumber = Number(lastChar);
-            const isNotNan = !Number.isNaN(lastCharNumber);
+        if (list.has(newName)) {
+            console.info(`Not unique, finding new for => ${newName} ...`)
 
-            if (isNotNan) {
-                newName = newName.replace(lastChar, '');
+            if (!newName.startsWith(options.name)) {
+                newName = `${options.name}${capitalizeFirstLetter(newName)}`;
+                console.info(`Trying new name  => ${newName} ...`)
+                newName = checkAndMakeNameUnique(options, list, newName)
             }
+            else {
+                const lastChar = name.charAt(name.length - 1);
+                const lastCharNumber = Number(lastChar);
+                const isNotNan = !Number.isNaN(lastCharNumber);
 
-            const count = isNotNan ? lastCharNumber + 1 : 2;
-            newName = `${newName}${count}`;
-            newName = checkAndMakeNameUnique(list, newName)
+                if (isNotNan) {
+                    newName = newName.replace(lastChar, '');
+                }
+
+                const count = isNotNan ? lastCharNumber + 1 : 2;
+                newName = `${newName}${count}`;
+                newName = checkAndMakeNameUnique(options, list, newName)
+            }
+            console.info(`Found new name  => ${newName} !`)
         }
         return newName;
     }
 
-    const checkAndAddUniqueName = (list: Set<string>, name: string) => {
-        const newName = checkAndMakeNameUnique(list, name);
+    const checkAndAddUniqueName = (options: GenerateApiEndpoint, list: Set<string>, name: string) => {
+        const newName = checkAndMakeNameUnique(options, list, name);
         list.add(newName);
         return newName;
     }
 
 
-    const formatTypeName = (typeName: string, replaceWordsMap?: Record<string, string>) => {
-        let res = checkAndAddUniqueName(types, typeName)
+    const formatTypeName = (options: GenerateApiEndpoint, typeName: string, replaceWordsMap?: Record<string, string>) => {
+        let res = checkAndAddUniqueName(options, types, typeName)
 
         if (replaceWordsMap)
             Object.entries(replaceWordsMap).forEach(
@@ -168,7 +182,8 @@ export const useNameModifiers = () => {
             return prev;
         }, new Set<string>())
 
-        routeData.namespace = checkAndMakeNameUnique(otherValues, routeData.namespace)
+
+        routeData.namespace = checkAndMakeNameUnique(options, otherValues, routeData.namespace)
 
         let currentSet = providers.get(name);
         if (!currentSet) {

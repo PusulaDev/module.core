@@ -1,18 +1,61 @@
 <%
-const {utils, route, config} = it;
+const { utils, route, config, modelTypes } = it;
 const { requestBodyInfo, responseBodyInfo, specificArgNameResolver } = route;
 const {_, getInlineParseContent, getParseContent, parseSchema, getComponentByRef, require} = utils;
 const { path, method, payload, query, formData, security, requestParams, pathParams } = route.request;
 
 const securityTmpl = security ? 'true' : null;
-let requestType = 'undefined';
+const requestTypes = [];
 
 if (payload)
-    requestType = payload.type;
-else if (requestParams)
-    requestType = getInlineParseContent(requestParams);
-else if (pathParams)
-    requestType = pathParams.type;
+{
+    requestTypes.push(payload.type)
+}
+
+if (requestParams)
+{
+    requestTypes.push(getInlineParseContent(requestParams))
+}
+
+if (pathParams)
+{
+    requestTypes.push(pathParams.type);
+}
+
+let validationProperties = [];
+
+const contracts = modelTypes.filter(e=> requestTypes.includes(e.name))
+
+contracts.forEach(contract => {
+    contract?.rawContent?.forEach(field => {
+        if(validationProperties.some(e=>e.name === field.name)) return;
+
+        const rules = {
+            isRequired: field.isRequired,
+            maxLength: field.maxLength,
+            minLength: field.minLength,
+            minimum: field.minimum,
+            maximum: field.maximum,
+            exclusiveMinimum: field.exclusiveMinimum,
+            exclusiveMaximum: field.exclusiveMaximum,
+            pattern: field.pattern,
+            uniqueItems: field.uniqueItems,
+        };
+
+        const hasAnyRule = Object.values(rules).some(e=>Boolean(e))
+        
+        if(hasAnyRule)
+            validationProperties.push({
+                name:field.name.replaceAll('"',''),
+                type:field.type,
+                rules
+            })
+    })
+})
+
+   
+
+let requestType = requestTypes.join(' & ') || 'undefined';
 
 const responseType = route.response.type;
 
@@ -41,4 +84,5 @@ const <% ~requestName %>Config: ICachableRequestConfig<<% ~requestType %>, <% ~r
   cacheKey: "<% ~requestName %>",
   <%~ bodyContentKindTmpl ? `headers : { [contentTypeKey]: ${bodyContentKindTmpl} },` : '' %>
   <%~ responseFormatTmpl ? `responseFormat: ${responseFormatTmpl},` : '' %>
+  <%~ validationProperties ? `validationProperties: ${JSON.stringify(validationProperties)},` : ''  %>
   };

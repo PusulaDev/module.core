@@ -69,6 +69,7 @@ export const generateMultiple = async (options: GenerateMultipleApiOptions) => {
 
     for (let i = 0; i < endpoints.length; i++) {
         const endpoint = endpoints[i];
+        console.info(`Started generating codes for service => ${endpoint.name}`)
 
         const options: GenerateApiOptions = {
             ...restOptions,
@@ -77,12 +78,12 @@ export const generateMultiple = async (options: GenerateMultipleApiOptions) => {
             output: path.join(output, endpoint.name),
             hooks: {
                 onFormatTypeName: (typeName, rawTypeName, schemaType) => {
-                    const res = formatTypeName(typeName, wordMapForReplacingInTypeNames);
+                    const res = formatTypeName(endpoint, typeName, wordMapForReplacingInTypeNames);
                     return hooks.onFormatTypeName ? hooks.onFormatTypeName(res, rawTypeName, schemaType) : res
                 },
                 onCreateRoute: (routeData) => {
                     const res = formatRouteData(endpoint, routeData);
-                    return hooks.onCreateRoute ? hooks.onCreateRoute(res) : routeData;
+                    return hooks.onCreateRoute ? hooks.onCreateRoute(res) : res;
                 },
                 ...otherHooks
             }
