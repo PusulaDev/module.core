@@ -31,16 +31,16 @@ class Testlocalization implements ILocalization {
         return this;
     }
 
-    getTranslations(){
+    getTranslations() {
 
     }
 
     translate(_: string) {
-        return "";
+        return _;
     }
 
     translatePlural(_: string, __: number) {
-        return "";
+        return _;
     }
 }
 

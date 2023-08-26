@@ -3,6 +3,7 @@ import type { IProvider } from "./index";
 import type { ICachableRequestConfig, IRequestConfig, ProviderRequestOptions } from "./types";
 import type { ICache } from "../cache";
 import { CustomProviderError, EnumCustomErrorType } from "../custom-errors";
+import { validateAndThrow } from "./validator";
 
 export class CoreProvider implements IProvider {
     protected baseUrl: string | null = null;
@@ -197,7 +198,13 @@ export class CoreProvider implements IProvider {
         data: TRequest | undefined
     ) {
         try {
-            await config.validateRequest?.(data);
+            if (config.validateRequest) {
+                await config.validateRequest?.(data);
+            }
+
+            if (config.validationProperties?.length) {
+                validateAndThrow({ value: data, properties: config.validationProperties });
+            }
         } catch (e) {
             throw new CustomProviderError({
                 type: EnumCustomErrorType.RequestValidation,

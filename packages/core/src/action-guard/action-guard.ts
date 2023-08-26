@@ -1,12 +1,12 @@
 import type { CustomError } from "../index";
-import type { ValidationResult } from "../shared";
+import type { ActionGuardValidationResult } from "../shared";
 
 export type ValidatorFunc<T> = (options: T) => boolean | Promise<boolean>;
 
 export class ActionGuard<T> {
-    constructor(private validator: ValidatorFunc<T>) {}
+    constructor(private validator: ValidatorFunc<T>) { }
 
-    async validate(options: T): Promise<ValidationResult> {
+    async validate(options: T): Promise<ActionGuardValidationResult> {
         try {
             const res = await this.validator(options);
             return {

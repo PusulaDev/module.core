@@ -15,6 +15,8 @@ import {
     CustomServerError,
     EnumCustomErrorType,
 } from "../../custom-errors";
+import { globalModule, setDefaultUtils } from "../../global-module";
+import { mockLocalization } from "src/global-module/__mocks__/global.module.mock";
 
 describe("Data Provider", () => {
     const headers = {
@@ -25,6 +27,8 @@ describe("Data Provider", () => {
         headers,
         responseFormat: EnumResponseFormat.Json,
     });
+
+    setDefaultUtils();
 
     beforeEach(() => {
         vi.restoreAllMocks();
@@ -326,6 +330,31 @@ describe("Data Provider", () => {
             new CustomProviderError({
                 type: EnumCustomErrorType.RequestValidation,
                 message: "error",
+            })
+        );
+    });
+
+    it("should validate request with validation function", async () => {
+        globalModule.setLocalization(mockLocalization);
+
+        const provider = new CoreProvider(client);
+
+        type TestRequest = { name: string };
+        const config: IRequestConfig<TestRequest, number> = {
+            url: "test",
+            validationProperties: [
+                {
+                    name: "name",
+                    type: "string",
+                    rules: { isRequired: true },
+                },
+            ],
+        };
+
+        await expect(() => provider.post(config)).rejects.toEqual(
+            new CustomProviderError({
+                type: EnumCustomErrorType.RequestValidation,
+                message: "name: required",
             })
         );
     });

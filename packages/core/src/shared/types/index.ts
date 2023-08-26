@@ -1,4 +1,4 @@
-import type { ValidationResult } from "./validation-result";
+import type { ActionGuardValidationResult } from "./action-guard-validation-result";
 import type { IClassConstructor } from "./class-constructor";
 
-export { ValidationResult, IClassConstructor };
+export { ActionGuardValidationResult, IClassConstructor };

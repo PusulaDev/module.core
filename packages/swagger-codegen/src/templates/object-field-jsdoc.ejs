@@ -17,12 +17,12 @@ const comments = _.uniq(
 );
 %>
 <% if (comments.length === 1) { %>
-  /** <%~ comments[0] %> */
+/** <%~ comments[0] %> */
 <% } else if (comments.length) { %>
-  /**
-  <% comments.forEach(comment => { %>
-   * <%~ comment %>
+/**
+<% comments.forEach(comment => { %>
+* <%~ comment %>
 
-  <% }) %>
-   */
+<% }) %>
+*/
 <% } %>

@@ -3,26 +3,49 @@ const { modelTypes, utils, config } = it;
 const { formatDescription, require, _, Ts } = utils;
 
 
+const buildGenerics = (contract) => {
+  if (!contract.genericArgs || !contract.genericArgs.length) return '';
+
+  return '<' + contract.genericArgs.map(({ name, default: defaultType, extends: extendsType }) => {
+    return [
+      name,
+      extendsType && `extends ${extendsType}`,
+      defaultType && `= ${defaultType}`,
+    ].join('')
+  }).join(',') + '>'
+}
+
 const dataContractTemplates = {
   enum: (contract) => {
     return `enum ${contract.name} {\r\n${contract.content} \r\n }`;
   },
   interface: (contract) => {
-    return `interface ${contract.name} {\r\n${contract.content}}`;
+    let content = '';
+
+    _.forEach(contract.$content,(field) => {
+      if(field.value?.endsWith('| null')){
+        const i = field.value.lastIndexOf('| null');
+        field.value = field.value.substring(0,i);
+      }
+      
+      content += `${field.name}${field.isRequired ? '' : '?'}:${field.value}\r\n`
+    })
+    
+    return `interface ${contract.name}${buildGenerics(contract)} {\r\n${content}}`;
   },
   type: (contract) => {
-    return `type ${contract.name} = ${contract.content}`;
+    return `type ${contract.name}${buildGenerics(contract)} = ${contract.content}`;
   },
 }
 %>
 
 <% if (config.internalTemplateOptions.addUtilRequiredKeysType) { %>
 type <%~ config.Ts.CodeGenKeyword.UtilRequiredKeys %><T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
-<% } %>
+      <% } %>
 
-<% modelTypes.forEach((contract) => { %>
-  <%~ includeFile('./data-contract-jsdoc.ejs', { ...it, data: { ...contract, ...contract.typeData } }) %>
-  export <%~ (dataContractTemplates[contract.typeIdentifier] || dataContractTemplates.type)(contract) %>
+      <% for (const contract of modelTypes) { %>
+      <%~ includeFile('/data-contract-jsdoc.ejs', { ...it, data: { ...contract, ...contract.typeData } }) %>
+      <%~ contract.internal ? '' : 'export'%> <%~ (dataContractTemplates[contract.typeIdentifier] || dataContractTemplates.type)(contract) %>
 
 
-<% }) %>
+      <% } %>

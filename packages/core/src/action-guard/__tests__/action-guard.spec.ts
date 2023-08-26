@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { CustomError, EnumCustomErrorType } from "../../custom-errors";
-import { EnumAppLayer, ValidationResult } from "../../shared";
+import { EnumAppLayer, ActionGuardValidationResult } from "../../shared";
 import { createActionGuard, ValidatorFunc } from "../action-guard";
 
 describe("Action Guard", () => {
-    const cases: [ValidatorFunc<any>, any, ValidationResult][] = [
+    const cases: [ValidatorFunc<any>, any, ActionGuardValidationResult][] = [
         [
             (options: string) => options === "ali",
             "test",
@@ -23,7 +23,7 @@ describe("Action Guard", () => {
 
     it.each(cases)(
         "use validator %j, options %j, expect = %j",
-        async (validator: ValidatorFunc<any>, options: any, expected: ValidationResult) => {
+        async (validator: ValidatorFunc<any>, options: any, expected: ActionGuardValidationResult) => {
             const actionGuard = createActionGuard(validator);
 
             const res = await actionGuard.validate(options);
@@ -45,7 +45,7 @@ describe("Action Guard", () => {
         });
 
         const res = await actionGuard.validate(8);
-        const expected: ValidationResult = {
+        const expected: ActionGuardValidationResult = {
             valid: false,
             error: new CustomError({
                 message: "Error",
@@ -64,7 +64,7 @@ describe("Action Guard", () => {
         });
 
         const res = await actionGuard.validate(true);
-        const expected: ValidationResult = {
+        const expected: ActionGuardValidationResult = {
             valid: true,
         };
         expect(res).toEqual(expected);

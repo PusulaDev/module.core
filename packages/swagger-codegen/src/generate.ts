@@ -11,6 +11,7 @@ import {
     useNameModifiers
 } from "./utils";
 import { GenerateApiOptions, GenerateMultipleApiOptions } from "./types";
+import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,6 +28,9 @@ export const generate = async (options: GenerateApiOptions) => {
     const { createModuleIfNotExists = true } = options;
 
     try {
+
+
+
         const generateResult = await generateApi({
             httpClientType: "fetch",
             generateClient: true,
@@ -65,10 +69,17 @@ export const generateMultiple = async (options: GenerateMultipleApiOptions) => {
     const { onFormatTypeName, onCreateRoute, ...otherHooks } = hooks;
     const output = path.resolve(process.cwd(), `./src/__generated__`);
 
+    if (fs.existsSync(output)) {
+        console.info('Clearing output folder...');
+        fs.rmSync(output, { recursive: true, force: true });
+        console.info('Cleared output folder.');
+    }
+
     const { formatTypeName, formatRouteData } = useNameModifiers();
 
     for (let i = 0; i < endpoints.length; i++) {
         const endpoint = endpoints[i];
+        console.info(`Started generating codes for service => ${endpoint.name}`)
 
         const options: GenerateApiOptions = {
             ...restOptions,
@@ -77,12 +88,12 @@ export const generateMultiple = async (options: GenerateMultipleApiOptions) => {
             output: path.join(output, endpoint.name),
             hooks: {
                 onFormatTypeName: (typeName, rawTypeName, schemaType) => {
-                    const res = formatTypeName(typeName, wordMapForReplacingInTypeNames);
+                    const res = formatTypeName(endpoint, typeName, wordMapForReplacingInTypeNames);
                     return hooks.onFormatTypeName ? hooks.onFormatTypeName(res, rawTypeName, schemaType) : res
                 },
                 onCreateRoute: (routeData) => {
                     const res = formatRouteData(endpoint, routeData);
-                    return hooks.onCreateRoute ? hooks.onCreateRoute(res) : routeData;
+                    return hooks.onCreateRoute ? hooks.onCreateRoute(res) : res;
                 },
                 ...otherHooks
             }

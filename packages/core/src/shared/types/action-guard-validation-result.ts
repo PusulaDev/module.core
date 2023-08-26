@@ -1,6 +1,6 @@
 import type { CustomError } from "../../custom-errors";
 
-export type ValidationResult = {
+export type ActionGuardValidationResult = {
     valid: boolean;
     error?: CustomError;
 };
