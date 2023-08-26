@@ -29,11 +29,7 @@ export const generate = async (options: GenerateApiOptions) => {
 
     try {
 
-        if (fs.existsSync(defaultOutput)) {
-            console.info('Clearing output folder...');
-            fs.rmSync(defaultOutput, { recursive: true, force: true });
-            console.info('Cleared output folder.');
-        }
+
 
         const generateResult = await generateApi({
             httpClientType: "fetch",
@@ -72,6 +68,12 @@ export const generateMultiple = async (options: GenerateMultipleApiOptions) => {
     const { endpoints, wordMapForReplacingInTypeNames, hooks = {}, ...restOptions } = options;
     const { onFormatTypeName, onCreateRoute, ...otherHooks } = hooks;
     const output = path.resolve(process.cwd(), `./src/__generated__`);
+
+    if (fs.existsSync(output)) {
+        console.info('Clearing output folder...');
+        fs.rmSync(output, { recursive: true, force: true });
+        console.info('Cleared output folder.');
+    }
 
     const { formatTypeName, formatRouteData } = useNameModifiers();
 

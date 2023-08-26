@@ -11,7 +11,7 @@ export const validate = <T>({ value, properties }: { value?: T; properties: Vali
         if (res.length)
             validationResults.push({
                 name: property.name.toString(),
-                validationResults: res,
+                results: res,
             });
     });
 
@@ -20,7 +20,7 @@ export const validate = <T>({ value, properties }: { value?: T; properties: Vali
 
 const createErrorMessage = (result: ValidationResult) => {
     const localization = globalModule.ensureGetLocalization();
-    const validations = result.validationResults.map((e) => localization.translate(e)).join(", ");
+    const validations = result.results.map((e) => localization.translate(e.type, [e.value])).join(", ");
     return `${result.name}: ${validations}`;
 };
 
@@ -35,48 +35,50 @@ export const validateAndThrow = <T>(options: { value?: T; properties: Validation
 };
 
 const validateProp = <T>(prop: ValidationProperty<T>, value: unknown) => {
-    const validationResults: EnumValidationResultType[] = [];
+    const validationResults: ValidationResult["results"] = [];
+
+    const valueExists = value !== undefined && value !== null && value !== "";
+    const valueNotExists = !valueExists;
 
     if (prop.rules.isRequired) {
-        if (value === undefined || value === null || value === "")
-            validationResults.push(EnumValidationResultType.required);
+        if (valueNotExists) validationResults.push({ type: EnumValidationResultType.required });
     }
+
+    if (!valueExists) return validationResults;
 
     if (prop.rules.pattern) {
         const pattern = new RegExp(prop.rules.pattern);
         if (typeof value !== "string" || !pattern.test(value))
-            validationResults.push(EnumValidationResultType.pattern);
+            validationResults.push({ type: EnumValidationResultType.pattern, value: prop.rules.pattern });
     }
 
     if (prop.rules.uniqueItems) {
         if (!(value instanceof Array) || value.some((e) => value.filter((d) => d === e).length > 1))
-            validationResults.push(EnumValidationResultType.uniqueItems);
+            validationResults.push({ type: EnumValidationResultType.uniqueItems });
     }
 
     if (prop.rules.minLength) {
         if (typeof value !== "string" || value.length < prop.rules.minLength)
-            validationResults.push(EnumValidationResultType.minLength);
+            validationResults.push({ type: EnumValidationResultType.minLength, value: prop.rules.minLength });
     }
 
     if (prop.rules.maxLength) {
-        if (typeof value !== "string" || value.length < prop.rules.maxLength)
-            validationResults.push(EnumValidationResultType.maxLength);
+        if (typeof value !== "string" || value.length > prop.rules.maxLength)
+            validationResults.push({ type: EnumValidationResultType.maxLength, value: prop.rules.maxLength });
     }
 
     if (prop.rules.minimum) {
-        if (
-            typeof value !== "number" ||
-            (prop.rules.exclusiveMinimum ? prop.rules.minimum <= value : prop.rules.minimum < value)
-        )
-            validationResults.push(EnumValidationResultType.minimum);
+        const minValue = prop.rules.exclusiveMinimum ? prop.rules.minimum + 1 : prop.rules.minimum;
+
+        if (typeof value !== "number" || minValue > value)
+            validationResults.push({ type: EnumValidationResultType.minimum, value: minValue });
     }
 
     if (prop.rules.maximum) {
-        if (
-            typeof value !== "number" ||
-            (prop.rules.exclusiveMaximum ? prop.rules.maximum >= value : prop.rules.maximum > value)
-        )
-            validationResults.push(EnumValidationResultType.maximum);
+        const maxValue = prop.rules.exclusiveMaximum ? prop.rules.maximum - 1 : prop.rules.maximum;
+
+        if (typeof value !== "number" || maxValue < value)
+            validationResults.push({ type: EnumValidationResultType.maximum, value: maxValue });
     }
 
     return validationResults;

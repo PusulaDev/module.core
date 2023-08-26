@@ -6,7 +6,7 @@ import {
     mockFetchTxtResponse,
 } from "../../http-client/__mocks__/fetch.mock";
 import { CoreProvider } from "../core-provider";
-import { EnumValidationResultType, type ICachableRequestConfig, type IRequestConfig } from "../types";
+import type { ICachableRequestConfig, IRequestConfig } from "../types";
 import { ICache, MemoryCache } from "../../cache";
 
 import {

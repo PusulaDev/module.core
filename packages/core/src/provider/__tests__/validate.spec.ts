@@ -7,6 +7,41 @@ describe("validate", () => {
         [
             {
                 value: {},
+                properties: [],
+            },
+            [],
+        ],
+        [
+            {
+                value: {
+                    name: "name",
+                    code: "codecodecodecodecodecodecode",
+                },
+                properties: [
+                    {
+                        name: "name",
+                        type: "string",
+                        rules: {
+                            isRequired: true,
+                            maxLength: 128,
+                        },
+                    },
+                    {
+                        name: "code",
+                        type: "string",
+                        rules: {
+                            isRequired: true,
+                            minimum: 0,
+                            maxLength: 16,
+                        },
+                    },
+                ],
+            },
+            [{ name: "code", results: [{ type: EnumValidationResultType.maxLength, value: 16 }] }],
+        ],
+        [
+            {
+                value: {},
                 properties: [
                     {
                         name: "id",
@@ -15,7 +50,7 @@ describe("validate", () => {
                     },
                 ],
             },
-            [{ name: "id", validationResults: [EnumValidationResultType.required] }],
+            [{ name: "id", results: [{ type: EnumValidationResultType.required }] }],
         ],
         [
             {
@@ -28,7 +63,20 @@ describe("validate", () => {
                     },
                 ],
             },
-            [{ name: "name", validationResults: [EnumValidationResultType.minLength] }],
+            [{ name: "name", results: [{ type: EnumValidationResultType.minLength, value: 10 }] }],
+        ],
+        [
+            {
+                value: { name: "" },
+                properties: [
+                    {
+                        name: "name",
+                        type: "string",
+                        rules: { minLength: 10 },
+                    },
+                ],
+            },
+            [],
         ],
         [
             {
@@ -54,7 +102,7 @@ describe("validate", () => {
                     },
                 ],
             },
-            [{ name: "age", validationResults: [EnumValidationResultType.minimum] }],
+            [{ name: "age", results: [{ type: EnumValidationResultType.minimum, value: 11 }] }],
         ],
         [
             {
@@ -80,7 +128,7 @@ describe("validate", () => {
                     },
                 ],
             },
-            [{ name: "age", validationResults: [EnumValidationResultType.maximum] }],
+            [{ name: "age", results: [{ type: EnumValidationResultType.maximum, value: 9 }] }],
         ],
         [
             {
@@ -93,7 +141,14 @@ describe("validate", () => {
                     },
                 ],
             },
-            [{ name: "identity", validationResults: [EnumValidationResultType.pattern] }],
+            [
+                {
+                    name: "identity",
+                    results: [
+                        { type: EnumValidationResultType.pattern, value: "^[1-9]{1}[0-9]{9}[02468]{1}$" },
+                    ],
+                },
+            ],
         ],
         [
             {
