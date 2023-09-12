@@ -36,10 +36,15 @@ function tscPlugin(config?: { tsconfig: string }) {
 }
 
 export const createViteConfig = (
-    options: Options = { emitDecoratorMetaData: true, module: { type: "es6" }, target: "es2018" }
+    options: Options = {}
 ): UserConfig => {
     const deafultEntry = resolve(process.cwd(), "./src/index.ts");
     const excludedRoutes = ["src/**/__tests__/*.ts", "src/**/*.spec.ts"];
+
+    options.minify = options.minify ?? true;
+    options.emitDecoratorMetaData = options.emitDecoratorMetaData ?? true,
+        options.target = options.target ?? "es2018";
+    options.module = options.module ?? { type: "es6" }
 
     const {
         entryPath = deafultEntry,
@@ -65,7 +70,7 @@ export const createViteConfig = (
             swc.vite(),
             swc.rollup({
                 exclude: excludedRoutes,
-                minify: true,
+                minify: options.minify,
                 jsc: {
                     keepClassNames: true,
                     target: options.target,
@@ -75,7 +80,7 @@ export const createViteConfig = (
 
     return {
         build: {
-            minify: options?.minify ?? true,
+            minify: options?.minify,
             sourcemap: true,
             lib: {
                 entry: entryPath,
@@ -90,8 +95,9 @@ export const createViteConfig = (
 };
 
 export const createVitestConfig = (
-    options: Options = { emitDecoratorMetaData: true }
+    options: Options = {}
 ): VitestUserConfig => {
+    options.emitDecoratorMetaData = options.emitDecoratorMetaData ?? true;
     const { plugins = [], ...otherOptions } = options;
 
     return {
