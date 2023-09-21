@@ -7,3 +7,4 @@ export type { RetryOnErrorMethodOptions, RetryOnErrorOptions } from "./retry-on-
 export { EnumRequestMethod } from "./request-method.enum";
 export { EnumContentType } from "./content-type.enum";
 export { EnumResponseFormat } from "./response-format.enum";
+export { EnumCreateQueryFormat } from "./create-query-format.enum";

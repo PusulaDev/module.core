@@ -8,9 +8,8 @@ import {
     type IHTTPClientOptions,
 } from "./index";
 import { CustomError, CustomHttpClientError, CustomServerError, EnumCustomErrorType } from "../custom-errors";
-import type { RequestOptions } from "./types";
+import { type RequestOptions, type RetryOnErrorOptions, EnumCreateQueryFormat } from "./types";
 import { globalModule } from "../global-module";
-import type { RetryOnErrorOptions } from "./types/retry-on-error-options";
 
 export class FetchHTTPClient implements IHTTPClient {
     private readonly baseUrl: string;
@@ -249,7 +248,37 @@ export class FetchHTTPClient implements IHTTPClient {
         if (Object.keys(merged).length) return merged;
     }
 
-    private createQueryString = (data: unknown) => {
+    private createQueryString = (
+        data: unknown,
+        format: EnumCreateQueryFormat = EnumCreateQueryFormat.Encoded
+    ) => {
+        if (typeof data === "object") {
+            const searchParams = new URLSearchParams();
+
+            for (const key in data) {
+                if (Object.prototype.hasOwnProperty.call(data, key)) {
+                    const value = data[key] as unknown;
+
+                    if (Array.isArray(value)) {
+                        if (format === EnumCreateQueryFormat.Encoded) {
+                            searchParams.append(key, `[${value.join(",")}]`);
+                        } else if (format === EnumCreateQueryFormat.CommaSeperated) {
+                            searchParams.append(key, value.join(","));
+                        } else if (format === EnumCreateQueryFormat.MultiParameter) {
+                            value.forEach((item) => {
+                                searchParams.append(key, item as string);
+                            });
+                        }
+                    } else {
+                        searchParams.set(key, value as string);
+                    }
+                }
+            }
+
+            const queryString = searchParams.toString();
+            return queryString ? `?${queryString}` : "";
+        }
+
         const searchParams = new URLSearchParams(data as string).toString();
         return searchParams ? `?${searchParams}` : "";
     };
@@ -269,7 +298,7 @@ export class FetchHTTPClient implements IHTTPClient {
         }
 
         if (method === EnumRequestMethod.GET && data) {
-            customUrl += this.createQueryString(data);
+            customUrl += this.createQueryString(data, options?.queryFormat);
         }
 
         const pendingRequest = this.pendingRequests.get(key);

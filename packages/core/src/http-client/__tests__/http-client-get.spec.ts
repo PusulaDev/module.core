@@ -7,7 +7,7 @@ import {
     mockRejectResponse,
 } from "../__mocks__/fetch.mock";
 import { CustomServerError } from "../../custom-errors";
-import { EnumResponseFormat } from "../types";
+import { EnumCreateQueryFormat, EnumResponseFormat } from "../types";
 
 describe("Http Client Get Method", () => {
     beforeEach(() => {
@@ -169,4 +169,42 @@ describe("Http Client Get Method", () => {
 
         await expect(api.get("test")).resolves.toBeUndefined();
     });
+
+    const queryStringVariant: [EnumCreateQueryFormat, string][] = [
+        [
+            EnumCreateQueryFormat.Encoded,
+            "http://test.com/test?text=test&items=%5Ba%2Cb%5D&status=0&isHidden=true",
+        ],
+        [
+            EnumCreateQueryFormat.CommaSeperated,
+            "http://test.com/test?text=test&items=a%2Cb&status=0&isHidden=true",
+        ],
+        [
+            EnumCreateQueryFormat.MultiParameter,
+            "http://test.com/test?text=test&items=a&items=b&status=0&isHidden=true",
+        ],
+    ];
+
+    it.each(queryStringVariant)(
+        "should create query string with %s format",
+        async (format: EnumCreateQueryFormat, expectedUrl: string) => {
+            mockFetchJSONResponse({});
+
+            const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
+            await api.get(
+                "test",
+                {
+                    text: "test",
+                    items: ["a", "b"],
+                    status: 0,
+                    isHidden: true,
+                },
+                { queryFormat: format }
+            );
+
+            expect(fetch).toBeCalledWith(expectedUrl, {
+                method: "GET",
+            });
+        }
+    );
 });
