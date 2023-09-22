@@ -91,4 +91,15 @@ describe("Http Client Post Method", () => {
             headers,
         });
     });
+
+    it("should replace the query params with data and remove the data if matches", async () => {
+        mockFetchJSONResponse({});
+
+        const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
+        await api.post("test/${id}?name=${name}", { id: 1, name: "ali" });
+
+        expect(fetch).toBeCalledWith("http://test.com/test/1?name=ali", {
+            method: "POST",
+        });
+    });
 });
