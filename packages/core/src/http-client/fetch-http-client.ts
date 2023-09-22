@@ -8,9 +8,8 @@ import {
     type IHTTPClientOptions,
 } from "./index";
 import { CustomError, CustomHttpClientError, CustomServerError, EnumCustomErrorType } from "../custom-errors";
-import type { RequestOptions } from "./types";
+import { type RequestOptions, type RetryOnErrorOptions, EnumQueryStringMultipleValueFormat } from "./types";
 import { globalModule } from "../global-module";
-import type { RetryOnErrorOptions } from "./types/retry-on-error-options";
 
 export class FetchHTTPClient implements IHTTPClient {
     private readonly baseUrl: string;
@@ -18,6 +17,7 @@ export class FetchHTTPClient implements IHTTPClient {
     private readonly preventRequestDuplication?: boolean;
     private readonly responseFormat?: EnumResponseFormat;
     private readonly defaultRetryCount = 3;
+    private readonly queryStringFormat?: EnumQueryStringMultipleValueFormat;
     private retryOnErrorOptions?: RetryOnErrorOptions;
     private pendingRequests = new Map<string, Promise<Response>>();
     private headers?: Record<string, string>;
@@ -31,6 +31,7 @@ export class FetchHTTPClient implements IHTTPClient {
         this.preventRequestDuplication = options.preventRequestDuplication;
         this.responseFormat = options.responseFormat;
         this.retryOnErrorOptions = options.retryOnErrorOptions;
+        this.queryStringFormat = options.queryStringFormat ?? EnumQueryStringMultipleValueFormat.Encoded;
     }
 
     setRetryOnErrorOptions(options: RetryOnErrorOptions) {
@@ -250,6 +251,37 @@ export class FetchHTTPClient implements IHTTPClient {
     }
 
     private createQueryString = (data: unknown) => {
+        if (typeof data === "object") {
+            const searchParams = new URLSearchParams();
+
+            for (const key in data) {
+                if (Object.prototype.hasOwnProperty.call(data, key)) {
+                    const value = data[key] as unknown;
+
+                    if (Array.isArray(value)) {
+                        if (this.queryStringFormat === EnumQueryStringMultipleValueFormat.Encoded) {
+                            searchParams.append(key, `[${value.join(",")}]`);
+                        } else if (
+                            this.queryStringFormat === EnumQueryStringMultipleValueFormat.CommaSeperated
+                        ) {
+                            searchParams.append(key, value.join(","));
+                        } else if (
+                            this.queryStringFormat === EnumQueryStringMultipleValueFormat.MultiParameter
+                        ) {
+                            value.forEach((item) => {
+                                searchParams.append(key, item as string);
+                            });
+                        }
+                    } else {
+                        searchParams.set(key, value as string);
+                    }
+                }
+            }
+
+            const queryString = searchParams.toString();
+            return queryString ? `?${queryString}` : "";
+        }
+
         const searchParams = new URLSearchParams(data as string).toString();
         return searchParams ? `?${searchParams}` : "";
     };
