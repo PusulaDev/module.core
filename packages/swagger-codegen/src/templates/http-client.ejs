@@ -2,19 +2,18 @@
 const { apiConfig } = it;
 %>
 
-import { FetchHTTPClient, IHTTPClientOptions } from "@pusula/module.core";
+import { FetchHTTPClient, type IHTTPClientOptions } from "@pusula/module.core";
 import { createError } from "../utils"
 
-export const createHttpClient = (options: Pick<IHTTPClientOptions, "protocol"|"baseUrl">) => {
-    const coreHttpClient = new FetchHTTPClient({
+export const createHttpClient = (options: Pick<IHTTPClientOptions, "protocol"|"baseUrl"|"queryStringFormat">) => {
+    return new FetchHTTPClient({
         protocol: options.protocol,
         baseUrl: options.baseUrl,
+        queryStringFormat: options.queryStringFormat,
         preventRequestDuplication: true,
         headers: {
             'content-type': 'application/json',
         },
         createErrorFn: createError,
     });
-
-    return coreHttpClient;
 }
