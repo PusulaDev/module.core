@@ -18,6 +18,10 @@ export type IRequestConfig<TRequest = undefined, TResponse = undefined> = {
      */
     validateResponse?: (res?: TResponse) => void | Promise<void>;
     validationProperties?: ValidationProperty<TRequest>[];
+    /**
+     * adds query parameters to url with this keys if value exists
+     */
+    queryKeys?: (keyof TRequest)[];
 };
 
 export type ValidationProperty<T> = {

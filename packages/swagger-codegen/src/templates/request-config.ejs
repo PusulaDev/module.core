@@ -6,6 +6,7 @@ const { path, method, payload, query, formData, security, requestParams, pathPar
 
 const securityTmpl = security ? 'true' : null;
 const requestTypes = [];
+const queryKeys = []
 
 if (payload)
 {
@@ -15,6 +16,13 @@ if (payload)
 if (requestParams)
 {
     requestTypes.push(getInlineParseContent(requestParams))
+    const requestParamContract = modelTypes.find(e=> e.name === getInlineParseContent(requestParams));
+    console.log('param contract',getInlineParseContent(requestParams),requestParamContract.properties)
+    Object.values(requestParamContract.properties).forEach(item => {
+        if(item.in === "query") queryKeys.push(item.name);
+    })
+
+    console.log('query keys',queryKeys);
 }
 
 if (pathParams)
