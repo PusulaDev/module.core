@@ -31,7 +31,7 @@ export class FetchHTTPClient implements IHTTPClient {
         this.preventRequestDuplication = options.preventRequestDuplication;
         this.responseFormat = options.responseFormat;
         this.retryOnErrorOptions = options.retryOnErrorOptions;
-        this.queryStringFormat = options.queryStringFormat;
+        this.queryStringFormat = options.queryStringFormat ?? EnumQueryStringMultipleValueFormat.Encoded;
     }
 
     setRetryOnErrorOptions(options: RetryOnErrorOptions) {
