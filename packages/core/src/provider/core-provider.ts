@@ -142,7 +142,7 @@ export class CoreProvider implements IProvider {
 
         const keysWithValue = keys.filter((key) => {
             const value = data[key];
-            return value !== undefined;
+            return value !== undefined && value !== "";
         });
 
         if (keysWithValue.length) {
