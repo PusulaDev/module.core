@@ -7,7 +7,7 @@ import {
     mockRejectResponse,
 } from "../__mocks__/fetch.mock";
 import { CustomServerError } from "../../custom-errors";
-import { EnumCreateQueryFormat, EnumResponseFormat } from "../types";
+import { EnumQueryStringMultipleValueFormat, EnumResponseFormat } from "../types";
 
 describe("Http Client Get Method", () => {
     beforeEach(() => {
@@ -170,37 +170,33 @@ describe("Http Client Get Method", () => {
         await expect(api.get("test")).resolves.toBeUndefined();
     });
 
-    const queryStringVariant: [EnumCreateQueryFormat, string][] = [
+    const queryStringVariant: [EnumQueryStringMultipleValueFormat, string][] = [
         [
-            EnumCreateQueryFormat.Encoded,
+            EnumQueryStringMultipleValueFormat.Encoded,
             "http://test.com/test?text=test&items=%5Ba%2Cb%5D&status=0&isHidden=true",
         ],
         [
-            EnumCreateQueryFormat.CommaSeperated,
+            EnumQueryStringMultipleValueFormat.CommaSeperated,
             "http://test.com/test?text=test&items=a%2Cb&status=0&isHidden=true",
         ],
         [
-            EnumCreateQueryFormat.MultiParameter,
+            EnumQueryStringMultipleValueFormat.MultiParameter,
             "http://test.com/test?text=test&items=a&items=b&status=0&isHidden=true",
         ],
     ];
 
     it.each(queryStringVariant)(
         "should create query string with %s format",
-        async (format: EnumCreateQueryFormat, expectedUrl: string) => {
+        async (format: EnumQueryStringMultipleValueFormat, expectedUrl: string) => {
             mockFetchJSONResponse({});
 
-            const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
-            await api.get(
-                "test",
-                {
-                    text: "test",
-                    items: ["a", "b"],
-                    status: 0,
-                    isHidden: true,
-                },
-                { queryFormat: format }
-            );
+            const api = new FetchHTTPClient({ baseUrl: "http://test.com", queryStringFormat: format });
+            await api.get("test", {
+                text: "test",
+                items: ["a", "b"],
+                status: 0,
+                isHidden: true,
+            });
 
             expect(fetch).toBeCalledWith(expectedUrl, {
                 method: "GET",
