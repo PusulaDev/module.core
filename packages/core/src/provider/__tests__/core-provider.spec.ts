@@ -403,4 +403,51 @@ describe("Data Provider", () => {
             })
         );
     });
+
+    it("should add query parameters to url", async () => {
+        const provider = new CoreProvider(client);
+        const config: IRequestConfig<{ name?: string; id?: string; age?: number }, void> = {
+            url: "test/${id}",
+            queryKeys: ["name", "age"],
+        };
+
+        await provider.post(config, { id: "1", age: 12, name: "salih" });
+
+        expect(fetch).toBeCalledWith("http://test.com/test/1?name=salih&age=12", {
+            method: "POST",
+            headers,
+            body: JSON.stringify({}),
+        });
+    });
+    it("should add only defined query parameters to url", async () => {
+        const provider = new CoreProvider(client);
+        const config: IRequestConfig<{ name?: string; id?: string; age?: number }, void> = {
+            url: "test/${id}",
+            queryKeys: ["name"],
+        };
+
+        await provider.post(config, { id: "1", age: 12, name: "salih" });
+
+        expect(fetch).toBeCalledWith("http://test.com/test/1?name=salih", {
+            method: "POST",
+            headers,
+            body: JSON.stringify({ age: 12 }),
+        });
+    });
+
+    it("should add only not empty and not undefined query parameters to url", async () => {
+        const provider = new CoreProvider(client);
+        const config: IRequestConfig<{ name?: string; id?: string; age?: number; title?: string }, void> = {
+            url: "test/${id}",
+            queryKeys: ["name", "age", "title"],
+        };
+
+        await provider.post(config, { id: "1", age: 12, name: "" });
+
+        expect(fetch).toBeCalledWith("http://test.com/test/1?age=12", {
+            method: "POST",
+            headers,
+            body: JSON.stringify({ name: "" }),
+        });
+    });
 });

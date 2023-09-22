@@ -130,7 +130,7 @@ export class CoreProvider implements IProvider {
         if (value != undefined) this.cache?.set(key, value);
     }
 
-    private createUrl(url: string) {
+    private createUrl(url: string): string {
         return this.baseUrl ? `${this.baseUrl}/${url}` : url;
     }
 
@@ -156,6 +156,7 @@ export class CoreProvider implements IProvider {
     ): RequestOptions {
         const requestOptions: RequestOptions = {
             responseFormat: options?.responseFormat ?? config.responseFormat,
+            queryKeys: config.queryKeys as string[],
         };
 
         const headers = { ...(options?.headers ?? {}), ...(config.headers ?? {}) };

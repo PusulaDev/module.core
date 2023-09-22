@@ -7,7 +7,7 @@ import {
 } from "../__mocks__/fetch.mock";
 import { CustomServerError } from "../../custom-errors";
 import { contentTypeKey } from "../client-constants";
-import { EnumContentType, EnumResponseFormat } from "../types";
+import { EnumContentType, EnumQueryStringMultipleValueFormat, EnumResponseFormat } from "../types";
 
 describe("Http Client Post Method", () => {
     beforeEach(() => {
@@ -89,6 +89,53 @@ describe("Http Client Post Method", () => {
             method: "POST",
             body: formData,
             headers,
+        });
+    });
+
+    it("should replace the query params with data and remove the data if matches", async () => {
+        mockFetchJSONResponse({});
+
+        const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
+        await api.post("test/${id}?name=${name}", { id: 1, name: "ali" });
+
+        expect(fetch).toBeCalledWith("http://test.com/test/1?name=ali", {
+            method: "POST",
+        });
+    });
+
+    it("should add queryKeys values to the query string", async () => {
+        mockFetchJSONResponse({});
+
+        const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
+        await api.post("test/${id}", { id: 1, name: "ali" }, { queryKeys: ["name"] });
+
+        expect(fetch).toBeCalledWith("http://test.com/test/1?name=ali", {
+            method: "POST",
+        });
+    });
+
+    it("should add queryKeys values if they have value to the query string", async () => {
+        mockFetchJSONResponse({});
+
+        const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
+        await api.post("test/${id}", { id: 1, name: "" }, { queryKeys: ["name"] });
+
+        expect(fetch).toBeCalledWith("http://test.com/test/1", {
+            method: "POST",
+        });
+    });
+
+    it("should add queryKeys array value", async () => {
+        mockFetchJSONResponse({});
+
+        const api = new FetchHTTPClient({
+            baseUrl: "http://test.com",
+            queryStringFormat: EnumQueryStringMultipleValueFormat.CommaSeperated,
+        });
+        await api.post("test/${id}", { id: 1, items: ["ali", "veli"] }, { queryKeys: ["items"] });
+
+        expect(fetch).toBeCalledWith("http://test.com/test/1?items=ali%2Cveli", {
+            method: "POST",
         });
     });
 });

@@ -6,6 +6,7 @@ const { path, method, payload, query, formData, security, requestParams, pathPar
 
 const securityTmpl = security ? 'true' : null;
 const requestTypes = [];
+const queryKeys = []
 
 if (payload)
 {
@@ -15,6 +16,10 @@ if (payload)
 if (requestParams)
 {
     requestTypes.push(getInlineParseContent(requestParams))
+    const requestParamContract = modelTypes.find(e=> e.name === getInlineParseContent(requestParams));
+    Object.values(requestParamContract.properties).forEach(item => {
+        if(item.in === "query") queryKeys.push(item.name);
+    })
 }
 
 if (pathParams)
@@ -85,4 +90,5 @@ const <% ~requestName %>Config: ICachableRequestConfig<<% ~requestType %>, <% ~r
   <%~ bodyContentKindTmpl ? `headers : { [contentTypeKey]: ${bodyContentKindTmpl} },` : '' %>
   <%~ responseFormatTmpl ? `responseFormat: ${responseFormatTmpl},` : '' %>
   <%~ validationProperties ? `validationProperties: ${JSON.stringify(validationProperties)},` : ''  %>
+  <%~ queryKeys.length ? `queryKeys: ${JSON.stringify(queryKeys)},`: '' %>
   };
