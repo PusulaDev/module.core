@@ -4,7 +4,6 @@ import type { ICachableRequestConfig, IRequestConfig, ProviderRequestOptions } f
 import type { ICache } from "../cache";
 import { CustomProviderError, EnumCustomErrorType } from "../custom-errors";
 import { validateAndThrow } from "./validator";
-import { urlToHttpOptions } from "url";
 
 export class CoreProvider implements IProvider {
     protected baseUrl: string | null = null;
@@ -26,7 +25,7 @@ export class CoreProvider implements IProvider {
 
         const requestOptions = this.createRequestOptions(config, options);
 
-        const computedUrl = this.createUrl(config.url, config.queryKeys, data);
+        const computedUrl = this.createUrl(config.url);
 
         const response = await this.tryClientRequest(
             () => this.client.request<TRequest, TResponse>(computedUrl, method, data, requestOptions),
@@ -131,27 +130,8 @@ export class CoreProvider implements IProvider {
         if (value != undefined) this.cache?.set(key, value);
     }
 
-    private createUrl<TRequest>(
-        url: string,
-        keys?: IRequestConfig<TRequest, unknown>["queryKeys"],
-        data?: TRequest
-    ): string {
-        const urlWithBase = this.baseUrl ? `${this.baseUrl}/${url}` : url;
-
-        if (!keys?.length || data === undefined || data === null) return urlWithBase;
-
-        const keysWithValue = keys.filter((key) => {
-            const value = data[key];
-            return value !== undefined && value !== "";
-        });
-
-        if (keysWithValue.length) {
-            return `${urlWithBase}?${keysWithValue
-                .map((key) => `${String(key)}=\${${String(key)}}`)
-                .join("&")}`;
-        }
-
-        return urlWithBase;
+    private createUrl(url: string): string {
+        return this.baseUrl ? `${this.baseUrl}/${url}` : url;
     }
 
     private async tryClientRequest<TResponse>(
@@ -176,6 +156,7 @@ export class CoreProvider implements IProvider {
     ): RequestOptions {
         const requestOptions: RequestOptions = {
             responseFormat: options?.responseFormat ?? config.responseFormat,
+            queryKeys: config.queryKeys as string[],
         };
 
         const headers = { ...(options?.headers ?? {}), ...(config.headers ?? {}) };

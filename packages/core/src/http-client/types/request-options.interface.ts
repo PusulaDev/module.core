@@ -5,4 +5,5 @@ export type RequestOptions = {
     abortController?: IAbortController;
     headers?: Record<string, string>;
     responseFormat?: EnumResponseFormat;
+    queryKeys?: string[];
 };

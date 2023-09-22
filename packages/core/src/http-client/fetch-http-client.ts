@@ -171,7 +171,7 @@ export class FetchHTTPClient implements IHTTPClient {
         );
 
         const string = String.raw({ raw: parts }, ...parameters);
-        args.forEach((arg) => data[arg] && delete data[arg]);
+        args.forEach((arg) => data[arg] && this.removeWithKey(data, arg));
 
         return string;
     }
@@ -250,41 +250,71 @@ export class FetchHTTPClient implements IHTTPClient {
         if (Object.keys(merged).length) return merged;
     }
 
-    private createQueryString = (data: unknown) => {
-        if (typeof data === "object") {
+    private checkValueForQueryString<T>(value: T) {
+        return value !== undefined && value !== "";
+    }
+
+    private createQueryString = (data: unknown, queryKeys?: string[]) => {
+        if (data && typeof data === "object") {
             const searchParams = new URLSearchParams();
 
-            for (const key in data) {
-                if (Object.prototype.hasOwnProperty.call(data, key)) {
-                    const value = data[key] as unknown;
+            const entriesWithValue: { key: string; value: unknown }[] = [];
+
+            if (queryKeys?.length) {
+                queryKeys.forEach((key) => {
+                    const value = data[key as keyof typeof data] as unknown;
+                    if (this.checkValueForQueryString(value)) entriesWithValue.push({ key, value });
+                });
+            } else {
+                Object.entries(data).forEach(([key, value]) => {
+                    if (this.checkValueForQueryString(value))
+                        entriesWithValue.push({ key, value: value as unknown });
+                });
+            }
+
+            if (entriesWithValue.length) {
+                entriesWithValue.forEach(({ key, value }) => {
+                    this.removeWithKey(data, key);
 
                     if (Array.isArray(value)) {
-                        if (this.queryStringFormat === EnumQueryStringMultipleValueFormat.Encoded) {
-                            searchParams.append(key, `[${value.join(",")}]`);
-                        } else if (
-                            this.queryStringFormat === EnumQueryStringMultipleValueFormat.CommaSeperated
-                        ) {
-                            searchParams.append(key, value.join(","));
-                        } else if (
-                            this.queryStringFormat === EnumQueryStringMultipleValueFormat.MultiParameter
-                        ) {
-                            value.forEach((item) => {
-                                searchParams.append(key, item as string);
-                            });
-                        }
+                        this.addArrayToSearchParams({ searchParams, key, value });
                     } else {
                         searchParams.set(key, value as string);
                     }
-                }
+                });
+                const queryString = searchParams.toString();
+                return queryString ? `?${queryString}` : "";
             }
-
-            const queryString = searchParams.toString();
-            return queryString ? `?${queryString}` : "";
+            return "";
         }
 
         const searchParams = new URLSearchParams(data as string).toString();
         return searchParams ? `?${searchParams}` : "";
     };
+
+    private removeWithKey<T>(data: T, key: string) {
+        delete data[key as keyof typeof data];
+    }
+
+    private addArrayToSearchParams({
+        searchParams,
+        value,
+        key,
+    }: {
+        searchParams: URLSearchParams;
+        value: unknown[];
+        key: string;
+    }) {
+        if (this.queryStringFormat === EnumQueryStringMultipleValueFormat.Encoded) {
+            searchParams.append(key, `[${value.join(",")}]`);
+        } else if (this.queryStringFormat === EnumQueryStringMultipleValueFormat.CommaSeperated) {
+            searchParams.append(key, value.join(","));
+        } else if (this.queryStringFormat === EnumQueryStringMultipleValueFormat.MultiParameter) {
+            value.forEach((item) => {
+                searchParams.append(key, item as string);
+            });
+        }
+    }
 
     private async handleRequest<TRequest, TResponse = undefined>(opts: {
         url: string;
@@ -300,8 +330,8 @@ export class FetchHTTPClient implements IHTTPClient {
             customUrl = this.mergeUrlRouteParams(url, data as Record<string, unknown>);
         }
 
-        if (method === EnumRequestMethod.GET && data) {
-            customUrl += this.createQueryString(data);
+        if (data !== undefined && (method === EnumRequestMethod.GET || options?.queryKeys?.length)) {
+            customUrl += this.createQueryString(data, options?.queryKeys);
         }
 
         const pendingRequest = this.pendingRequests.get(key);
