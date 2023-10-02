@@ -52,12 +52,14 @@ export class FetchHTTPClient implements IHTTPClient {
         data?: TRequest,
         options?: RequestOptions
     ): Promise<TResponse | undefined> {
-        const key = this.createKey(url, method, data);
+        const copiedData = data ? (JSON.parse(JSON.stringify(data)) as TRequest) : data;
+
+        const key = this.createKey(url, method, copiedData);
 
         try {
             const res = await this.handleRequest({
                 url,
-                data,
+                data: copiedData,
                 options,
                 key,
                 method,
@@ -65,7 +67,13 @@ export class FetchHTTPClient implements IHTTPClient {
             this.requestRetryCounts.delete(key);
             return res;
         } catch (e) {
-            return this.handleErrorWithRetry(e as CustomError, { key, url, data, method, options });
+            return this.handleErrorWithRetry(e as CustomError, {
+                key,
+                url,
+                data: copiedData,
+                method,
+                options,
+            });
         }
     }
 
