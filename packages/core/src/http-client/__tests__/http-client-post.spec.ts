@@ -95,12 +95,25 @@ describe("Http Client Post Method", () => {
     it("should replace the query params with data and remove the data if matches", async () => {
         mockFetchJSONResponse({});
 
+        const data = { id: 1, name: "ali" };
+
         const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
-        await api.post("test/${id}?name=${name}", { id: 1, name: "ali" });
+        await api.post("test/${id}?name=${name}", data);
 
         expect(fetch).toBeCalledWith("http://test.com/test/1?name=ali", {
             method: "POST",
         });
+        expect(data).toEqual({ id: 1, name: "ali" });
+    });
+
+    it("shouldn't modify the data ", async () => {
+        mockFetchJSONResponse({});
+
+        const data = { id: 1, name: "ali" };
+
+        const api = new FetchHTTPClient({ baseUrl: "http://test.com" });
+        await api.post("test/${id}?name=${name}", data);
+        expect(data).toEqual({ id: 1, name: "ali" });
     });
 
     it("should add queryKeys values to the query string", async () => {
