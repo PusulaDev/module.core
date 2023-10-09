@@ -171,7 +171,7 @@ describe("Http Client Post Method", () => {
             dataMaps: {
                 body: "body",
                 query: "query",
-                route: "route",
+                path: "route",
             },
         });
 
@@ -201,7 +201,7 @@ describe("Http Client Post Method", () => {
             dataMaps: {
                 body: (e) => e.test2,
                 query: (e) => e.test3,
-                route: (e) => e.test,
+                path: (e) => e.test,
             },
         });
 

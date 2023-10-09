@@ -5,7 +5,7 @@ export type RequestDataMapValue<TRequest> = string | keyof TRequest | ((data: TR
 
 export interface RequestDataMap<TRequest> {
     body: RequestDataMapValue<TRequest>;
-    route?: RequestDataMapValue<TRequest>;
+    path?: RequestDataMapValue<TRequest>;
     query?: RequestDataMapValue<TRequest>;
 }
 

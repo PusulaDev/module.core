@@ -331,10 +331,10 @@ export class FetchHTTPClient implements IHTTPClient {
     }
 
     private createDataMap<TRequest>(data?: TRequest, options?: RequestOptions<TRequest>) {
-        const dataMap: { query: unknown; body: unknown; route: unknown } = {
+        const dataMap: { query: unknown; body: unknown; path: unknown } = {
             query: data,
             body: data,
-            route: data,
+            path: data,
         };
 
         if (data && options?.dataMaps) {
@@ -346,8 +346,8 @@ export class FetchHTTPClient implements IHTTPClient {
                 dataMap.query = this.getValueWithDataMap(data, options.dataMaps.query);
             }
 
-            if (options.dataMaps.route) {
-                dataMap.route = this.getValueWithDataMap(data, options.dataMaps.route);
+            if (options.dataMaps.path) {
+                dataMap.path = this.getValueWithDataMap(data, options.dataMaps.path);
             }
         }
         return dataMap;
@@ -365,8 +365,8 @@ export class FetchHTTPClient implements IHTTPClient {
 
         const dataMap = this.createDataMap(data, options);
 
-        if (ensureObject(dataMap.route)) {
-            customUrl = this.mergeUrlRouteParams(url, dataMap.route as Record<string, unknown>);
+        if (ensureObject(dataMap.path)) {
+            customUrl = this.mergeUrlRouteParams(url, dataMap.path as Record<string, unknown>);
         }
 
         if (dataMap.query !== undefined && (method === EnumRequestMethod.GET || options?.queryKeys?.length)) {
