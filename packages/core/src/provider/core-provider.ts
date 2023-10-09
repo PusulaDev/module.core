@@ -153,10 +153,11 @@ export class CoreProvider implements IProvider {
     private createRequestOptions<TRequest, TResponse>(
         config: IRequestConfig<TRequest, TResponse>,
         options?: ProviderRequestOptions
-    ): RequestOptions {
-        const requestOptions: RequestOptions = {
+    ): RequestOptions<TRequest> {
+        const requestOptions: RequestOptions<TRequest> = {
             responseFormat: options?.responseFormat ?? config.responseFormat,
             queryKeys: config.queryKeys as string[],
+            dataMaps: config.dataMaps,
         };
 
         const headers = { ...(options?.headers ?? {}), ...(config.headers ?? {}) };

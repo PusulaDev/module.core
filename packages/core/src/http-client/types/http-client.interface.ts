@@ -14,7 +14,7 @@ export type IHTTPClient = {
         url: string,
         method: EnumRequestMethod,
         data?: TRequest,
-        options?: RequestOptions
+        options?: RequestOptions<TRequest>
     ) => Promise<TResponse | undefined>;
 
     get: ClientRequest;
