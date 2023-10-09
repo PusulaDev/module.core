@@ -151,4 +151,64 @@ describe("Http Client Post Method", () => {
             method: "POST",
         });
     });
+
+    it("should separete query, body and route with dataMap options", async () => {
+        mockFetchJSONResponse({});
+
+        const headers = {
+            "content-type": EnumContentType.Json,
+        };
+
+        const api = new FetchHTTPClient({
+            baseUrl: "http://test.com",
+            headers,
+        });
+
+        const request = { route: { id: 1 }, body: ["ali", "veli"], query: { name: "salih" } };
+
+        await api.post("test/${id}", request, {
+            queryKeys: ["name"],
+            dataMaps: {
+                body: "body",
+                query: "query",
+                route: "route",
+            },
+        });
+
+        expect(fetch).toBeCalledWith("http://test.com/test/1?name=salih", {
+            method: "POST",
+            body: JSON.stringify(request.body),
+            headers,
+        });
+    });
+
+    it("should separete query, body and route with method type dataMaps", async () => {
+        mockFetchJSONResponse({});
+
+        const headers = {
+            "content-type": EnumContentType.Json,
+        };
+
+        const api = new FetchHTTPClient({
+            baseUrl: "http://test.com",
+            headers,
+        });
+
+        const request = { test: { id: 1 }, test2: ["ali", "veli"], test3: { name: "salih" } };
+
+        await api.post("test/${id}", request, {
+            queryKeys: ["name"],
+            dataMaps: {
+                body: (e) => e.test2,
+                query: (e) => e.test3,
+                route: (e) => e.test,
+            },
+        });
+
+        expect(fetch).toBeCalledWith("http://test.com/test/1?name=salih", {
+            method: "POST",
+            body: JSON.stringify(request.test2),
+            headers,
+        });
+    });
 });

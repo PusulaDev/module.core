@@ -10,6 +10,7 @@ import {
 import { CustomError, CustomHttpClientError, CustomServerError, EnumCustomErrorType } from "../custom-errors";
 import { type RequestOptions, type RetryOnErrorOptions, EnumQueryStringMultipleValueFormat } from "./types";
 import { globalModule } from "../global-module";
+import type { RequestDataMapValue } from "./types/request-options.interface";
 
 export class FetchHTTPClient implements IHTTPClient {
     private readonly baseUrl: string;
@@ -50,7 +51,7 @@ export class FetchHTTPClient implements IHTTPClient {
         url: string,
         method: EnumRequestMethod,
         data?: TRequest,
-        options?: RequestOptions
+        options?: RequestOptions<TRequest>
     ): Promise<TResponse | undefined> {
         const copiedData = data ? (JSON.parse(JSON.stringify(data)) as TRequest) : data;
 
@@ -83,7 +84,7 @@ export class FetchHTTPClient implements IHTTPClient {
             url: string;
             method: EnumRequestMethod;
             data?: TRequest;
-            options?: RequestOptions;
+            options?: RequestOptions<TRequest>;
             key: string;
         }
     ): Promise<TResponse | undefined> {
@@ -108,7 +109,7 @@ export class FetchHTTPClient implements IHTTPClient {
     async get<TRequest, TResponse = undefined>(
         url: string,
         data?: TRequest,
-        options?: RequestOptions
+        options?: RequestOptions<TRequest>
     ): Promise<TResponse | undefined> {
         return this.request(url, EnumRequestMethod.GET, data, options);
     }
@@ -116,7 +117,7 @@ export class FetchHTTPClient implements IHTTPClient {
     async post<TRequest, TResponse = undefined>(
         url: string,
         data?: TRequest,
-        options?: RequestOptions
+        options?: RequestOptions<TRequest>
     ): Promise<TResponse | undefined> {
         return this.request(url, EnumRequestMethod.POST, data, options);
     }
@@ -124,7 +125,7 @@ export class FetchHTTPClient implements IHTTPClient {
     async put<TRequest, TResponse = undefined>(
         url: string,
         data?: TRequest,
-        options?: RequestOptions
+        options?: RequestOptions<TRequest>
     ): Promise<TResponse | undefined> {
         return this.request(url, EnumRequestMethod.PUT, data, options);
     }
@@ -132,7 +133,7 @@ export class FetchHTTPClient implements IHTTPClient {
     async patch<TRequest, TResponse = undefined>(
         url: string,
         data?: TRequest,
-        options?: RequestOptions
+        options?: RequestOptions<TRequest>
     ): Promise<TResponse | undefined> {
         return this.request(url, EnumRequestMethod.PATCH, data, options);
     }
@@ -140,7 +141,7 @@ export class FetchHTTPClient implements IHTTPClient {
     async delete<TRequest, TResponse = undefined>(
         url: string,
         data?: TRequest,
-        options?: RequestOptions
+        options?: RequestOptions<TRequest>
     ): Promise<TResponse | undefined> {
         return this.request(url, EnumRequestMethod.DELETE, data, options);
     }
@@ -148,7 +149,7 @@ export class FetchHTTPClient implements IHTTPClient {
     async upload<TResponse = undefined>(
         url: string,
         formData: FormData,
-        options?: RequestOptions
+        options?: RequestOptions<undefined>
     ): Promise<TResponse | undefined> {
         try {
             return this.handleUpload(url, formData, options);
@@ -187,7 +188,7 @@ export class FetchHTTPClient implements IHTTPClient {
     private async handleUpload<TResponse = undefined>(
         url: string,
         formData: FormData,
-        options?: RequestOptions
+        options?: RequestOptions<undefined>
     ): Promise<TResponse | undefined> {
         const response = await fetch(`${this.baseUrl}${url}`, {
             method: "POST",
@@ -207,7 +208,7 @@ export class FetchHTTPClient implements IHTTPClient {
     private createBody = (
         method: EnumRequestMethod,
         data?: unknown,
-        headers: RequestOptions["headers"] = {}
+        headers: RequestOptions<undefined>["headers"] = {}
     ) => {
         let body: RequestInit["body"] = undefined;
         const isGet = method === "GET";
@@ -235,10 +236,10 @@ export class FetchHTTPClient implements IHTTPClient {
         return body;
     };
 
-    private createFetchInit(
+    private createFetchInit<TRequest>(
         method: EnumRequestMethod,
-        options?: RequestOptions,
-        data?: unknown
+        options?: RequestOptions<TRequest>,
+        data?: TRequest
     ): RequestInit {
         const abortController = options?.abortController as AbortController | undefined;
 
@@ -324,26 +325,56 @@ export class FetchHTTPClient implements IHTTPClient {
         }
     }
 
+    private getValueWithDataMap<TRequest>(data: TRequest, mapper: RequestDataMapValue<TRequest>) {
+        if (typeof mapper === "function") return mapper(data);
+        else return data[mapper as keyof TRequest];
+    }
+
+    private createDataMap<TRequest>(data?: TRequest, options?: RequestOptions<TRequest>) {
+        const dataMap: { query: unknown; body: unknown; route: unknown } = {
+            query: data,
+            body: data,
+            route: data,
+        };
+
+        if (data && options?.dataMaps) {
+            if (options.dataMaps.body) {
+                dataMap.body = this.getValueWithDataMap(data, options.dataMaps.body);
+            }
+
+            if (options.dataMaps.query) {
+                dataMap.query = this.getValueWithDataMap(data, options.dataMaps.query);
+            }
+
+            if (options.dataMaps.route) {
+                dataMap.route = this.getValueWithDataMap(data, options.dataMaps.route);
+            }
+        }
+        return dataMap;
+    }
+
     private async handleRequest<TRequest, TResponse = undefined>(opts: {
         url: string;
         key: string;
         method: EnumRequestMethod;
         data?: TRequest;
-        options?: RequestOptions;
+        options?: RequestOptions<TRequest>;
     }): Promise<TResponse | undefined> {
         const { url, key, method, data, options } = opts;
         let customUrl = url;
 
-        if (ensureObject(data)) {
-            customUrl = this.mergeUrlRouteParams(url, data as Record<string, unknown>);
+        const dataMap = this.createDataMap(data, options);
+
+        if (ensureObject(dataMap.route)) {
+            customUrl = this.mergeUrlRouteParams(url, dataMap.route as Record<string, unknown>);
         }
 
-        if (data !== undefined && (method === EnumRequestMethod.GET || options?.queryKeys?.length)) {
-            customUrl += this.createQueryString(data, options?.queryKeys);
+        if (dataMap.query !== undefined && (method === EnumRequestMethod.GET || options?.queryKeys?.length)) {
+            customUrl += this.createQueryString(dataMap.query, options?.queryKeys);
         }
 
         const pendingRequest = this.pendingRequests.get(key);
-        const init = this.createFetchInit(method, options, data);
+        const init = this.createFetchInit(method, options, dataMap.body as TRequest);
 
         const response: Response = await this.createResponse({
             url: customUrl,
