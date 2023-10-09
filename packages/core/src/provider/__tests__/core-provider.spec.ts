@@ -370,6 +370,30 @@ describe("Data Provider", () => {
         );
     });
 
+    it("shouldn't throw error for validation if values exists in any dataMaps part ", async () => {
+        globalModule.setLocalization(mockLocalization);
+
+        const provider = new CoreProvider(client);
+
+        type TestRequest = { body: { name: string }; params: { id: string } };
+        const config: IRequestConfig<TestRequest, number> = {
+            url: "test",
+            validationProperties: [
+                {
+                    name: "id",
+                    type: "string",
+                    rules: { isRequired: true },
+                },
+            ],
+            dataMaps: {
+                body: "body",
+                path: "params",
+            },
+        };
+
+        expect(() => provider.post(config, { body: { name: "salih" }, params: { id: "test" } })).not.rejects;
+    });
+
     it("should validate request with validation properties", async () => {
         globalModule.setLocalization(mockLocalization);
 

@@ -5,6 +5,7 @@ import type { ICache } from "../cache";
 import { CustomProviderError, EnumCustomErrorType } from "../custom-errors";
 import { validateAndThrow } from "./validator";
 import { createDataMap } from "src/shared/create-data-map";
+import { ensureObject } from "src/utils";
 
 export class CoreProvider implements IProvider {
     protected baseUrl: string | null = null;
@@ -196,6 +197,10 @@ export class CoreProvider implements IProvider {
         this.abortControllers.delete(options?.raceId);
     }
 
+    private getDataAsObject(data: unknown) {
+        return ensureObject(data) ? data : {};
+    }
+
     private async validateRequest<TRequest = undefined, TResponse = undefined>(
         config: IRequestConfig<TRequest, TResponse>,
         data: TRequest | undefined
@@ -204,9 +209,13 @@ export class CoreProvider implements IProvider {
 
         const dataMap = createDataMap(data, config);
 
-        await this.validateData(config, dataMap.body as TRequest);
-        await this.validateData(config, dataMap.path as TRequest);
-        await this.validateData(config, dataMap.query as TRequest);
+        const combined = {
+            ...this.getDataAsObject(dataMap.body),
+            ...this.getDataAsObject(dataMap.path),
+            ...this.getDataAsObject(dataMap.query),
+        };
+
+        await this.validateData(config, combined as TRequest);
     }
 
     private async validateData<TRequest = undefined, TResponse = undefined>(
