@@ -109,9 +109,6 @@ if(hasArrayType){
     const query = requestTypeMap.query ? `${dataMaps.query}: ${requestTypeMap.query},` : '';
 
     requestType = `{${body}${path}${query}}`;
-
-    console.log('requestType',requestType)
-
 }
 
 const responseType = route.response.type;
