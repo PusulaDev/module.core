@@ -1,3 +1,4 @@
+import type { RequestDataMap } from "src/http-client/types/request-options.interface";
 import type { EnumResponseFormat } from "../../http-client";
 import type { ProviderRequestOptions } from "./provider-request-options.interface";
 
@@ -21,11 +22,12 @@ export type IRequestConfig<TRequest = undefined, TResponse = undefined> = {
     /**
      * adds query parameters to url with this keys if value exists
      */
-    queryKeys?: (keyof TRequest)[];
+    queryKeys?: string[];
+    dataMaps?: RequestDataMap<TRequest>;
 };
 
 export type ValidationProperty<T> = {
-    name: keyof T;
+    name: keyof T | string;
     type: string;
     rules: {
         isRequired?: boolean;

@@ -5,26 +5,59 @@ const {_, getInlineParseContent, getParseContent, parseSchema, getComponentByRef
 const { path, method, payload, query, formData, security, requestParams, pathParams } = route.request;
 
 const securityTmpl = security ? 'true' : null;
+const requestTypeMap = {
+    body:null,
+    query:null,
+    path:null
+}
+let hasArrayType = false;
+
 const requestTypes = [];
-const queryKeys = []
+const queryKeys = [];
+
+const findContract = (name) => {
+    return modelTypes.find(e=> e.name === name)
+}
 
 if (payload)
 {
+    requestTypeMap.body = payload.type;
     requestTypes.push(payload.type)
+
+    if(payload.type.includes('[]'))
+    {
+        hasArrayType = true
+    }
 }
 
 if (requestParams)
 {
-    requestTypes.push(getInlineParseContent(requestParams))
-    const requestParamContract = modelTypes.find(e=> e.name === getInlineParseContent(requestParams));
+    const name = getInlineParseContent(requestParams)
+
+    requestTypeMap.query = name;
+    requestTypes.push(name);
+
+    const requestParamContract = findContract(name);
+
     Object.values(requestParamContract.properties).forEach(item => {
         if(item.in === "query") queryKeys.push(item.name);
     })
+
+    if(name.includes('[]'))
+    {
+        hasArrayType = true
+    }
 }
 
 if (pathParams)
 {
+    requestTypeMap.path = pathParams.type;
     requestTypes.push(pathParams.type);
+
+    if(pathParams.type.includes('[]'))
+    {
+        hasArrayType = true
+    }
 }
 
 let validationProperties = [];
@@ -61,6 +94,22 @@ contracts.forEach(contract => {
    
 
 let requestType = requestTypes.join(' & ') || 'undefined';
+let dataMaps;
+
+if(hasArrayType){
+    dataMaps = {
+        body:'body',
+        path:'path',
+        query:'query'
+    }
+
+
+    const body = requestTypeMap.body ? `${dataMaps.body}?: ${requestTypeMap.body},` : '';
+    const path = requestTypeMap.path ? `${dataMaps.path}?: ${requestTypeMap.path},` : '';
+    const query = requestTypeMap.query ? `${dataMaps.query}?: ${requestTypeMap.query},` : '';
+
+    requestType = `{${body}${path}${query}}`;
+}
 
 const responseType = route.response.type;
 
@@ -91,4 +140,5 @@ const <% ~requestName %>Config: ICachableRequestConfig<<% ~requestType %>, <% ~r
   <%~ responseFormatTmpl ? `responseFormat: ${responseFormatTmpl},` : '' %>
   <%~ validationProperties ? `validationProperties: ${JSON.stringify(validationProperties)},` : ''  %>
   <%~ queryKeys.length ? `queryKeys: ${JSON.stringify(queryKeys)},`: '' %>
+  <%~ dataMaps ? `dataMaps: ${JSON.stringify(dataMaps)},`: '' %>
   };

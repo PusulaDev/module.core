@@ -5,24 +5,7 @@ const { pathParams, path, method, payload, security, requestParams } = route.req
 const { type } = route.response;
 const routeDocs = includeFile("./route-docs", { config, route, utils });
 
-const requestTypes = [];
 
-if (payload)
-{
-    requestTypes.push(payload.type)
-}
-
-if (requestParams)
-{
-    requestTypes.push(getInlineParseContent(requestParams))
-}
-
-if (pathParams)
-{
-    requestTypes.push(pathParams.type);
-}
-
-let requestType = requestTypes.join(' & ') || 'undefined';
 
 const responseType = route.response.type;
 const name = route.routeName.usage.replace('app','')
@@ -32,11 +15,13 @@ const cachableName = `cachable${capitalize(name)}`;
 const methodName = name.replace(name[0],name[0].toLowerCase())
 
 const configGetterName = `${methodName}Config`
+const configName = `${route.routeName.usage}Config`
 
+let requestType = `typeof ${configName} extends ICachableRequestConfig<infer X> ? X : never`;
 %>
 
 get <%~ configGetterName %>(){
-return Object.freeze(<%~route.routeName.usage %>Config);
+return Object.freeze(<%~ configName %>);
 }
 
 /**
@@ -47,7 +32,7 @@ return Object.freeze(<%~route.routeName.usage %>Config);
 */
 <%~ methodName %> = (request:<%~ requestType %>,options?: ProviderRequestOptions) =>
 {
-return this.<%~method%>(<%~route.routeName.usage %>Config,request,options)
+return this.<%~method%>(<%~ configName %>,request,options)
 }
 
 <% if(method === "get") {
@@ -62,6 +47,6 @@ return this.<%~method%>(<%~route.routeName.usage %>Config,request,options)
 */
 <%~ cachableName %> = (request:<%~ requestType %>,options?: ProviderRequestOptions) =>
 {
-return this.<%~cachableMethod%>(<%~route.routeName.usage %>Config,request,options)
+return this.<%~cachableMethod%>(<%~ configName %>,request,options)
 }
 <% }%>

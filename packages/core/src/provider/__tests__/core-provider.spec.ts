@@ -334,7 +334,67 @@ describe("Data Provider", () => {
         );
     });
 
-    it("should validate request with validation function", async () => {
+    it("should validate request with dataMaps ", async () => {
+        globalModule.setLocalization(mockLocalization);
+
+        const provider = new CoreProvider(client);
+
+        type TestRequest = { body: { name: string }; params: { id: string } };
+        const config: IRequestConfig<TestRequest, number> = {
+            url: "test",
+            validationProperties: [
+                {
+                    name: "name",
+                    type: "string",
+                    rules: { isRequired: true },
+                },
+                {
+                    name: "id",
+                    type: "string",
+                    rules: { isRequired: true },
+                },
+            ],
+            dataMaps: {
+                body: "body",
+                path: "params",
+            },
+        };
+
+        await expect(() =>
+            provider.post(config, { body: { name: "salih" }, params: { id: "" } })
+        ).rejects.toEqual(
+            new CustomProviderError({
+                type: EnumCustomErrorType.RequestValidation,
+                message: "id: required",
+            })
+        );
+    });
+
+    it("shouldn't throw error for validation if values exists in any dataMaps part ", async () => {
+        globalModule.setLocalization(mockLocalization);
+
+        const provider = new CoreProvider(client);
+
+        type TestRequest = { body: { name: string }; params: { id: string } };
+        const config: IRequestConfig<TestRequest, number> = {
+            url: "test",
+            validationProperties: [
+                {
+                    name: "id",
+                    type: "string",
+                    rules: { isRequired: true },
+                },
+            ],
+            dataMaps: {
+                body: "body",
+                path: "params",
+            },
+        };
+
+        expect(() => provider.post(config, { body: { name: "salih" }, params: { id: "test" } })).not.rejects;
+    });
+
+    it("should validate request with validation properties", async () => {
         globalModule.setLocalization(mockLocalization);
 
         const provider = new CoreProvider(client);

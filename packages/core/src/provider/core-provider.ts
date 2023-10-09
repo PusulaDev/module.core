@@ -4,6 +4,8 @@ import type { ICachableRequestConfig, IRequestConfig, ProviderRequestOptions } f
 import type { ICache } from "../cache";
 import { CustomProviderError, EnumCustomErrorType } from "../custom-errors";
 import { validateAndThrow } from "./validator";
+import { createDataMap } from "src/shared/create-data-map";
+import { ensureObject } from "src/utils";
 
 export class CoreProvider implements IProvider {
     protected baseUrl: string | null = null;
@@ -153,10 +155,11 @@ export class CoreProvider implements IProvider {
     private createRequestOptions<TRequest, TResponse>(
         config: IRequestConfig<TRequest, TResponse>,
         options?: ProviderRequestOptions
-    ): RequestOptions {
-        const requestOptions: RequestOptions = {
+    ): RequestOptions<TRequest> {
+        const requestOptions: RequestOptions<TRequest> = {
             responseFormat: options?.responseFormat ?? config.responseFormat,
             queryKeys: config.queryKeys as string[],
+            dataMaps: config.dataMaps,
         };
 
         const headers = { ...(options?.headers ?? {}), ...(config.headers ?? {}) };
@@ -194,9 +197,30 @@ export class CoreProvider implements IProvider {
         this.abortControllers.delete(options?.raceId);
     }
 
+    private getDataAsObject(data: unknown) {
+        return ensureObject(data) ? data : {};
+    }
+
     private async validateRequest<TRequest = undefined, TResponse = undefined>(
         config: IRequestConfig<TRequest, TResponse>,
         data: TRequest | undefined
+    ) {
+        if (!config.dataMaps) return this.validateData(config, data);
+
+        const dataMap = createDataMap(data, config);
+
+        const combined = {
+            ...this.getDataAsObject(dataMap.body),
+            ...this.getDataAsObject(dataMap.path),
+            ...this.getDataAsObject(dataMap.query),
+        };
+
+        await this.validateData(config, combined as TRequest);
+    }
+
+    private async validateData<TRequest = undefined, TResponse = undefined>(
+        config: IRequestConfig<TRequest, TResponse>,
+        data?: TRequest
     ) {
         try {
             if (config.validateRequest) {

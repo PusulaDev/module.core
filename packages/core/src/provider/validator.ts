@@ -5,7 +5,7 @@ export const validate = <T>({ value, properties }: { value?: T; properties: Vali
     const validationResults: ValidationResult[] = [];
 
     properties.forEach((property) => {
-        const propValue = value?.[property.name];
+        const propValue = value?.[property.name as keyof T];
 
         const res = validateProp(property, propValue);
         if (res.length)

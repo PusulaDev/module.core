@@ -163,6 +163,19 @@ describe("validate", () => {
             },
             [],
         ],
+        [
+            {
+                value: { identity: "12121212122" },
+                properties: [
+                    {
+                        name: "identity",
+                        type: "string",
+                        rules: { isRequired: true, pattern: "^[1-9]{1}[0-9]{9}[02468]{1}$" },
+                    },
+                ],
+            },
+            [],
+        ],
     ];
 
     test.each(cases)(`validate options: %o, expected : %o`, (options, expected) => {
