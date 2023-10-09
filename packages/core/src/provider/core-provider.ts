@@ -4,6 +4,7 @@ import type { ICachableRequestConfig, IRequestConfig, ProviderRequestOptions } f
 import type { ICache } from "../cache";
 import { CustomProviderError, EnumCustomErrorType } from "../custom-errors";
 import { validateAndThrow } from "./validator";
+import { createDataMap } from "src/shared/create-data-map";
 
 export class CoreProvider implements IProvider {
     protected baseUrl: string | null = null;
@@ -198,6 +199,19 @@ export class CoreProvider implements IProvider {
     private async validateRequest<TRequest = undefined, TResponse = undefined>(
         config: IRequestConfig<TRequest, TResponse>,
         data: TRequest | undefined
+    ) {
+        if (!config.dataMaps) return this.validateData(config, data);
+
+        const dataMap = createDataMap(data, config);
+
+        await this.validateData(config, dataMap.body as TRequest);
+        await this.validateData(config, dataMap.path as TRequest);
+        await this.validateData(config, dataMap.query as TRequest);
+    }
+
+    private async validateData<TRequest = undefined, TResponse = undefined>(
+        config: IRequestConfig<TRequest, TResponse>,
+        data?: TRequest
     ) {
         try {
             if (config.validateRequest) {

@@ -11,6 +11,7 @@ import { CustomError, CustomHttpClientError, CustomServerError, EnumCustomErrorT
 import { type RequestOptions, type RetryOnErrorOptions, EnumQueryStringMultipleValueFormat } from "./types";
 import { globalModule } from "../global-module";
 import type { RequestDataMapValue } from "./types/request-options.interface";
+import { createDataMap } from "src/shared/create-data-map";
 
 export class FetchHTTPClient implements IHTTPClient {
     private readonly baseUrl: string;
@@ -325,34 +326,6 @@ export class FetchHTTPClient implements IHTTPClient {
         }
     }
 
-    private getValueWithDataMap<TRequest>(data: TRequest, mapper: RequestDataMapValue<TRequest>) {
-        if (typeof mapper === "function") return mapper(data);
-        else return data[mapper as keyof TRequest];
-    }
-
-    private createDataMap<TRequest>(data?: TRequest, options?: RequestOptions<TRequest>) {
-        const dataMap: { query: unknown; body: unknown; path: unknown } = {
-            query: data,
-            body: data,
-            path: data,
-        };
-
-        if (data && options?.dataMaps) {
-            if (options.dataMaps.body) {
-                dataMap.body = this.getValueWithDataMap(data, options.dataMaps.body);
-            }
-
-            if (options.dataMaps.query) {
-                dataMap.query = this.getValueWithDataMap(data, options.dataMaps.query);
-            }
-
-            if (options.dataMaps.path) {
-                dataMap.path = this.getValueWithDataMap(data, options.dataMaps.path);
-            }
-        }
-        return dataMap;
-    }
-
     private async handleRequest<TRequest, TResponse = undefined>(opts: {
         url: string;
         key: string;
@@ -363,7 +336,7 @@ export class FetchHTTPClient implements IHTTPClient {
         const { url, key, method, data, options } = opts;
         let customUrl = url;
 
-        const dataMap = this.createDataMap(data, options);
+        const dataMap = createDataMap(data, options);
 
         if (ensureObject(dataMap.path)) {
             customUrl = this.mergeUrlRouteParams(url, dataMap.path as Record<string, unknown>);

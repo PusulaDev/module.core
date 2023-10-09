@@ -104,9 +104,9 @@ if(hasArrayType){
     }
 
 
-    const body = requestTypeMap.body ? `${dataMaps.body}: ${requestTypeMap.body},` : '';
-    const path = requestTypeMap.path ? `${dataMaps.path}: ${requestTypeMap.path},` : '';
-    const query = requestTypeMap.query ? `${dataMaps.query}: ${requestTypeMap.query},` : '';
+    const body = requestTypeMap.body ? `${dataMaps.body}?: ${requestTypeMap.body},` : '';
+    const path = requestTypeMap.path ? `${dataMaps.path}?: ${requestTypeMap.path},` : '';
+    const query = requestTypeMap.query ? `${dataMaps.query}?: ${requestTypeMap.query},` : '';
 
     requestType = `{${body}${path}${query}}`;
 }
