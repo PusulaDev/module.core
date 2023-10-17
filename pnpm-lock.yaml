@@ -160,12 +160,6 @@ importers:
         specifier: ^0.29.8
         version: 0.29.8
 
-  packages/test:
-    devDependencies:
-      '@pusula/swagger-codegen':
-        specifier: '*'
-        version: link:../swagger-codegen
-
   packages/vite-config:
     dependencies:
       '@rollup/pluginutils':
