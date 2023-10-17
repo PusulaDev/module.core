@@ -262,7 +262,7 @@ describe("Http Client", () => {
 
             const api = new FetchHTTPClient(options);
 
-            expect(api.HTTPClientOptions).toEqual(options);
+            expect(api.httpClientOptions).toEqual(options);
         });
     });
 });

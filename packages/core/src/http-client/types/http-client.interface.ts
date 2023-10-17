@@ -30,7 +30,7 @@ export type IHTTPClient = {
 
     createAbortController?: () => IAbortController;
 
-    HTTPClientOptions: IHTTPClientOptions;
+    httpClientOptions: IHTTPClientOptions;
 };
 
 export type IHTTPClientConstuctor = new (options: IHTTPClientOptions) => IHTTPClient;

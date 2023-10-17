@@ -35,8 +35,8 @@ export class FetchHTTPClient implements IHTTPClient {
         this.queryStringFormat = options.queryStringFormat ?? EnumQueryStringMultipleValueFormat.Encoded;
     }
 
-    get HTTPClientOptions(): IHTTPClientOptions {
-        return {
+    get httpClientOptions(): IHTTPClientOptions {
+        const options: IHTTPClientOptions = {
             baseUrl: this.baseUrl,
             headers: this.headers,
             createErrorFn: this.createErrorFn,
@@ -45,6 +45,8 @@ export class FetchHTTPClient implements IHTTPClient {
             retryOnErrorOptions: this.retryOnErrorOptions,
             queryStringFormat: this.queryStringFormat,
         };
+
+        return Object.freeze(options);
     }
 
     setRetryOnErrorOptions(options: RetryOnErrorOptions) {
