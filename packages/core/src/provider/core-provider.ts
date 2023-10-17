@@ -10,7 +10,7 @@ import { ensureObject } from "src/utils";
 export class CoreProvider implements IProvider {
     protected baseUrl: string | null = null;
     protected cache?: ICache;
-    private client: IHTTPClient;
+    protected client: IHTTPClient;
     private abortControllers = new Map<string, IAbortController>();
 
     constructor(client: IHTTPClient) {
