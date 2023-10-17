@@ -7,6 +7,7 @@ import {
 } from "../__mocks__/fetch.mock";
 import { CustomHttpClientError, EnumCustomErrorType } from "../../custom-errors";
 import { globalModule } from "../../global-module";
+import { type IHTTPClientOptions, EnumResponseFormat, EnumQueryStringMultipleValueFormat } from "../types";
 
 describe("Http Client", () => {
     beforeEach(() => {
@@ -236,6 +237,32 @@ describe("Http Client", () => {
             void client.get("get");
 
             expect(fetch).toBeCalledWith("http://a.com/get", { method: "GET" });
+        });
+    });
+
+    describe("Options", () => {
+        it("should use options", () => {
+            const options: IHTTPClientOptions = {
+                baseUrl: "http://test.com/",
+                headers: {
+                    "content-type": "application/json",
+                },
+                preventRequestDuplication: false,
+                responseFormat: EnumResponseFormat.Json,
+                queryStringFormat: EnumQueryStringMultipleValueFormat.Encoded,
+                createErrorFn: (response: Error) => {
+                    return new Error(response.message);
+                },
+                retryOnErrorOptions: {
+                    beforeRetry: () => Promise.resolve(),
+                    retryCondition: () => true,
+                    maxRetryCount: 3,
+                },
+            };
+
+            const api = new FetchHTTPClient(options);
+
+            expect(api.httpClientOptions).toEqual(options);
         });
     });
 });

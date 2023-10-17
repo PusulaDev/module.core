@@ -29,6 +29,8 @@ export type IHTTPClient = {
     removeHeader(key: string): void;
 
     createAbortController?: () => IAbortController;
+
+    httpClientOptions: IHTTPClientOptions;
 };
 
 export type IHTTPClientConstuctor = new (options: IHTTPClientOptions) => IHTTPClient;

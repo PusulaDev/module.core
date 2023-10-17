@@ -10,7 +10,6 @@ import {
 import { CustomError, CustomHttpClientError, CustomServerError, EnumCustomErrorType } from "../custom-errors";
 import { type RequestOptions, type RetryOnErrorOptions, EnumQueryStringMultipleValueFormat } from "./types";
 import { globalModule } from "../global-module";
-import type { RequestDataMapValue } from "./types/request-options.interface";
 import { createDataMap } from "src/shared/create-data-map";
 
 export class FetchHTTPClient implements IHTTPClient {
@@ -34,6 +33,20 @@ export class FetchHTTPClient implements IHTTPClient {
         this.responseFormat = options.responseFormat;
         this.retryOnErrorOptions = options.retryOnErrorOptions;
         this.queryStringFormat = options.queryStringFormat ?? EnumQueryStringMultipleValueFormat.Encoded;
+    }
+
+    get httpClientOptions(): IHTTPClientOptions {
+        const options: IHTTPClientOptions = {
+            baseUrl: this.baseUrl,
+            headers: this.headers,
+            createErrorFn: this.createErrorFn,
+            preventRequestDuplication: this.preventRequestDuplication,
+            responseFormat: this.responseFormat,
+            retryOnErrorOptions: this.retryOnErrorOptions,
+            queryStringFormat: this.queryStringFormat,
+        };
+
+        return Object.freeze(options);
     }
 
     setRetryOnErrorOptions(options: RetryOnErrorOptions) {
