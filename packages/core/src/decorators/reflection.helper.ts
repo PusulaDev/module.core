@@ -38,18 +38,20 @@ export const getConstructorArgNamesAfterFirst = (target: IClassConstructor) => {
 
 export const defineInjectionTokenMetaData =
     (token: Partial<DependencyType>) =>
-    (target: any, _propertyKey: string | symbol, parameterIndex: number) => {
-        const descriptors =
-            (Reflect.getOwnMetadata(
+        (target: any, _propertyKey?: string | symbol, parameterIndex?: number) => {
+            const descriptors =
+                (Reflect.getOwnMetadata(
+                    INJECTION_TOKEN_METADATA_KEY,
+                    target as (...args: unknown[]) => unknown
+                ) as Partial<DependencyType>[]) || {};
+
+            if (parameterIndex === undefined) return;
+
+            descriptors[parameterIndex] = token;
+
+            Reflect.defineMetadata(
                 INJECTION_TOKEN_METADATA_KEY,
+                descriptors,
                 target as (...args: unknown[]) => unknown
-            ) as Partial<DependencyType>[]) || {};
-
-        descriptors[parameterIndex] = token;
-
-        Reflect.defineMetadata(
-            INJECTION_TOKEN_METADATA_KEY,
-            descriptors,
-            target as (...args: unknown[]) => unknown
-        );
-    };
+            );
+        };
