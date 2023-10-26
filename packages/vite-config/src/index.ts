@@ -30,7 +30,25 @@ function tscPlugin(config?: { tsconfig: string }) {
     return {
         name: "tsc-plugin",
         async writeBundle() {
-            exec(`tsc --declaration --emitDeclarationOnly --declarationDir dist --project ${tsConfigName}`);
+            return new Promise((resolve, reject) => {
+                console.log("Type checking with tsc...");
+
+                exec(`tsc --declaration --emitDeclarationOnly --declarationDir dist --project ${tsConfigName}`,
+                    (error, stdout, stderr) => {
+                        if (stdout) {
+                            if (error) console.error(stdout);
+                            else console.log(stdout);
+                        }
+                        if (stderr) {
+                            console.error(stderr);
+                        }
+                        if (error) {
+                            reject(new Error(`Type checking with tsc failed with error code ${error.code}`));
+                            return;
+                        }
+                        resolve(true);
+                    });
+            })
         },
     };
 }

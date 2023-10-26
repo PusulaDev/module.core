@@ -1,0 +1,17 @@
+{
+    "name": "test-vite-config",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "build": "vite build"
+    },
+    "dependencies": {
+        "@pusula/module.core-vite-config": "*",
+        "typescript": "*",
+        "vite": "^4.4.8"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
+}
