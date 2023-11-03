@@ -9,7 +9,7 @@ function capitalizeFirstLetter(string: string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-export const generateIndex = (data: GenerateApiOutput, output: string) => {
+export const generateIndex = (data: GenerateApiOutput, output: string, silent?: boolean) => {
     const { files } = data;
 
     const imports = files.map(({ fileName }) => `export * from "./${fileName}";`).join("\n");
@@ -114,18 +114,19 @@ export const generateUtilsForMultiple = (output: string) => {
     }
 }
 
-export const useNameModifiers = () => {
+export const useNameModifiers = ({ silent }: { silent?: boolean } = {}) => {
     const types = new Set<string>();
     const providers = new Map<string, Set<string>>();
 
     const checkAndMakeNameUnique = (options: GenerateApiEndpoint, list: Set<string>, name: string) => {
-        let newName = name;
+        let newName = capitalizeFirstLetter(name);
+
         if (list.has(newName)) {
-            console.info(`Not unique, finding new for => ${newName} ...`)
+            !silent && console.info(`Not unique, finding new for => ${newName} ...`)
 
             if (!newName.startsWith(options.name)) {
                 newName = `${options.name}${capitalizeFirstLetter(newName)}`;
-                console.info(`Trying new name  => ${newName} ...`)
+                !silent && console.info(`Trying new name  => ${newName} ...`)
                 newName = checkAndMakeNameUnique(options, list, newName)
             }
             else {
@@ -141,7 +142,7 @@ export const useNameModifiers = () => {
                 newName = `${newName}${count}`;
                 newName = checkAndMakeNameUnique(options, list, newName)
             }
-            console.info(`Found new name  => ${newName} !`)
+            !silent && console.info(`Found new name  => ${newName} !`)
         }
         return newName;
     }
