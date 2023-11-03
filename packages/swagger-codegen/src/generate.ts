@@ -28,9 +28,6 @@ export const generate = async (options: GenerateApiOptions) => {
     const { createModuleIfNotExists = true } = options;
 
     try {
-
-
-
         const generateResult = await generateApi({
             httpClientType: "fetch",
             generateClient: true,
@@ -75,7 +72,7 @@ export const generateMultiple = async (options: GenerateMultipleApiOptions) => {
         console.info('Cleared output folder.');
     }
 
-    const { formatTypeName, formatRouteData } = useNameModifiers();
+    const { formatTypeName, formatRouteData } = useNameModifiers({ silent: options.silent });
 
     for (let i = 0; i < endpoints.length; i++) {
         const endpoint = endpoints[i];
@@ -92,7 +89,13 @@ export const generateMultiple = async (options: GenerateMultipleApiOptions) => {
                     return hooks.onFormatTypeName ? hooks.onFormatTypeName(res, rawTypeName, schemaType) : res
                 },
                 onCreateRoute: (routeData) => {
+
                     const res = formatRouteData(endpoint, routeData);
+
+                    if (routeData.namespace.includes('saasFacility')) {
+                        console.log({ routeData: routeData.namespace, res: res.namespace });
+                    }
+
                     return hooks.onCreateRoute ? hooks.onCreateRoute(res) : res;
                 },
                 ...otherHooks
