@@ -1,5 +1,6 @@
 import { globalModule } from "src/global-module";
 import { EnumValidationResultType, type ValidationResult, type ValidationProperty } from "./types";
+import { ensureObject } from "../utils";
 
 export const validate = <T>({ value, properties }: { value?: T; properties: ValidationProperty<T>[] }) => {
     const validationResults: ValidationResult[] = [];
@@ -13,6 +14,27 @@ export const validate = <T>({ value, properties }: { value?: T; properties: Vali
                 name: property.name.toString(),
                 results: res,
             });
+
+        if (!property.children?.length) return;
+
+        if (ensureObject(propValue)) {
+            const childValidationResults = validate({ value: propValue, properties: property.children });
+            childValidationResults.forEach((childRes) => {
+                childRes.name = `${String(property.name)}.${childRes.name}`;
+                validationResults.push(childRes);
+            });
+        } else if (propValue instanceof Array) {
+            propValue.forEach((propItem, i) => {
+                const childValidationResults = validate({
+                    value: propItem,
+                    properties: property.children as any,
+                });
+                childValidationResults.forEach((childRes) => {
+                    childRes.name = `${String(property.name)}[${i}].${childRes.name}`;
+                    validationResults.push(childRes);
+                });
+            });
+        }
     });
 
     return validationResults;

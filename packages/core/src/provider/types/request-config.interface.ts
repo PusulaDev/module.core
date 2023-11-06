@@ -40,6 +40,7 @@ export type ValidationProperty<T> = {
         pattern?: string;
         uniqueItems?: boolean;
     };
+    children?: ValidationProperty<T[keyof T]>[];
 };
 
 export type ICachableRequestConfig<TRequest = undefined, TResponse = undefined> = IRequestConfig<
