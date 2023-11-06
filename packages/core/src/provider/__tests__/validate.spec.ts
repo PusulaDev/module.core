@@ -283,6 +283,19 @@ describe("validate", () => {
                 },
             ],
         ],
+        [
+            { value: [{ id: "1" }, {}], properties: [{ name: "id", rules: { isRequired: true } }] },
+            [
+                {
+                    name: "[1].id",
+                    results: [
+                        {
+                            type: EnumValidationResultType.required,
+                        },
+                    ],
+                },
+            ],
+        ],
     ];
 
     test.each(cases)(`validate options: %o, expected : %o`, (options, expected) => {
