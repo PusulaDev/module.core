@@ -1,38 +1,35 @@
 <%
 const { utils, route, config, modelTypes } = it;
 const { requestBodyInfo, responseBodyInfo, specificArgNameResolver } = route;
-const {_, getInlineParseContent, getParseContent, parseSchema, getComponentByRef, require} = utils;
+const { _, getInlineParseContent, getParseContent, parseSchema, getComponentByRef, require } = utils;
 const { path, method, payload, query, formData, security, requestParams, pathParams } = route.request;
 
-const securityTmpl = security ? 'true' : null;
+const securityTmpl = security ? "true" : null;
 const requestTypeMap = {
-    body:null,
-    query:null,
-    path:null
-}
+    body: null,
+    query: null,
+    path: null
+};
 let hasArrayType = false;
 
 const requestTypes = [];
 const queryKeys = [];
 
 const findContract = (name) => {
-    return modelTypes.find(e=> e.name === name)
-}
+    return modelTypes.find(e => e.name === name);
+};
 
-if (payload)
-{
+if (payload) {
     requestTypeMap.body = payload.type;
-    requestTypes.push(payload.type)
+    requestTypes.push(payload.type);
 
-    if(payload.type.includes('[]'))
-    {
-        hasArrayType = true
+    if (payload.type.includes("[]")) {
+        hasArrayType = true;
     }
 }
 
-if (requestParams)
-{
-    const name = getInlineParseContent(requestParams)
+if (requestParams) {
+    const name = getInlineParseContent(requestParams);
 
     requestTypeMap.query = name;
     requestTypes.push(name);
@@ -40,33 +37,37 @@ if (requestParams)
     const requestParamContract = findContract(name);
 
     Object.values(requestParamContract.properties).forEach(item => {
-        if(item.in === "query") queryKeys.push(item.name);
-    })
+        if (item.in === "query") queryKeys.push(item.name);
+    });
 
-    if(name.includes('[]'))
-    {
-        hasArrayType = true
+    if (name.includes("[]")) {
+        hasArrayType = true;
     }
 }
 
-if (pathParams)
-{
+if (pathParams) {
     requestTypeMap.path = pathParams.type;
     requestTypes.push(pathParams.type);
 
-    if(pathParams.type.includes('[]'))
-    {
-        hasArrayType = true
+    if (pathParams.type.includes("[]")) {
+        hasArrayType = true;
     }
 }
 
 let validationProperties = [];
 
-const contracts = modelTypes.filter(e=> requestTypes.includes(e.name))
+const contracts = modelTypes.filter(e =>
+        requestTypes.some(requestType => {
+            let name = requestType;
+            if (name.includes("[]")) {
+                name = name.replace(")[]", "").replace("(", "");
+            }
+            return e.name === name;
+        }));
 
 contracts.forEach(contract => {
     contract?.rawContent?.forEach(field => {
-        if(validationProperties.some(e=>e.name === field.name)) return;
+        if (validationProperties.some(e => e.name === field.name)) return;
 
         const rules = {
             isRequired: field.isRequired,
@@ -77,36 +78,36 @@ contracts.forEach(contract => {
             exclusiveMinimum: field.exclusiveMinimum,
             exclusiveMaximum: field.exclusiveMaximum,
             pattern: field.pattern,
-            uniqueItems: field.uniqueItems,
+            uniqueItems: field.uniqueItems
         };
 
-        const hasAnyRule = Object.values(rules).some(e=>Boolean(e))
-        
-        if(hasAnyRule)
+        const hasAnyRule = Object.values(rules).some(e => Boolean(e));
+
+        if (hasAnyRule)
             validationProperties.push({
-                name:field.name.replaceAll('"',''),
-                type:field.type,
+                name: field.name.replaceAll("\"", ""),
+                type: field.type,
                 rules
-            })
-    })
-})
+            });
+    });
+});
 
-   
 
-let requestType = requestTypes.join(' & ') || 'undefined';
+
+let requestType = requestTypes.join(" & ") || "undefined";
 let dataMaps;
 
-if(hasArrayType){
+if (hasArrayType) {
     dataMaps = {
-        body:'body',
-        path:'path',
-        query:'query'
-    }
+        body: "body",
+        path: "path",
+        query: "query"
+    };
 
 
-    const body = requestTypeMap.body ? `${dataMaps.body}?: ${requestTypeMap.body},` : '';
-    const path = requestTypeMap.path ? `${dataMaps.path}?: ${requestTypeMap.path},` : '';
-    const query = requestTypeMap.query ? `${dataMaps.query}?: ${requestTypeMap.query},` : '';
+    const body = requestTypeMap.body ? `${dataMaps.body}?: ${requestTypeMap.body},` : "";
+    const path = requestTypeMap.path ? `${dataMaps.path}?: ${requestTypeMap.path},` : "";
+    const query = requestTypeMap.query ? `${dataMaps.query}?: ${requestTypeMap.query},` : "";
 
     requestType = `{${body}${path}${query}}`;
 }
@@ -117,15 +118,15 @@ const requestContentKind = {
     "JSON": "EnumContentType.Json",
     "URL_ENCODED": "EnumContentType.UrlEncoded",
     "FORM_DATA": "EnumContentType.FormData",
-    "TEXT": "EnumContentType.Text",
-}
+    "TEXT": "EnumContentType.Text"
+};
 
 const responseContentKind = {
     "TEXT": "EnumResponseFormat.Text",
     "JSON": "EnumResponseFormat.Json",
     "IMAGE": "EnumResponseFormat.Blob",
     "FORM_DATA": "EnumResponseFormat.FormData"
-}
+};
 
 const bodyContentKindTmpl = requestContentKind[requestBodyInfo.contentKind] || null;
 const format = responseBodyInfo.success && responseBodyInfo.success.schema && responseBodyInfo.success.schema.contentKind;
@@ -133,12 +134,12 @@ const responseFormatTmpl = responseContentKind[responseBodyInfo.success && respo
 const requestName = route.routeName.usage;
 %>
 
-const <% ~requestName %>Config: ICachableRequestConfig<<% ~requestType %>, <% ~responseType %>> = {
-  url: "<% ~path %>",
-  cacheKey: "<% ~requestName %>",
-  <%~ bodyContentKindTmpl ? `headers : { [contentTypeKey]: ${bodyContentKindTmpl} },` : '' %>
-  <%~ responseFormatTmpl ? `responseFormat: ${responseFormatTmpl},` : '' %>
-  <%~ validationProperties ? `validationProperties: ${JSON.stringify(validationProperties)},` : ''  %>
-  <%~ queryKeys.length ? `queryKeys: ${JSON.stringify(queryKeys)},`: '' %>
-  <%~ dataMaps ? `dataMaps: ${JSON.stringify(dataMaps)},`: '' %>
-  };
+const <% ~requestName; %>Config: ICachableRequestConfig<<% ~requestType; %>, <% ~responseType; %>> = {
+url: "<% ~path; %>",
+cacheKey: "<% ~requestName; %>",
+<% ~ bodyContentKindTmpl ? `headers : { [contentTypeKey]: ${bodyContentKindTmpl} },` : ""; %>
+<% ~ responseFormatTmpl ? `responseFormat: ${responseFormatTmpl},` : ""; %>
+<% ~ validationProperties ? `validationProperties: ${JSON.stringify(validationProperties)},` : ""; %>
+<% ~ queryKeys.length ? `queryKeys: ${JSON.stringify(queryKeys)},`: ""; %>
+<% ~ dataMaps ? `dataMaps: ${JSON.stringify(dataMaps)},`: ""; %>
+};

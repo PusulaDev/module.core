@@ -27,7 +27,7 @@ export const validate = <T>({ value, properties }: { value?: T; properties: Vali
             propValue.forEach((propItem, i) => {
                 const childValidationResults = validate({
                     value: propItem,
-                    properties: property.children as any,
+                    properties: property.children,
                 });
                 childValidationResults.forEach((childRes) => {
                     childRes.name = `${String(property.name)}[${i}].${childRes.name}`;
