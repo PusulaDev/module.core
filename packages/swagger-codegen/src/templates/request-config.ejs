@@ -65,32 +65,56 @@ const contracts = modelTypes.filter(e =>
             return e.name === name;
         }));
 
-contracts.forEach(contract => {
-    contract?.rawContent?.forEach(field => {
-        if (validationProperties.some(e => e.name === field.name)) return;
+const addRules = (contract) => {
+    const rules = getRules(contract);
+    validationProperties.push(...rules)
+}
 
-        const rules = {
-            isRequired: field.isRequired,
-            maxLength: field.maxLength,
-            minLength: field.minLength,
-            minimum: field.minimum,
-            maximum: field.maximum,
-            exclusiveMinimum: field.exclusiveMinimum,
-            exclusiveMaximum: field.exclusiveMaximum,
-            pattern: field.pattern,
-            uniqueItems: field.uniqueItems
+const getRules = (contract) =>
+    contract?.rawContent?.map(field => getFieldRules(field)).filter(e=>Boolean(e));
+
+
+const getFieldRules = (field) => {
+    if (validationProperties.some(e => e.name === field.name)) return;
+
+    const rules = {
+        isRequired: field.isRequired,
+        maxLength: field.maxLength,
+        minLength: field.minLength,
+        minimum: field.minimum,
+        maximum: field.maximum,
+        exclusiveMinimum: field.exclusiveMinimum,
+        exclusiveMaximum: field.exclusiveMaximum,
+        pattern: field.pattern,
+        uniqueItems: field.uniqueItems
+    };
+
+    let hasAnyRule = Object.values(rules).some(e => Boolean(e));
+
+    const rule = {
+            name: field.name.replaceAll("\"", ""),
+            type: field.type,
+            rules: hasAnyRule ? rules : undefined
         };
 
-        const hasAnyRule = Object.values(rules).some(e => Boolean(e));
+    if(field.type === 'array'){
+        const itemName = field.items?.['$parsed']?.name;
+        const contract = findContract(itemName);
 
-        if (hasAnyRule)
-            validationProperties.push({
-                name: field.name.replaceAll("\"", ""),
-                type: field.type,
-                rules
-            });
-    });
-});
+        if(contract)
+        {
+            const childRules = getRules(contract);
+            if(childRules.length){
+                rule.children = childRules;
+                hasAnyRule = true;
+            }
+        }
+    }
+
+    return hasAnyRule ? rule : undefined;
+}
+
+contracts.forEach(contract => addRules(contract));
 
 
 
