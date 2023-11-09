@@ -92,22 +92,27 @@ const getFieldRules = (field) => {
     let hasAnyRule = Object.values(rules).some(e => Boolean(e));
 
     const rule = {
-            name: field.name.replaceAll("\"", ""),
+            name: field.name?.replaceAll("\"", ""),
             type: field.type,
             rules: hasAnyRule ? rules : undefined
         };
 
+    const parsedName = field.$parsed?.name;
+    let contract = null;
+
     if(field.type === 'array'){
         const itemName = field.items?.['$parsed']?.name;
-        const contract = findContract(itemName);
+         contract = findContract(itemName);
+    } else if(parsedName) {
+         contract = findContract(parsedName);
+    }
 
-        if(contract)
-        {
-            const childRules = getRules(contract);
-            if(childRules.length){
-                rule.children = childRules;
-                hasAnyRule = true;
-            }
+    if(contract)
+    {
+        const childRules = getRules(contract);
+        if(childRules.length){
+            rule.children = childRules;
+            hasAnyRule = true;
         }
     }
 
