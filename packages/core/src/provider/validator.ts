@@ -1,7 +1,57 @@
 import { globalModule } from "src/global-module";
-import { EnumValidationResultType, type ValidationResult, type ValidationProperty } from "./types";
+import { EnumValidationResultType, type ValidationProperty, type ValidationResult } from "./types";
+import { ensureObject } from "../utils";
 
-export const validate = <T>({ value, properties }: { value?: T; properties: ValidationProperty<T>[] }) => {
+export const validate = <T>({
+    value,
+    properties,
+    parentName = "",
+}: {
+    value?: T;
+    properties: ValidationProperty<T>[];
+    parentName?: string;
+}) => {
+    if (value instanceof Array) {
+        return validateArray({ value, properties, parentName });
+    } else {
+        return validateObject({ value, properties, parentName });
+    }
+};
+
+export const validateArray = <T>({
+    value,
+    properties,
+    parentName = "",
+}: {
+    value?: T[];
+    properties: ValidationProperty<T>[];
+    parentName: string;
+}) => {
+    const validationResults: ValidationResult[] = [];
+
+    value?.forEach((propItem, i) => {
+        const childValidationResults = validate({
+            value: propItem,
+            properties,
+        });
+        childValidationResults.forEach((childRes) => {
+            childRes.name = `${parentName}[${i}].${childRes.name}`;
+            validationResults.push(childRes);
+        });
+    });
+
+    return validationResults;
+};
+
+export const validateObject = <T>({
+    value,
+    properties,
+    parentName = "",
+}: {
+    value?: T;
+    properties: ValidationProperty<T>[];
+    parentName: string;
+}) => {
     const validationResults: ValidationResult[] = [];
 
     properties.forEach((property) => {
@@ -10,9 +60,28 @@ export const validate = <T>({ value, properties }: { value?: T; properties: Vali
         const res = validateProp(property, propValue);
         if (res.length)
             validationResults.push({
-                name: property.name.toString(),
+                name: `${parentName}${String(property.name)}`,
                 results: res,
             });
+
+        if (!property.children?.length) return;
+
+        if (ensureObject(propValue)) {
+            const childRes = validate({
+                value: propValue,
+                properties: property.children,
+                parentName: `${parentName}${String(property.name)}.`,
+            });
+            validationResults.push(...childRes);
+        } else if (propValue instanceof Array) {
+            const childRes = validate({
+                value: propValue,
+                properties: property.children,
+                parentName: `${parentName}${String(property.name)}`,
+            });
+
+            validationResults.push(...childRes);
+        }
     });
 
     return validationResults;
@@ -29,9 +98,7 @@ export const validateAndThrow = <T>(options: { value?: T; properties: Validation
 
     if (!res.length) return;
 
-    const message = res.map((e) => createErrorMessage(e)).join("\r\n");
-
-    throw message;
+    throw res.map((e) => createErrorMessage(e)).join("\r\n");
 };
 
 const validateProp = <T>(prop: ValidationProperty<T>, value: unknown) => {
@@ -39,6 +106,8 @@ const validateProp = <T>(prop: ValidationProperty<T>, value: unknown) => {
 
     const valueExists = value !== undefined && value !== null && value !== "";
     const valueNotExists = !valueExists;
+
+    if (!prop.rules) return validationResults;
 
     if (prop.rules.isRequired) {
         if (valueNotExists) validationResults.push({ type: EnumValidationResultType.required });

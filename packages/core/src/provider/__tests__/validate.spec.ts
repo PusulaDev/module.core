@@ -176,6 +176,126 @@ describe("validate", () => {
             },
             [],
         ],
+        [
+            {
+                value: { patient: { name: "salih" } },
+                properties: [
+                    {
+                        name: "patient",
+                        type: "object",
+                        rules: { isRequired: true },
+                        children: [
+                            {
+                                name: "id",
+                                type: "string",
+                                rules: { isRequired: true },
+                            },
+                        ],
+                    },
+                ],
+            },
+            [
+                {
+                    name: "patient.id",
+                    results: [
+                        {
+                            type: EnumValidationResultType.required,
+                        },
+                    ],
+                },
+            ],
+        ],
+        [
+            {
+                value: { patient: { name: { localized: "" } } },
+                properties: [
+                    {
+                        name: "patient",
+                        type: "object",
+                        rules: { isRequired: true },
+                        children: [
+                            {
+                                name: "name",
+                                type: "string",
+                                rules: { isRequired: true },
+                                children: [
+                                    {
+                                        name: "localized",
+                                        type: "string",
+                                        rules: { isRequired: true },
+                                    },
+                                ],
+                            },
+                            {
+                                name: "id",
+                                type: "string",
+                                rules: { isRequired: true },
+                            },
+                        ],
+                    },
+                ],
+            },
+            [
+                {
+                    name: "patient.name.localized",
+                    results: [
+                        {
+                            type: EnumValidationResultType.required,
+                        },
+                    ],
+                },
+                {
+                    name: "patient.id",
+                    results: [
+                        {
+                            type: EnumValidationResultType.required,
+                        },
+                    ],
+                },
+            ],
+        ],
+        [
+            {
+                value: { users: [{ name: "salih" }, {}] },
+                properties: [
+                    {
+                        name: "users",
+                        type: "array",
+                        rules: {},
+                        children: [
+                            {
+                                name: "name",
+                                type: "string",
+                                rules: { isRequired: true },
+                            },
+                        ],
+                    },
+                ],
+            },
+            [
+                {
+                    name: "users[1].name",
+                    results: [
+                        {
+                            type: EnumValidationResultType.required,
+                        },
+                    ],
+                },
+            ],
+        ],
+        [
+            { value: [{ id: "1" }, {}], properties: [{ name: "id", rules: { isRequired: true } }] },
+            [
+                {
+                    name: "[1].id",
+                    results: [
+                        {
+                            type: EnumValidationResultType.required,
+                        },
+                    ],
+                },
+            ],
+        ],
     ];
 
     test.each(cases)(`validate options: %o, expected : %o`, (options, expected) => {

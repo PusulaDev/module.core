@@ -89,13 +89,7 @@ export const generateMultiple = async (options: GenerateMultipleApiOptions) => {
                     return hooks.onFormatTypeName ? hooks.onFormatTypeName(res, rawTypeName, schemaType) : res
                 },
                 onCreateRoute: (routeData) => {
-
                     const res = formatRouteData(endpoint, routeData);
-
-                    if (routeData.namespace.includes('saasFacility')) {
-                        console.log({ routeData: routeData.namespace, res: res.namespace });
-                    }
-
                     return hooks.onCreateRoute ? hooks.onCreateRoute(res) : res;
                 },
                 ...otherHooks
