@@ -107,6 +107,8 @@ const validateProp = <T>(prop: ValidationProperty<T>, value: unknown) => {
     const valueExists = value !== undefined && value !== null && value !== "";
     const valueNotExists = !valueExists;
 
+    if (!prop.rules) return validationResults;
+
     if (prop.rules.isRequired) {
         if (valueNotExists) validationResults.push({ type: EnumValidationResultType.required });
     }

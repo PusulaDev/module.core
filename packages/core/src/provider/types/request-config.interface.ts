@@ -29,7 +29,7 @@ export type IRequestConfig<TRequest = undefined, TResponse = undefined> = {
 export type ValidationProperty<T> = {
     name: keyof T | string;
     type?: string;
-    rules: {
+    rules?: {
         isRequired?: boolean;
         maxLength?: number;
         minLength?: number;

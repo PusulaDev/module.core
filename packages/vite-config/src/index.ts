@@ -43,7 +43,7 @@ function tscPlugin(config?: { tsconfig: string }) {
                             console.error(stderr);
                         }
                         if (error) {
-                            reject(new Error(`Type checking with tsc failed with error code ${error.code}`));
+                            reject(new Error(`Type checking with tsc failed with error code ${error.code}. Message: ${error.message}`));
                             return;
                         }
                         resolve(true);
