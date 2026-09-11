@@ -1,0 +1,17 @@
+diff --git a/dist/index.d.ts b/dist/index.d.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..0b5cdee854fe14915ce79f7c5c29a7f0ac93be60
+--- /dev/null
++++ b/dist/index.d.ts
+@@ -0,0 +1,11 @@
++declare type Loaded = {
++    /** Path to the nearest config file */
++    path: string;
++    /** Merged config data */
++    data: any;
++    /** Discovered config files */
++    files: string[];
++};
++declare const loadTsConfig: (dir: string, name?: string | undefined) => Loaded | null;
++
++export { Loaded, loadTsConfig };

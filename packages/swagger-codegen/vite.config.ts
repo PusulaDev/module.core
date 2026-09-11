@@ -8,6 +8,9 @@ const resolvePath = (str: string) => resolve(__dirname, str);
 export default defineConfig({
     build: {
         sourcemap: true,
+        rollupOptions: {
+            external: ["fs", "path", "url"],
+        },
         lib: {
             entry: resolvePath("src/index.ts"),
             name: "index",
