@@ -34,7 +34,6 @@
         "swagger-typescript-api": "13.0.3",
         "@pusula/module.core": "*",
         "path": "*",
-        "fs": "*",
         "url": "*"
     }
 }
