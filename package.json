@@ -1,9 +1,10 @@
 {
     "name": "monorepo",
+    "license": "MIT",
     "version": "1.0.0",
     "private": true,
     "scripts": {
-        "build": "pnpm exec nx run-many --target=build",
+        "build": "pnpm exec nx run-many --target=build --exclude=test-vite-config",
         "test": "pnpm exec nx run-many --target=test"
     },
     "devDependencies": {

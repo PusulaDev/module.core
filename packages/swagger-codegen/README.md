@@ -76,3 +76,9 @@ generateMultiple({
 
 Check the [@pusula/module.core](https://github.com/PusulaDev/module.core) documentation for more details.
 For more customization options check the documentation of [swagger-typescript-api](https://github.com/acacode/swagger-typescript-api)
+
+## License
+
+Copyright (c) 2026 Pusula.
+
+Licensed under the [MIT License](./LICENSE).

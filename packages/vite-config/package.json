@@ -1,6 +1,7 @@
 {
     "name": "@pusula/module.core-vite-config",
-    "version": "1.2.1",
+    "license": "MIT",
+    "version": "1.2.2",
     "source": "./src/index.ts",
     "main": "./dist/index.cjs",
     "type": "module",
