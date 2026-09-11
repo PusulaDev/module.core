@@ -44,7 +44,7 @@ const getDefaultOptions = () => ({
 describe("Generate", () => {
 
     afterEach(() => {
-        vi.clearAllMocks()
+        vi.resetAllMocks()
     })
 
     it("should call generateApi", async () => {
@@ -58,13 +58,13 @@ describe("Generate", () => {
         })
     })
 
-    it('should call generateApi 3 times for generateMultiple', async () => {
-        (generateApi as any).mockResolvedValueOnce({ files: [{ name: 'http-client.ts' }] });
-        (generateApi as any).mockResolvedValueOnce({ files: [{ name: 'http-client.ts' }] });
-        (generateApi as any).mockResolvedValueOnce({ files: [{ name: 'http-client.ts' }] });
-        (generateApi as any).mockResolvedValueOnce({ files: [{ name: 'http-client.ts' }] });
+    it('should generate four endpoints and keep only the first HTTP client', async () => {
+        (generateApi as any).mockResolvedValueOnce({ files: [{ fileName: 'http-client', fileExtension: '.ts' }] });
+        (generateApi as any).mockResolvedValueOnce({ files: [{ fileName: 'http-client', fileExtension: '.ts' }] });
+        (generateApi as any).mockResolvedValueOnce({ files: [{ fileName: 'http-client', fileExtension: '.ts' }] });
+        (generateApi as any).mockResolvedValueOnce({ files: [{ fileName: 'http-client', fileExtension: '.ts' }] });
 
-        (fs.existsSync as any).mockResolvedValue(true);
+        vi.mocked(fs.existsSync).mockReturnValue(true);
         const options: GenerateMultipleApiOptions = {
             endpoints: [{ name: 'test', url: 'http://test.com' },
             { name: 'test1', url: 'http://test1.com' },
@@ -77,7 +77,19 @@ describe("Generate", () => {
 
 
         expect(generateApi).toHaveBeenCalledTimes(4);
-        expect(fs.rmSync).toHaveBeenCalledTimes(3);
+        expect(fs.rmSync).toHaveBeenCalledTimes(4);
+        expect(fs.rmSync).toHaveBeenNthCalledWith(1, getDefaultOptions().output, { recursive: true, force: true });
+
+        for (const [index, endpoint] of options.endpoints.slice(1).entries()) {
+            expect(fs.rmSync).toHaveBeenNthCalledWith(
+                index + 2,
+                path.resolve(getDefaultOptions().output, endpoint.name, 'http-client.ts')
+            );
+        }
+
+        expect(fs.rmSync).not.toHaveBeenCalledWith(
+            path.resolve(getDefaultOptions().output, options.endpoints[0].name, 'http-client.ts')
+        );
 
         expect(generateApi).toHaveBeenCalledWith(expect.objectContaining({
             ...getDefaultOptions(),

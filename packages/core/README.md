@@ -423,3 +423,9 @@ Utility classes for making your life easier. Some of them used by other classes 
 | IEncryptUtil     | defaultEncryptUtil  | Encrypt and decrypt data. Used by Cache utils                            |
 | IPerformanceUtil | performanceUtil     | Measure performance of code blocks. Used by measurePerformace decorator. |
 | IObserver        | Observer            | publish subscribe data.                                                  |
+
+## License
+
+Copyright (c) 2026 Pusula.
+
+Licensed under the [MIT License](./LICENSE).

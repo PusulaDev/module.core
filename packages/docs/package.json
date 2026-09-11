@@ -1,6 +1,8 @@
 {
     "name": "@pusula/module.core-docs",
+    "license": "MIT",
     "private": true,
+    "type": "module",
     "scripts": {
         "dev": "vitepress dev docs",
         "build": "vitepress build docs",
